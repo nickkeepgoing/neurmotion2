@@ -101,9 +101,28 @@ body {
 }
 .nm-demo-voice { animation: nm-demo-voice 1.4s ease-in-out infinite; }
 
-/* one-shot ring flash fired exactly on each metronome beat (keyed remount) */
-@keyframes nm-beat-ping {
-  0% { transform: scale(1); opacity: 0.45; }
-  100% { transform: scale(1.28); opacity: 0; }
+/* Metronome-synced visuals: the beat counter alternates between the -a/-b
+   class pair, which restarts the animation WITHOUT remounting the element —
+   the button keeps receiving touches and the flash fires on the same tick
+   that plays the beep. */
+@keyframes nm-beat-ring-a {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
 }
-.nm-beat-ping { animation: nm-beat-ping 0.45s ease-out forwards; }
+@keyframes nm-beat-ring-b {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+.nm-beat-ring-a { animation: nm-beat-ring-a 0.4s ease-out forwards; }
+.nm-beat-ring-b { animation: nm-beat-ring-b 0.4s ease-out forwards; }
+
+@keyframes nm-btn-pop-a {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes nm-btn-pop-b {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.nm-btn-pop-a { animation: nm-btn-pop-a 0.22s ease-out; }
+.nm-btn-pop-b { animation: nm-btn-pop-b 0.22s ease-out; }

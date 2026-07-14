@@ -71,15 +71,25 @@ export default function Countdown({
     );
   }
 
+  // light scrim so the test screen behind (tap target, spiral, …) stays
+  // visible as a preview while the user gets ready
   return (
-    <div className="fixed inset-0 z-50 bg-black/45 flex flex-col items-center justify-center gap-5 px-8" role="alert">
-      <div className="w-40 h-40 rounded-full bg-white shadow-2xl flex items-center justify-center">
-        <span className={`font-num font-black text-primary ${n === 0 ? 'text-4xl' : 'text-7xl'}`}>
+    <div className="fixed inset-0 z-50 bg-black/30 flex flex-col items-center justify-between py-10 px-8 pointer-events-none" role="alert">
+      <div className="w-32 h-32 rounded-full bg-white shadow-2xl flex items-center justify-center mt-2">
+        <span className={`font-num font-black text-primary ${n === 0 ? 'text-3xl' : 'text-6xl'}`}>
           {n === 0 ? S.countdownGo : n}
         </span>
       </div>
-      <span className="text-2xl font-extrabold text-white">{n > 0 ? S.countdownReady : ''}</span>
-      {hint && <span className="text-xl font-bold text-white/90 text-center leading-relaxed">{hint}</span>}
+      <div className="flex flex-col items-center gap-2">
+        {n > 0 && (
+          <span className="text-2xl font-extrabold text-white [text-shadow:0_1px_8px_rgba(0,0,0,.7)]">{S.countdownReady}</span>
+        )}
+        {hint && (
+          <span className="text-xl font-bold text-white text-center leading-relaxed [text-shadow:0_1px_8px_rgba(0,0,0,.7)]">
+            {hint}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

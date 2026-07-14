@@ -101,50 +101,65 @@ export default function TappingTest() {
       stepLabel={S.stepLabel(2)}
       title={S.tests.tapping.title}
       instruction={S.tests.tapping.instruction}
-      demo={phase !== 'running' ? <TestDemo test="tapping" /> : undefined}
+      demo={phase === 'ready' ? <TestDemo test="tapping" /> : undefined}
     >
-      {phase === 'running' && (
+      {(phase === 'running' || phase === 'countdown') && (
         <>
           {/* Rhythm dots */}
           <div className="flex items-center justify-center gap-3.5 mt-5">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className={`w-3 h-3 rounded-full transition-colors ${beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`} />
+              <div
+                key={i}
+                className={`w-3 h-3 rounded-full transition-colors ${phase === 'running' && beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`}
+              />
             ))}
             <span className="text-[15px] font-semibold text-muted ml-1.5">{S.rhythm}</span>
           </div>
 
-          {/* Tap target */}
+          {/* Tap target — visible during the countdown too, so the user sees
+              exactly where to tap before the test starts */}
           <div className="flex-1 flex items-center justify-center py-6">
             <div className="relative w-[230px] h-[230px] flex items-center justify-center">
-              {/* key={beat} remounts the ring so it flashes exactly on each metronome tick */}
-              <div key={beat} className="absolute inset-0 rounded-full bg-primary nm-beat-ping" />
+              {phase === 'running' && (
+                <div className={`absolute inset-0 rounded-full bg-primary ${beat % 2 === 0 ? 'nm-beat-ring-a' : 'nm-beat-ring-b'}`} />
+              )}
               <button
                 onPointerDown={tap}
+                disabled={phase !== 'running'}
                 aria-label="แตะ"
-                className="relative w-[190px] h-[190px] rounded-full border-0 cursor-pointer flex flex-col items-center justify-center gap-1 select-none active:scale-95 transition-transform touch-none-important
-                  bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]"
+                className={`relative w-[190px] h-[190px] rounded-full border-0 cursor-pointer flex flex-col items-center justify-center gap-1 select-none active:scale-95 transition-transform touch-none-important
+                  bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]
+                  ${phase === 'running' ? (beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b') : ''}`}
               >
                 <span className="text-3xl font-extrabold text-white">แตะ</span>
                 <span className="font-num text-[15px] font-bold text-white/85 tracking-widest">TAP</span>
               </button>
+              {/* demo hand bouncing on the target while counting down */}
+              {phase === 'countdown' && (
+                <span className="absolute text-6xl nm-demo-tap pointer-events-none" style={{ top: 6 }} aria-hidden="true">
+                  👆
+                </span>
+              )}
             </div>
           </div>
 
           {/* Live counters */}
-          <div className="flex gap-3 mb-2">
-            <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
-              <span className="font-num text-[32px] font-black text-primary leading-none">{count}</span>
-              <span className="text-[15px] font-bold text-muted">{S.taps}</span>
+          {phase === 'running' && (
+            <div className="flex gap-3 mb-2">
+              <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
+                <span className="font-num text-[32px] font-black text-primary leading-none">{count}</span>
+                <span className="text-[15px] font-bold text-muted">{S.taps}</span>
+              </div>
+              <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
+                <span className="font-num text-[32px] font-black text-secondary leading-none">{secondsLeft}</span>
+                <span className="text-[15px] font-bold text-muted">{S.secondsLeft}</span>
+              </div>
             </div>
-            <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
-              <span className="font-num text-[32px] font-black text-secondary leading-none">{secondsLeft}</span>
-              <span className="text-[15px] font-bold text-muted">{S.secondsLeft}</span>
-            </div>
-          </div>
+          )}
         </>
       )}
 
-      {phase !== 'running' && (
+      {phase === 'ready' && (
         <>
           {/* compact ready view: the start button stays above the fold */}
           <div className="flex-1" />
