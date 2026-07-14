@@ -230,6 +230,9 @@ export default function FacialTest() {
             </svg>
           )}
 
+          {/* countdown over the live camera so the user can position & smile */}
+          {phase === 'countdown' && <Countdown inline hint={S.countdownHints.facial} onDone={() => beginScanRef.current()} />}
+
           {phase === 'scanning' && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-black/45 rounded-full px-4.5 py-2.5">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -267,8 +270,6 @@ export default function FacialTest() {
           {S.skip}
         </Button>
       )}
-
-      {phase === 'countdown' && <Countdown onDone={() => beginScanRef.current()} />}
     </TestShell>
   );
 }

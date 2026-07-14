@@ -116,7 +116,8 @@ export default function TappingTest() {
           {/* Tap target */}
           <div className="flex-1 flex items-center justify-center py-6">
             <div className="relative w-[230px] h-[230px] flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-primary opacity-35 nm-pulse-fast" />
+              {/* key={beat} remounts the ring so it flashes exactly on each metronome tick */}
+              <div key={beat} className="absolute inset-0 rounded-full bg-primary nm-beat-ping" />
               <button
                 onPointerDown={tap}
                 aria-label="แตะ"
@@ -153,7 +154,7 @@ export default function TappingTest() {
         </>
       )}
 
-      {phase === 'countdown' && <Countdown onDone={begin} />}
+      {phase === 'countdown' && <Countdown hint={S.countdownHints.tapping} onDone={begin} />}
     </TestShell>
   );
 }

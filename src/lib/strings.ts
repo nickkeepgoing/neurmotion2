@@ -127,6 +127,13 @@ export const S = {
   replayVoice: 'ฟังคำแนะนำอีกครั้ง',
   countdownReady: 'เตรียมตัว…',
   countdownGo: 'เริ่ม!',
+  countdownHints: {
+    spiral: 'วางนิ้วรอที่จุดสีส้มตรงกลาง',
+    tapping: 'เตรียมนิ้วไว้เหนือปุ่ม แตะตามเสียง',
+    tremor: 'วางมือถือบนฝ่ามือ ถือนิ่ง ๆ',
+    facial: 'ยกมือถือให้เห็นใบหน้า ยิ้มเตรียมไว้เลย',
+    voice: 'หายใจเข้า เตรียมออกเสียง "อาาา"',
+  } as Record<string, string>,
 
   result: {
     badge: 'ผลการคัดกรองเบื้องต้น',

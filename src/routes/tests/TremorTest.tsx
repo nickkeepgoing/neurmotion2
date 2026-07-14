@@ -202,7 +202,7 @@ export default function TremorTest() {
         </Button>
       )}
 
-      {phase === 'countdown' && <Countdown onDone={begin} />}
+      {phase === 'countdown' && <Countdown hint={S.countdownHints.tremor} onDone={begin} />}
     </TestShell>
   );
 }

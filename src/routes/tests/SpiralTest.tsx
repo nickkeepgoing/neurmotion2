@@ -208,7 +208,7 @@ export default function SpiralTest() {
         </div>
       )}
 
-      {phase === 'countdown' && <Countdown onDone={begin} />}
+      {phase === 'countdown' && <Countdown hint={S.countdownHints.spiral} onDone={begin} />}
     </TestShell>
   );
 }
