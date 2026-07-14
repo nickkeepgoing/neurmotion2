@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&amp;family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f0eee9;font-family:'Noto Sans Thai','Nunito',system-ui,sans-serif}
+a{color:#1B6CA8;text-decoration:none}
+a:hover{color:#E8762C;text-decoration:underline}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+@keyframes nm-pulse{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.18);opacity:0}}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t9">
+  <div class="dv-thd"><a class="dv-tid" href="#t9">9</a><span class="dv-tname">Admin dashboard — desktop &amp; phone</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="9a">
+      <div class="dv-olabel"><a class="dv-oid" href="#9a">9a</a>Desktop — overview + high-risk table + detail drawer</div>
+      <div style="width:1440px;background:#F4F5F7;border-radius:12px;border:1px solid rgba(0,0,0,.08);box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;display:flex;font-family:'Noto Sans Thai',sans-serif" data-screen-label="Admin — Desktop Overview">
+
+        <!-- Sidebar -->
+        <aside style="flex:none;width:232px;background:#FFFFFF;border-right:1px solid #E8EAED;display:flex;flex-direction:column;padding:20px 14px;box-sizing:border-box;gap:4px">
+          <div style="display:flex;align-items:center;gap:10px;padding:4px 10px 18px">
+            <div style="flex:none;width:36px;height:36px;border-radius:10px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 13 h5 l2-4 3 7 2.5-5 1.5 2 h4" stroke="#E8762C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <span style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:#233A4D;line-height:1.1">NeuroMotion&nbsp;AI</span>
+              <span style="font-size:12px;font-weight:700;color:#8A97A3;letter-spacing:.5px">ADMIN</span>
+            </div>
+          </div>
+          <a href="#9a" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;background:#E3EEF6;color:#1B6CA8;font-size:15px;font-weight:700;text-decoration:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="13" y="3" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="3" y="13" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="13" y="13" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect></svg>
+            ภาพรวม
+          </a>
+          <a href="#9a" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#5A6B7A;font-size:15px;font-weight:600;text-decoration:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#5A6B7A" stroke-width="2"></circle><path d="M2.5 20c0-3 3-4.8 6.5-4.8s6.5 1.8 6.5 4.8M16 5a3.5 3.5 0 0 1 0 6.5M21.5 20c0-2.6-2-4.2-4.5-4.7" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round"></path></svg>
+            ผู้ใช้ / ผู้ป่วย
+          </a>
+          <a href="#9a" style="display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border-radius:10px;color:#5A6B7A;font-size:15px;font-weight:600;text-decoration:none">
+            <span style="display:flex;align-items:center;gap:12px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3l9-16z" stroke="#5A6B7A" stroke-width="2" stroke-linejoin="round"></path><path d="M12 10v4M12 17v.1" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round"></path></svg>
+              แจ้งเตือนความเสี่ยงสูง
+            </span>
+            <span style="font-size:12px;font-weight:800;color:#FFFFFF;background:#D64545;border-radius:999px;padding:2px 8px">7</span>
+          </a>
+          <a href="#9a" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#5A6B7A;font-size:15px;font-weight:600;text-decoration:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round"></path></svg>
+            รายงาน / วิเคราะห์
+          </a>
+          <a href="#9a" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#5A6B7A;font-size:15px;font-weight:600;text-decoration:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z" stroke="#5A6B7A" stroke-width="2" stroke-linejoin="round"></path></svg>
+            ความยินยอม &amp; ข้อมูล
+          </a>
+          <a href="#9a" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#5A6B7A;font-size:15px;font-weight:600;text-decoration:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#5A6B7A" stroke-width="2"></circle><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.8-1.6L13.2 2h-2.4l-.5 2.4a7 7 0 0 0-2.8 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.8 1.6l.5 2.4h2.4l.5-2.4a7 7 0 0 0 2.8-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke="#5A6B7A" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+            ตั้งค่า
+          </a>
+          <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 10px;border-top:1px solid #E8EAED">
+            <div style="flex:none;width:36px;height:36px;border-radius:50%;background:#E3EEF6;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#1B6CA8">พญ</div>
+            <div style="display:flex;flex-direction:column;min-width:0">
+              <span style="font-size:14px;font-weight:700;color:#233A4D;white-space:nowrap">พญ. อรทัย ว.</span>
+              <span style="font-size:12px;font-weight:600;color:#8A97A3">รพ. ศิริราช</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <!-- Top bar -->
+          <div style="display:flex;align-items:center;gap:14px;background:#FFFFFF;border-bottom:1px solid #E8EAED;padding:14px 24px">
+            <h1 style="margin:0;font-size:20px;font-weight:800;color:#233A4D">ภาพรวม</h1>
+            <div style="display:flex;align-items:center;gap:8px;background:#F4F5F7;border-radius:10px;padding:9px 14px;width:300px;margin-left:16px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="7" stroke="#8A97A3" stroke-width="2"></circle><path d="M16 16l5 5" stroke="#8A97A3" stroke-width="2" stroke-linecap="round"></path></svg>
+              <span style="font-size:14px;font-weight:500;color:#8A97A3">ค้นหาผู้ใช้ รหัส หรือรายงาน…</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;border:1px solid #E0E3E7;border-radius:10px;padding:9px 14px;margin-left:auto">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="#5A6B7A" stroke-width="2"></rect><path d="M8 3v4M16 3v4M3 10h18" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round"></path></svg>
+              <span style="font-size:14px;font-weight:600;color:#5A6B7A;white-space:nowrap">30 วันล่าสุด</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#5A6B7A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <div style="position:relative;flex:none;width:40px;height:40px;border-radius:10px;border:1px solid #E0E3E7;display:flex;align-items:center;justify-content:center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9zM10 20a2.2 2.2 0 0 0 4 0" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              <span style="position:absolute;top:-5px;right:-5px;font-size:11px;font-weight:800;color:#FFFFFF;background:#D64545;border-radius:999px;padding:1px 6px">3</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px;padding:20px 24px 24px;box-sizing:border-box">
+            <!-- KPI cards -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:#8A97A3">ผู้ใช้ลงทะเบียนทั้งหมด</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:#233A4D;line-height:1">4,382</span>
+                <span style="font-size:13px;font-weight:700;color:#256B43">▲ 8.2% จากเดือนก่อน</span>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:#8A97A3">การคัดกรองวันนี้ / สัปดาห์นี้</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:#233A4D;line-height:1">312 <span style="font-size:17px;font-weight:800;color:#8A97A3">/ 1,905</span></span>
+                <span style="font-size:13px;font-weight:700;color:#256B43">▲ 4.6% จากสัปดาห์ก่อน</span>
+              </div>
+              <div style="background:#FFF7F5;border:1px solid #F2D2CC;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:#B23A3A">เคสความเสี่ยงสูง (ต้องติดตาม)</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:#B23A3A;line-height:1">7</span>
+                <span style="font-size:13px;font-weight:700;color:#B23A3A">+2 เคสใหม่วันนี้</span>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:13px;font-weight:700;color:#8A97A3">คะแนนเสี่ยงเฉลี่ย</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:#233A4D;line-height:1">0.23</span>
+                <span style="font-size:13px;font-weight:700;color:#256B43">▼ 0.02 แนวโน้มลดลง (ดี)</span>
+              </div>
+            </div>
+
+            <!-- Charts row -->
+            <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:14px">
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:15px;font-weight:800;color:#233A4D">ปริมาณการคัดกรอง &amp; คะแนนเสี่ยงเฉลี่ย</span>
+                  <div style="display:flex;gap:12px">
+                    <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#5A6B7A"><span style="width:9px;height:9px;border-radius:50%;background:#1B6CA8"></span>ปริมาณ</span>
+                    <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#5A6B7A"><span style="width:9px;height:9px;border-radius:50%;background:#E8762C"></span>คะแนนเสี่ยง</span>
+                  </div>
+                </div>
+                <svg width="100%" height="150" viewBox="0 0 420 150" preserveAspectRatio="none" style="margin-top:8px">
+                  <line x1="0" y1="30" x2="420" y2="30" stroke="#F0F1F3" stroke-width="1"></line>
+                  <line x1="0" y1="70" x2="420" y2="70" stroke="#F0F1F3" stroke-width="1"></line>
+                  <line x1="0" y1="110" x2="420" y2="110" stroke="#F0F1F3" stroke-width="1"></line>
+                  <path d="M10 105 L70 92 L130 98 L190 74 L250 80 L310 55 L370 62 L410 44" stroke="#1B6CA8" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M10 88 L70 92 L130 86 L190 95 L250 90 L310 99 L370 96 L410 103" stroke="#E8762C" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 0"></path>
+                </svg>
+                <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#8A97A3;padding:2px 4px 0"><span>สัปดาห์ 1</span><span>สัปดาห์ 2</span><span>สัปดาห์ 3</span><span>สัปดาห์ 4</span></div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column">
+                <span style="font-size:15px;font-weight:800;color:#233A4D">สัดส่วนระดับความเสี่ยง</span>
+                <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px">
+                  <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="46" stroke="#2E9E5B" stroke-width="20" fill="none" stroke-dasharray="219 289" transform="rotate(-90 60 60)"></circle>
+                    <circle cx="60" cy="60" r="46" stroke="#F1C232" stroke-width="20" fill="none" stroke-dasharray="52 289" stroke-dashoffset="-219" transform="rotate(-90 60 60)"></circle>
+                    <circle cx="60" cy="60" r="46" stroke="#D64545" stroke-width="20" fill="none" stroke-dasharray="18 289" stroke-dashoffset="-271" transform="rotate(-90 60 60)"></circle>
+                    <text x="60" y="57" text-anchor="middle" font-family="Nunito" font-size="22" font-weight="900" fill="#233A4D">4.4k</text>
+                    <text x="60" y="74" text-anchor="middle" font-family="Noto Sans Thai" font-size="11" font-weight="600" fill="#8A97A3">ผู้ใช้</text>
+                  </svg>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <span style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#233A4D"><span style="width:10px;height:10px;border-radius:3px;background:#2E9E5B"></span>ต่ำ 76%</span>
+                    <span style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#233A4D"><span style="width:10px;height:10px;border-radius:3px;background:#F1C232"></span>ปานกลาง 18%</span>
+                    <span style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#233A4D"><span style="width:10px;height:10px;border-radius:3px;background:#D64545"></span>สูง 6%</span>
+                  </div>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:15px;font-weight:800;color:#233A4D">การเข้าร่วมรายแบบทดสอบ</span>
+                <div style="display:flex;flex-direction:column;gap:9px;margin-top:2px">
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:none;width:74px;font-size:13px;font-weight:600;color:#5A6B7A">วาดก้นหอย</span><div style="flex:1;height:10px;background:#F0F1F3;border-radius:999px;overflow:hidden"><div style="width:92%;height:100%;background:#1B6CA8;border-radius:999px"></div></div><span style="font-size:12px;font-weight:700;color:#233A4D">92%</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:none;width:74px;font-size:13px;font-weight:600;color:#5A6B7A">เคาะนิ้ว</span><div style="flex:1;height:10px;background:#F0F1F3;border-radius:999px;overflow:hidden"><div style="width:88%;height:100%;background:#1B6CA8;border-radius:999px"></div></div><span style="font-size:12px;font-weight:700;color:#233A4D">88%</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:none;width:74px;font-size:13px;font-weight:600;color:#5A6B7A">ความนิ่งมือ</span><div style="flex:1;height:10px;background:#F0F1F3;border-radius:999px;overflow:hidden"><div style="width:81%;height:100%;background:#1B6CA8;border-radius:999px"></div></div><span style="font-size:12px;font-weight:700;color:#233A4D">81%</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:none;width:74px;font-size:13px;font-weight:600;color:#5A6B7A">สแกนใบหน้า</span><div style="flex:1;height:10px;background:#F0F1F3;border-radius:999px;overflow:hidden"><div style="width:64%;height:100%;background:#E8762C;border-radius:999px"></div></div><span style="font-size:12px;font-weight:700;color:#233A4D">64%</span></div>
+                  <div style="display:flex;align-items:center;gap:10px"><span style="flex:none;width:74px;font-size:13px;font-weight:600;color:#5A6B7A">เสียงพูด</span><div style="flex:1;height:10px;background:#F0F1F3;border-radius:999px;overflow:hidden"><div style="width:58%;height:100%;background:#E8762C;border-radius:999px"></div></div><span style="font-size:12px;font-weight:700;color:#233A4D">58%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- High-risk table -->
+            <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;overflow:hidden">
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #E8EAED">
+                <span style="font-size:16px;font-weight:800;color:#233A4D">ผู้ใช้ความเสี่ยงสูง — ต้องติดตาม</span>
+                <span style="font-size:12px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:4px 10px">7 เคส</span>
+                <div style="display:flex;gap:8px;margin-left:auto">
+                  <span style="font-size:13px;font-weight:700;color:#1B6CA8;background:#E3EEF6;border-radius:8px;padding:7px 12px">ทั้งหมด</span>
+                  <span style="font-size:13px;font-weight:600;color:#5A6B7A;border:1px solid #E0E3E7;border-radius:8px;padding:7px 12px">ยังไม่ติดตาม</span>
+                  <span style="font-size:13px;font-weight:600;color:#5A6B7A;border:1px solid #E0E3E7;border-radius:8px;padding:7px 12px">ติดตามแล้ว</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr .6fr .9fr 1fr .7fr 1fr;gap:0;padding:10px 18px;background:#FAFBFC;border-bottom:1px solid #E8EAED;font-size:12.5px;font-weight:800;color:#8A97A3">
+                <span>รหัส (ไม่ระบุตัวตน) ↓</span><span>อายุ</span><span>ระดับเสี่ยงล่าสุด</span><span>ทดสอบล่าสุด</span><span>แนวโน้ม</span><span style="text-align:right">การติดตาม</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr .6fr .9fr 1fr .7fr 1fr;align-items:center;padding:12px 18px;border-bottom:1px solid #F0F1F3;background:#FFF9F8">
+                <span style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#233A4D">NM-2841</span><span style="font-size:14px;font-weight:600;color:#5A6B7A">72</span>
+                <span><span style="font-size:12.5px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:4px 12px">● สูง</span></span>
+                <span style="font-size:14px;font-weight:600;color:#5A6B7A">วันนี้ 09:12</span><span style="font-size:14px;font-weight:800;color:#B23A3A">▲ แย่ลง</span>
+                <span style="text-align:right"><button style="border:none;border-radius:8px;background:#1B6CA8;color:#fff;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ดู / ติดตาม</button></span>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr .6fr .9fr 1fr .7fr 1fr;align-items:center;padding:12px 18px;border-bottom:1px solid #F0F1F3;background:#FFF9F8">
+                <span style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#233A4D">NM-1907</span><span style="font-size:14px;font-weight:600;color:#5A6B7A">68</span>
+                <span><span style="font-size:12.5px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:4px 12px">● สูง</span></span>
+                <span style="font-size:14px;font-weight:600;color:#5A6B7A">วันนี้ 08:40</span><span style="font-size:14px;font-weight:800;color:#8A97A3">— คงที่</span>
+                <span style="text-align:right"><button style="border:none;border-radius:8px;background:#1B6CA8;color:#fff;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ดู / ติดตาม</button></span>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr .6fr .9fr 1fr .7fr 1fr;align-items:center;padding:12px 18px;border-bottom:1px solid #F0F1F3">
+                <span style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#233A4D">NM-3155</span><span style="font-size:14px;font-weight:600;color:#5A6B7A">75</span>
+                <span><span style="font-size:12.5px;font-weight:800;color:#9C7A10;background:#FBF3D9;border-radius:999px;padding:4px 12px">● ปานกลาง</span></span>
+                <span style="font-size:14px;font-weight:600;color:#5A6B7A">เมื่อวาน 17:03</span><span style="font-size:14px;font-weight:800;color:#B23A3A">▲ แย่ลง</span>
+                <span style="text-align:right"><button style="border:1px solid #D8DEE4;border-radius:8px;background:#FFFFFF;color:#1B6CA8;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ดู / ติดตาม</button></span>
+              </div>
+              <div style="display:grid;grid-template-columns:1.1fr .6fr .9fr 1fr .7fr 1fr;align-items:center;padding:12px 18px;border-bottom:1px solid #F0F1F3">
+                <span style="font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#233A4D">NM-0562</span><span style="font-size:14px;font-weight:600;color:#5A6B7A">81</span>
+                <span><span style="font-size:12.5px;font-weight:800;color:#9C7A10;background:#FBF3D9;border-radius:999px;padding:4px 12px">● ปานกลาง</span></span>
+                <span style="font-size:14px;font-weight:600;color:#5A6B7A">2 วันก่อน</span><span style="font-size:14px;font-weight:800;color:#256B43">▼ ดีขึ้น</span>
+                <span style="text-align:right"><button style="border:1px solid #D8DEE4;border-radius:8px;background:#FFFFFF;color:#1B6CA8;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ดู / ติดตาม</button></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:12px 18px;background:#FAFBFC">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z" stroke="#8A97A3" stroke-width="2" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12.5px;font-weight:600;color:#8A97A3">ข้อมูลแสดงแบบไม่ระบุตัวตนตาม PDPA — ผลทั้งหมดเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย</span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Detail drawer -->
+        <aside style="flex:none;width:320px;background:#FFFFFF;border-left:1px solid #E8EAED;display:flex;flex-direction:column;padding:20px;box-sizing:border-box;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:16px;font-weight:800;color:#233A4D">รายละเอียดผู้ใช้</span>
+            <div style="width:30px;height:30px;border-radius:8px;border:1px solid #E0E3E7;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#5A6B7A" stroke-width="2.4" stroke-linecap="round"></path></svg></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:none;width:48px;height:48px;border-radius:50%;background:#FBEAEA;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;color:#B23A3A">NM</div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#233A4D">NM-2841</span>
+              <span style="font-size:13px;font-weight:600;color:#8A97A3">อายุ 72 · เข้าร่วม 84 วัน</span>
+            </div>
+            <span style="margin-left:auto;font-size:12px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:4px 10px">สูง</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:13.5px;font-weight:800;color:#8A97A3">คะแนนเสี่ยงย้อนหลัง 30 วัน</span>
+            <svg width="100%" height="80" viewBox="0 0 280 80" preserveAspectRatio="none">
+              <line x1="0" y1="20" x2="280" y2="20" stroke="#F0F1F3" stroke-width="1"></line>
+              <line x1="0" y1="50" x2="280" y2="50" stroke="#F0F1F3" stroke-width="1"></line>
+              <path d="M8 62 L50 58 L92 60 L134 48 L176 44 L218 30 L270 18" stroke="#D64545" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+              <circle cx="270" cy="18" r="5" fill="#D64545" stroke="#fff" stroke-width="2"></circle>
+            </svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:13.5px;font-weight:800;color:#8A97A3">ผลรายแบบทดสอบล่าสุด</span>
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #F0F1F3;border-radius:10px;padding:10px 12px"><span style="width:10px;height:10px;border-radius:50%;background:#D64545;flex:none"></span><span style="font-size:14px;font-weight:700;color:#233A4D">วาดก้นหอย</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#B23A3A">ควรตรวจเพิ่ม</span></div>
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #F0F1F3;border-radius:10px;padding:10px 12px"><span style="width:10px;height:10px;border-radius:50%;background:#D64545;flex:none"></span><span style="font-size:14px;font-weight:700;color:#233A4D">ความนิ่งของมือ</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#B23A3A">ควรตรวจเพิ่ม</span></div>
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #F0F1F3;border-radius:10px;padding:10px 12px"><span style="width:10px;height:10px;border-radius:50%;background:#F1C232;flex:none"></span><span style="font-size:14px;font-weight:700;color:#233A4D">เคาะนิ้ว</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#9C7A10">เฝ้าดู</span></div>
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #F0F1F3;border-radius:10px;padding:10px 12px"><span style="width:10px;height:10px;border-radius:50%;background:#2E9E5B;flex:none"></span><span style="font-size:14px;font-weight:700;color:#233A4D">สแกนใบหน้า</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#256B43">ปกติ</span></div>
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid #F0F1F3;border-radius:10px;padding:10px 12px"><span style="width:10px;height:10px;border-radius:50%;background:#2E9E5B;flex:none"></span><span style="font-size:14px;font-weight:700;color:#233A4D">เสียงพูด</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#256B43">ปกติ</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto">
+            <span style="font-size:13.5px;font-weight:800;color:#8A97A3">สถานะการติดตาม</span>
+            <div style="display:flex;align-items:center;gap:8px;background:#FBF3D9;border-radius:10px;padding:10px 12px">
+              <span style="width:9px;height:9px;border-radius:50%;background:#F1C232;flex:none"></span>
+              <span style="font-size:13.5px;font-weight:700;color:#9C7A10">รอการติดต่อ — ยังไม่มีผู้รับผิดชอบ</span>
+            </div>
+            <button style="width:100%;height:44px;border:none;border-radius:10px;background:#1B6CA8;color:#fff;font-family:'Noto Sans Thai',sans-serif;font-size:15px;font-weight:800;cursor:pointer" style-hover="background:#155A8E">รับเคสนี้ / นัดติดตาม</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="9b">
+      <div class="dv-olabel"><a class="dv-oid" href="#9b">9b</a>Phone — alerts-first condensed view</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Admin — Phone" style="display:flex;flex-direction:column;height:100%;background:#F4F5F7;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif">
+          <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:18px 18px 10px">
+
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;flex-direction:column">
+                <span style="font-size:20px;font-weight:800;color:#233A4D">ภาพรวม</span>
+                <span style="font-size:13px;font-weight:600;color:#8A97A3">รพ. ศิริราช · 30 วันล่าสุด</span>
+              </div>
+              <div style="position:relative;width:42px;height:42px;border-radius:12px;background:#FFFFFF;border:1px solid #E0E3E7;display:flex;align-items:center;justify-content:center">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9zM10 20a2.2 2.2 0 0 0 4 0" stroke="#5A6B7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="position:absolute;top:-5px;right:-5px;font-size:11px;font-weight:800;color:#fff;background:#D64545;border-radius:999px;padding:1px 6px">3</span>
+              </div>
+            </div>
+
+            <!-- KPI stacked -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:12.5px;font-weight:700;color:#8A97A3">ผู้ใช้ทั้งหมด</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#233A4D;line-height:1">4,382</span>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:12.5px;font-weight:700;color:#8A97A3">คัดกรองวันนี้</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#233A4D;line-height:1">312</span>
+              </div>
+              <div style="grid-column:1 / -1;background:#FFF7F5;border:1px solid #F2D2CC;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px">
+                <div style="flex:none;width:42px;height:42px;border-radius:12px;background:#FBEAEA;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3l9-16z" stroke="#B23A3A" stroke-width="2" stroke-linejoin="round"></path><path d="M12 10v4M12 17v.1" stroke="#B23A3A" stroke-width="2" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="display:flex;flex-direction:column">
+                  <span style="font-size:15px;font-weight:800;color:#B23A3A">7 เคสความเสี่ยงสูง</span>
+                  <span style="font-size:13px;font-weight:600;color:#8A97A3">+2 เคสใหม่วันนี้ · ต้องติดตาม</span>
+                </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="margin-left:auto"><path d="M9 5l7 7-7 7" stroke="#B23A3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </div>
+            </div>
+
+            <!-- High-risk cards -->
+            <span style="font-size:15px;font-weight:800;color:#233A4D;margin-top:2px">ต้องติดตามก่อน</span>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:-6px">
+              <div style="background:#FFFFFF;border:1px solid #F2D2CC;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:#233A4D">NM-2841</span>
+                  <span style="font-size:12px;font-weight:600;color:#8A97A3">อายุ 72</span>
+                  <span style="margin-left:auto;font-size:12px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:3px 10px">● สูง</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;font-weight:700;color:#B23A3A">▲ แย่ลง</span>
+                  <span style="font-size:13px;font-weight:600;color:#8A97A3">· ทดสอบล่าสุด วันนี้ 09:12</span>
+                  <button style="margin-left:auto;border:none;border-radius:8px;background:#1B6CA8;color:#fff;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ติดตาม</button>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #F2D2CC;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:#233A4D">NM-1907</span>
+                  <span style="font-size:12px;font-weight:600;color:#8A97A3">อายุ 68</span>
+                  <span style="margin-left:auto;font-size:12px;font-weight:800;color:#B23A3A;background:#FBEAEA;border-radius:999px;padding:3px 10px">● สูง</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;font-weight:700;color:#8A97A3">— คงที่</span>
+                  <span style="font-size:13px;font-weight:600;color:#8A97A3">· วันนี้ 08:40</span>
+                  <button style="margin-left:auto;border:none;border-radius:8px;background:#1B6CA8;color:#fff;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ติดตาม</button>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E8EAED;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:#233A4D">NM-3155</span>
+                  <span style="font-size:12px;font-weight:600;color:#8A97A3">อายุ 75</span>
+                  <span style="margin-left:auto;font-size:12px;font-weight:800;color:#9C7A10;background:#FBF3D9;border-radius:999px;padding:3px 10px">● ปานกลาง</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;font-weight:700;color:#B23A3A">▲ แย่ลง</span>
+                  <span style="font-size:13px;font-weight:600;color:#8A97A3">· เมื่อวาน 17:03</span>
+                  <button style="margin-left:auto;border:1px solid #D8DEE4;border-radius:8px;background:#fff;color:#1B6CA8;font-family:'Noto Sans Thai',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer">ติดตาม</button>
+                </div>
+              </div>
+            </div>
+
+            <p style="margin:2px 0 8px;font-size:12px;font-weight:600;color:#8A97A3;text-align:center;line-height:1.5">ข้อมูลไม่ระบุตัวตนตาม PDPA · ผลเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย</p>
+          </div>
+
+          <!-- Bottom nav -->
+          <div style="flex:none;display:flex;background:#FFFFFF;border-top:1px solid #E8EAED;padding:8px 6px 10px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="13" y="3" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="3" y="13" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect><rect x="13" y="13" width="8" height="8" rx="2" stroke="#1B6CA8" stroke-width="2"></rect></svg>
+              <span style="font-size:12px;font-weight:800;color:#1B6CA8">ภาพรวม</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="#8A97A3" stroke-width="2"></circle><path d="M2.5 20c0-3 3-4.8 6.5-4.8s6.5 1.8 6.5 4.8M16 5a3.5 3.5 0 0 1 0 6.5M21.5 20c0-2.6-2-4.2-4.5-4.7" stroke="#8A97A3" stroke-width="2" stroke-linecap="round"></path></svg>
+              <span style="font-size:12px;font-weight:600;color:#8A97A3">ผู้ใช้</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3l9-16z" stroke="#8A97A3" stroke-width="2" stroke-linejoin="round"></path><path d="M12 10v4M12 17v.1" stroke="#8A97A3" stroke-width="2" stroke-linecap="round"></path></svg>
+              <span style="font-size:12px;font-weight:600;color:#8A97A3">แจ้งเตือน</span>
+              <span style="position:absolute;top:-4px;right:24px;font-size:10px;font-weight:800;color:#fff;background:#D64545;border-radius:999px;padding:1px 6px">7</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.8" fill="#8A97A3"></circle><circle cx="12" cy="12" r="1.8" fill="#8A97A3"></circle><circle cx="19" cy="12" r="1.8" fill="#8A97A3"></circle></svg>
+              <span style="font-size:12px;font-weight:600;color:#8A97A3">เพิ่มเติม</span>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the Users list page" · "make the drawer a modal overlay instead" · "design the web landing page (Prompt 11)"</p>
+</section>
+
+<section class="dv-turn" id="t8">
+  <div class="dv-thd"><a class="dv-tid" href="#t8">8</a><span class="dv-tname">Home dashboard — Daily Quest</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="8a">
+      <div class="dv-olabel"><a class="dv-oid" href="#8a">8a</a>Dashboard — quest card + test tiles</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Home Dashboard" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif;overflow-y:auto">
+          <div style="display:flex;flex-direction:column;padding:22px 22px 32px;gap:18px">
+
+            <!-- Greeting -->
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="flex:none;width:56px;height:56px;border-radius:50%;background:#FCE3CC;display:flex;align-items:center;justify-content:center">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#E8762C" stroke-width="2.4"></circle><path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke="#E8762C" stroke-width="2.4" stroke-linecap="round"></path></svg>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:24px;font-weight:800;color:#233A4D">สวัสดีค่ะ คุณสมชาย</span>
+                <span style="font-size:16px;font-weight:600;color:#8A97A3">วันจันทร์ที่ 13 ก.ค. 2569</span>
+              </div>
+            </div>
+
+            <!-- Daily Quest card -->
+            <div style="background:linear-gradient(135deg,#E8762C,#D9681F);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 22px rgba(232,118,44,.32)">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:20px;font-weight:800;color:#FFFFFF">ภารกิจวันนี้</span>
+                <span style="font-size:16px;font-weight:800;color:#FFFFFF;background:rgba(255,255,255,.22);border-radius:999px;padding:6px 14px">2 / 5 เสร็จแล้ว</span>
+              </div>
+              <p style="margin:0;font-size:17px;font-weight:600;color:rgba(255,255,255,.92);line-height:1.5">ทำแบบทดสอบอีก 3 รายการ เพื่อติดตามสุขภาพวันนี้ให้ครบ</p>
+              <div style="height:14px;background:rgba(255,255,255,.28);border-radius:999px;overflow:hidden">
+                <div style="width:40%;height:100%;background:#FFFFFF;border-radius:999px"></div>
+              </div>
+              <button style="align-self:flex-start;height:48px;padding:0 22px;border:none;border-radius:14px;background:#FFFFFF;color:#D9681F;font-family:'Noto Sans Thai',sans-serif;font-size:18px;font-weight:800;cursor:pointer;white-space:nowrap">ทำต่อเลย</button>
+            </div>
+
+            <!-- Test tiles -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <h2 style="margin:4px 0 0;font-size:20px;font-weight:800;color:#233A4D">แบบทดสอบ</h2>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div style="background:#FFFFFF;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 12px rgba(35,58,77,.06);border:2px solid transparent">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="width:46px;height:46px;border-radius:14px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 12 a1.5 1.5 0 0 1 1.5 1.5 a3 3 0 0 1 -3 3 a4.5 4.5 0 0 1 -4.5 -4.5 a6 6 0 0 1 6 -6 a7.5 7.5 0 0 1 7.5 7.5 a9 9 0 0 1 -9 9" stroke="#E8762C" stroke-width="2.2" stroke-linecap="round" fill="none"></path></svg>
+                    </div>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E9E5B"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </div>
+                  <span style="font-size:18px;font-weight:800;color:#233A4D">วาดก้นหอย</span>
+                  <span style="font-size:14px;font-weight:600;color:#256B43">เสร็จแล้ววันนี้</span>
+                </div>
+                <div style="background:#FFFFFF;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 12px rgba(35,58,77,.06);border:2px solid transparent">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="width:46px;height:46px;border-radius:14px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#E8762C" stroke-width="2.2"></circle><circle cx="12" cy="12" r="3" fill="#E8762C"></circle></svg>
+                    </div>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E9E5B"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </div>
+                  <span style="font-size:18px;font-weight:800;color:#233A4D">เคาะนิ้ว</span>
+                  <span style="font-size:14px;font-weight:600;color:#256B43">เสร็จแล้ววันนี้</span>
+                </div>
+                <div style="background:#FFFFFF;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 12px rgba(35,58,77,.06);border:2px solid #F0C39E">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="width:46px;height:46px;border-radius:14px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="8" y="3" width="8" height="14" rx="2.5" stroke="#E8762C" stroke-width="2.2"></rect><path d="M4 8 q1.5 -2 0 -4 M20 8 q-1.5 -2 0 -4" stroke="#E8762C" stroke-width="2" stroke-linecap="round"></path><path d="M9 17 v1.5 c0 1.8 1.2 2.8 3 2.8 s3-1 3-2.8" stroke="#E8762C" stroke-width="2.2" stroke-linecap="round"></path></svg>
+                    </div>
+                    <span style="font-size:13px;font-weight:700;color:#B27A2E;background:#FDF3E7;border-radius:999px;padding:4px 10px">รอทำ</span>
+                  </div>
+                  <span style="font-size:18px;font-weight:800;color:#233A4D">ความนิ่งของมือ</span>
+                  <span style="font-size:14px;font-weight:600;color:#8A97A3">ประมาณ 1 นาที</span>
+                </div>
+                <div style="background:#FFFFFF;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 12px rgba(35,58,77,.06);border:2px solid #F0C39E">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="width:46px;height:46px;border-radius:14px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#E8762C" stroke-width="2.2"></circle><path d="M8.5 14 q3.5 3 7 0" stroke="#E8762C" stroke-width="2.2" stroke-linecap="round"></path><circle cx="9" cy="9.5" r="1.3" fill="#E8762C"></circle><circle cx="15" cy="9.5" r="1.3" fill="#E8762C"></circle></svg>
+                    </div>
+                    <span style="font-size:13px;font-weight:700;color:#B27A2E;background:#FDF3E7;border-radius:999px;padding:4px 10px">รอทำ</span>
+                  </div>
+                  <span style="font-size:18px;font-weight:800;color:#233A4D">สแกนใบหน้า</span>
+                  <span style="font-size:14px;font-weight:600;color:#8A97A3">ประมาณ 1 นาที</span>
+                </div>
+                <div style="background:#FFFFFF;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 12px rgba(35,58,77,.06);border:2px solid #F0C39E">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="width:46px;height:46px;border-radius:14px;background:#FDEFE2;display:flex;align-items:center;justify-content:center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#E8762C" stroke-width="2.2"></rect><path d="M5 11 a7 7 0 0 0 14 0 M12 18v3" stroke="#E8762C" stroke-width="2.2" stroke-linecap="round"></path></svg>
+                    </div>
+                    <span style="font-size:13px;font-weight:700;color:#B27A2E;background:#FDF3E7;border-radius:999px;padding:4px 10px">รอทำ</span>
+                  </div>
+                  <span style="font-size:18px;font-weight:800;color:#233A4D">เสียงพูด</span>
+                  <span style="font-size:14px;font-weight:600;color:#8A97A3">ประมาณ 1 นาที</span>
+                </div>
+                <div style="background:#E3EEF6;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:center;border:2px dashed #9DBBD3;cursor:pointer">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 19 L8 12 L12 15 L17 7 L20 10" stroke="#1B6CA8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  <span style="font-size:17px;font-weight:800;color:#1B6CA8;text-align:center">ดูผลของฉัน</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weekly summary -->
+            <div style="background:#FFFFFF;border-radius:24px;box-shadow:0 4px 16px rgba(35,58,77,.07);padding:18px 20px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <h2 style="margin:0;font-size:19px;font-weight:800;color:#233A4D">สัปดาห์นี้</h2>
+                <span style="font-size:15px;font-weight:700;color:#256B43">ทำครบ 4 จาก 7 วัน</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#2E9E5B"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">จ.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#2E9E5B"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">อ.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#F1ECE3"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">พ.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#2E9E5B"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">พฤ.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#2E9E5B"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">ศ.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;background:#F1ECE3"></div><span style="font-size:13px;font-weight:600;color:#8A97A3">ส.</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:100%;height:44px;border-radius:10px;border:2px dashed #D8C9B4;box-sizing:border-box;background:#FFFFFF"></div><span style="font-size:13px;font-weight:700;color:#E8762C">อา.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "add a bottom navigation bar" · "make the quest card blue instead" · "design Prompt 10 — Consent/PDPA"</p>
+</section>
+
+<section class="dv-turn" id="t7">
+  <div class="dv-thd"><a class="dv-tid" href="#t7">7</a><span class="dv-tname">Result &amp; Care — normal &amp; high-risk states</span></div>
+  
+  <div class="dv-opts">
+    <div class="dv-opt" id="7a">
+      <div class="dv-olabel"><a class="dv-oid" href="#7a">7a</a>Normal result — reassuring green</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Result — Normal" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif;overflow-y:auto">
+          <div style="display:flex;flex-direction:column;padding:22px 22px 32px;gap:18px">
+
+            <!-- Header -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="align-self:flex-start;display:flex;align-items:center;gap:8px;background:#E9F5EC;color:#256B43;font-size:16px;font-weight:800;border-radius:999px;padding:8px 16px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E9E5B"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                ผลการคัดกรองเบื้องต้น
+              </span>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                <h1 style="margin:0;font-size:26px;font-weight:800;color:#233A4D">คุณสมชาย</h1>
+                <span style="font-size:16px;font-weight:600;color:#8A97A3;white-space:nowrap">13 ก.ค. 2569</span>
+              </div>
+            </div>
+
+            <!-- Risk gauge -->
+            <div style="background:#FFFFFF;border-radius:24px;box-shadow:0 4px 16px rgba(35,58,77,.07);padding:22px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <svg width="230" height="128" viewBox="0 0 230 128">
+                <path d="M18 118 A 97 97 0 0 1 66 34" stroke="#2E9E5B" stroke-width="18" stroke-linecap="round" fill="none"></path>
+                <path d="M80 26 A 97 97 0 0 1 150 26" stroke="#F1C232" stroke-width="18" stroke-linecap="round" fill="none" opacity=".3"></path>
+                <path d="M164 34 A 97 97 0 0 1 212 118" stroke="#D64545" stroke-width="18" stroke-linecap="round" fill="none" opacity=".25"></path>
+                <g transform="rotate(-58 115 118)"><line x1="115" y1="118" x2="115" y2="46" stroke="#233A4D" stroke-width="6" stroke-linecap="round"></line></g>
+                <circle cx="115" cy="118" r="10" fill="#233A4D"></circle>
+              </svg>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E9E5B"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="font-size:28px;font-weight:800;color:#256B43">ความเสี่ยงต่ำ</span>
+              </div>
+              <p style="margin:6px 0 0;font-size:19px;font-weight:600;color:#5A6B7A;text-align:center;line-height:1.5">ผลของคุณวันนี้อยู่ในเกณฑ์ปกติ</p>
+            </div>
+
+            <!-- Per-test breakdown -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <h2 style="margin:4px 0 0;font-size:20px;font-weight:800;color:#233A4D">ผลรายการทดสอบ</h2>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#2E9E5B"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">วาดก้นหอย</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#256B43">ปกติ</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#2E9E5B"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">เคาะนิ้ว</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#256B43">ปกติ</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#F1C232"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">ความนิ่งของมือ</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#9C7A10">เฝ้าดู</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#2E9E5B"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">การแสดงสีหน้า</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#256B43">ปกติ</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#2E9E5B"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">เสียงพูด</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#256B43">ปกติ</span>
+              </div>
+            </div>
+
+            <!-- Progress graph -->
+            <div style="background:#FFFFFF;border-radius:24px;box-shadow:0 4px 16px rgba(35,58,77,.07);padding:20px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+                <h2 style="margin:0;font-size:20px;font-weight:800;color:#233A4D">แนวโน้มของคุณ</h2>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#5A6B7A"><span style="width:10px;height:10px;border-radius:50%;background:#2E9E5B"></span>ปกติ</span>
+                  <span style="display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#5A6B7A"><span style="width:10px;height:10px;border-radius:50%;background:#D64545"></span>เสี่ยง</span>
+                </div>
+              </div>
+              <svg width="100%" height="140" viewBox="0 0 300 140" style="margin-top:10px">
+                <line x1="20" y1="20" x2="290" y2="20" stroke="#F1ECE3" stroke-width="1.5"></line>
+                <line x1="20" y1="60" x2="290" y2="60" stroke="#F1ECE3" stroke-width="1.5"></line>
+                <line x1="20" y1="100" x2="290" y2="100" stroke="#F1ECE3" stroke-width="1.5"></line>
+                <path d="M40 62 L100 74 L160 58 L220 86 L280 96" stroke="#2E9E5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+                <circle cx="40" cy="62" r="6" fill="#2E9E5B"></circle><circle cx="100" cy="74" r="6" fill="#2E9E5B"></circle><circle cx="160" cy="58" r="6" fill="#F1C232"></circle><circle cx="220" cy="86" r="6" fill="#2E9E5B"></circle><circle cx="280" cy="96" r="7" fill="#2E9E5B" stroke="#FFFFFF" stroke-width="2.5"></circle>
+                <text x="40" y="128" text-anchor="middle" font-family="Noto Sans Thai" font-size="14" font-weight="600" fill="#8A97A3">จ.</text>
+                <text x="100" y="128" text-anchor="middle" font-family="Noto Sans Thai" font-size="14" font-weight="600" fill="#8A97A3">อ.</text>
+                <text x="160" y="128" text-anchor="middle" font-family="Noto Sans Thai" font-size="14" font-weight="600" fill="#8A97A3">พ.</text>
+                <text x="220" y="128" text-anchor="middle" font-family="Noto Sans Thai" font-size="14" font-weight="600" fill="#8A97A3">พฤ.</text>
+                <text x="280" y="128" text-anchor="middle" font-family="Noto Sans Thai" font-size="14" font-weight="600" fill="#233A4D">ศ.</text>
+              </svg>
+              <p style="margin:6px 0 0;font-size:16px;font-weight:600;color:#256B43">แนวโน้มดีขึ้นตลอดสัปดาห์ เยี่ยมมาก!</p>
+            </div>
+
+            <!-- Care card -->
+            <div style="display:flex;align-items:flex-start;gap:12px;background:#FDEFE2;border-radius:20px;padding:16px 18px">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="flex:none;margin-top:2px"><path d="M12 21s-7-4.6-9.5-9C.9 8.6 2.7 5 6.2 5c2.1 0 3.4 1.1 4.3 2.4h3c.9-1.3 2.2-2.4 4.3-2.4 3.5 0 5.3 3.6 3.7 7-2.5 4.4-9.5 9-9.5 9z" stroke="#E8762C" stroke-width="2" stroke-linejoin="round" fill="#FCE3CC"></path></svg>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:18px;font-weight:800;color:#8C4A16">คำแนะนำ</span>
+                <span style="font-size:17px;font-weight:600;color:#7A5A3A;line-height:1.55">ทำแบบทดสอบต่อเนื่องทุกวัน เพื่อติดตามสุขภาพของคุณ</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <button style="width:100%;height:64px;border:none;border-radius:20px;background:#1B6CA8;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:23px;font-weight:800;box-shadow:0 6px 18px rgba(27,108,168,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="background:#155A8E">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-4-7.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path><path d="M12 8v4l3 2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path></svg>
+                ปรึกษาแพทย์ออนไลน์
+              </button>
+              <button style="width:100%;height:58px;border:2px solid #D8DEE4;border-radius:20px;background:#FFFFFF;color:#5A6B7A;font-family:'Noto Sans Thai',sans-serif;font-size:20px;font-weight:700;cursor:pointer" style-hover="border-color:#8A97A3">บันทึก / แชร์ผลของฉัน</button>
+            </div>
+
+            <p style="margin:0;font-size:14px;font-weight:500;color:#8A97A3;text-align:center;line-height:1.55">ผลนี้เป็นการคัดกรองเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัยโรค<br>โปรดปรึกษาแพทย์เพื่อการตรวจอย่างละเอียด</p>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div class="dv-opt" id="7b">
+      <div class="dv-olabel"><a class="dv-oid" href="#7b">7b</a>High-risk state — supportive, not alarming</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Result — High Risk" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif;overflow-y:auto">
+          <div style="display:flex;flex-direction:column;padding:22px 22px 32px;gap:18px">
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="align-self:flex-start;display:flex;align-items:center;gap:8px;background:#E9F5EC;color:#256B43;font-size:16px;font-weight:800;border-radius:999px;padding:8px 16px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E9E5B"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                ผลการคัดกรองเบื้องต้น
+              </span>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                <h1 style="margin:0;font-size:26px;font-weight:800;color:#233A4D">คุณสมชาย</h1>
+                <span style="font-size:16px;font-weight:600;color:#8A97A3;white-space:nowrap">13 ก.ค. 2569</span>
+              </div>
+            </div>
+
+            <!-- Risk gauge — high -->
+            <div style="background:#FFFFFF;border-radius:24px;box-shadow:0 4px 16px rgba(35,58,77,.07);padding:22px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <svg width="230" height="128" viewBox="0 0 230 128">
+                <path d="M18 118 A 97 97 0 0 1 66 34" stroke="#2E9E5B" stroke-width="18" stroke-linecap="round" fill="none" opacity=".25"></path>
+                <path d="M80 26 A 97 97 0 0 1 150 26" stroke="#F1C232" stroke-width="18" stroke-linecap="round" fill="none" opacity=".3"></path>
+                <path d="M164 34 A 97 97 0 0 1 212 118" stroke="#D64545" stroke-width="18" stroke-linecap="round" fill="none"></path>
+                <g transform="rotate(56 115 118)"><line x1="115" y1="118" x2="115" y2="46" stroke="#233A4D" stroke-width="6" stroke-linecap="round"></line></g>
+                <circle cx="115" cy="118" r="10" fill="#233A4D"></circle>
+              </svg>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#D64545"></circle><path d="M12 7v6" stroke="#fff" stroke-width="2.6" stroke-linecap="round"></path><circle cx="12" cy="16.5" r="1.5" fill="#fff"></circle></svg>
+                
+              </div><p style="margin: 6px 0 0; font-size: 18px; font-weight: 600; color: #5A6B7A; text-align: center; line-height: 1.5">พบสัญญาณบางอย่างที่ควรปรึกษาแพทย์<br>ไม่ต้องกังวล เราอยู่เคียงข้างคุณ</p>
+              
+            </div>
+
+            <!-- Per-test breakdown -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <h2 style="margin:4px 0 0;font-size:20px;font-weight:800;color:#233A4D">ผลรายการทดสอบ</h2>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#D64545"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">วาดก้นหอย</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#B23A3A">ควรตรวจเพิ่ม</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#F1C232"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">เคาะนิ้ว</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#9C7A10">เฝ้าดู</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#D64545"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">ความนิ่งของมือ</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#B23A3A">ควรตรวจเพิ่ม</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#2E9E5B"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">การแสดงสีหน้า</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#256B43">ปกติ</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(35,58,77,.05)">
+                <span style="flex:none;width:12px;height:12px;border-radius:50%;background:#F1C232"></span>
+                <span style="font-size:18px;font-weight:700;color:#233A4D">เสียงพูด</span>
+                <span style="margin-left:auto;font-size:16px;font-weight:700;color:#9C7A10">เฝ้าดู</span>
+              </div>
+            </div>
+
+            <!-- Care card -->
+            <div style="display:flex;align-items:flex-start;gap:12px;background:#E3EEF6;border-radius:20px;padding:16px 18px">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="flex:none;margin-top:2px"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z" stroke="#1B6CA8" stroke-width="2" stroke-linejoin="round" fill="#D6E7F3"></path><path d="M12 9v4M12 16.5v.1" stroke="#1B6CA8" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:18px;font-weight:800;color:#1B4E76">คำแนะนำ</span>
+                <span style="font-size:17px;font-weight:600;color:#2B5A7E;line-height:1.55">ควรพบแพทย์เพื่อตรวจอย่างละเอียด ผลนี้ยังไม่ใช่การวินิจฉัย — การตรวจแต่เนิ่น ๆ ช่วยให้ดูแลได้ดีที่สุด</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <button style="width:100%;height:64px;border:none;border-radius:20px;background:#1B6CA8;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:23px;font-weight:800;box-shadow:0 6px 18px rgba(27,108,168,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="background:#155A8E">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-4-7.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path><path d="M12 8v4l3 2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path></svg>
+                ปรึกษาแพทย์ออนไลน์
+              </button>
+              <button style="width:100%;height:58px;border:2px solid #D8DEE4;border-radius:20px;background:#FFFFFF;color:#5A6B7A;font-family:'Noto Sans Thai',sans-serif;font-size:20px;font-weight:700;cursor:pointer" style-hover="border-color:#8A97A3">บันทึก / แชร์ผลของฉัน</button>
+            </div>
+
+            <p style="margin:0;font-size:14px;font-weight:500;color:#8A97A3;text-align:center;line-height:1.55">ผลนี้เป็นการคัดกรองเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัยโรค<br>โปรดปรึกษาแพทย์เพื่อการตรวจอย่างละเอียด</p>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div><p class="dv-next">Try next: "add per-test one-line explanations" · "show a medium-risk state" · "design Prompt 9 — Home dashboard"</p>
+</section>
+
+<section class="dv-turn" id="t6">
+  <div class="dv-thd"><a class="dv-tid" href="#t6">6</a><span class="dv-tname">Advanced Test — Facial Scan (smile)</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="6a">
+      <div class="dv-olabel"><a class="dv-oid" href="#6a">6a</a>Facial scan — warm camera frame, privacy note</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Facial Scan" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;padding:24px 24px 32px;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif">
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:none;width:44px;height:44px;border-radius:50%;background:#FFFFFF;border:2px solid #E5E0D8;display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <span style="font-size:16px;font-weight:700;color:#1B6CA8;background:#E3EEF6;border-radius:999px;padding:6px 14px;margin-left:auto">การทดสอบขั้นสูง</span>
+          </div>
+
+          <h1 style="margin:18px 0 0;font-size:28px;font-weight:800;color:#233A4D;line-height:1.25">สแกนใบหน้า</h1>
+          <p style="margin:8px 0 0;font-size:20px;font-weight:600;color:#5A6B7A;line-height:1.5">ยิ้มกว้าง ๆ แล้วค้างไว้ 3 วินาที</p>
+
+          <!-- Camera view -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;margin:16px 0">
+            <div style="position:relative;width:290px;height:360px;border-radius:28px;background:linear-gradient(180deg,#3E4A56 0%,#2C3742 100%);overflow:hidden;display:flex;align-items:center;justify-content:center">
+              <!-- face placeholder -->
+              <svg width="150" height="190" viewBox="0 0 150 190" fill="none" style="opacity:.9">
+                <ellipse cx="75" cy="78" rx="52" ry="62" fill="#55636F"></ellipse>
+                <path d="M23 190 c0-32 24-48 52-48 s52 16 52 48" fill="#55636F"></path>
+                <path d="M52 92 q23 20 46 0" stroke="#FBEEDC" stroke-width="5" stroke-linecap="round" fill="none"></path>
+                <circle cx="55" cy="66" r="5" fill="#FBEEDC"></circle>
+                <circle cx="95" cy="66" r="5" fill="#FBEEDC"></circle>
+              </svg>
+              <!-- corner brackets -->
+              <svg width="230" height="290" viewBox="0 0 230 290" style="position:absolute;left:30px;top:28px">
+                <path d="M2 40 V16 a14 14 0 0 1 14-14 H40 M190 2 h24 a14 14 0 0 1 14 14 v24 M228 250 v24 a14 14 0 0 1-14 14 h-24 M40 288 H16 a14 14 0 0 1-14-14 v-24" stroke="#E8762C" stroke-width="5" stroke-linecap="round" fill="none"></path>
+              </svg>
+              <!-- smile hold pill -->
+              <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.45);border-radius:999px;padding:10px 18px">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7ED598" stroke-width="2.2"></circle><path d="M8 13.5 q4 4 8 0" stroke="#7ED598" stroke-width="2.2" stroke-linecap="round"></path><circle cx="9" cy="9.5" r="1.3" fill="#7ED598"></circle><circle cx="15" cy="9.5" r="1.3" fill="#7ED598"></circle></svg>
+                <span style="font-size:18px;font-weight:700;color:#FFFFFF;white-space:nowrap">ยิ้มค้างไว้… 2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy note -->
+          <div style="display:flex;align-items:flex-start;gap:10px;background:#E3EEF6;border-radius:16px;padding:12px 16px;margin-bottom:16px">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex:none;margin-top:2px"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z" stroke="#1B6CA8" stroke-width="2.2" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4.5" stroke="#1B6CA8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <span style="font-size:16px;font-weight:600;color:#2B5A7E;line-height:1.5">ภาพใบหน้าใช้เพื่อการคัดกรองเท่านั้น ไม่มีการเก็บรูปภาพไว้</span>
+          </div>
+
+          <!-- Capture button -->
+          <div style="display:flex;justify-content:center">
+            <button style="width:78px;height:78px;border-radius:50%;border:5px solid #FFFFFF;outline:3px solid #E8762C;background:#E8762C;box-shadow:0 6px 18px rgba(232,118,44,.4);cursor:pointer" style-active="transform:scale(.94)"></button>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the success state after 3 seconds" · "use a live camera placeholder instead" · "design Prompt 7 — Voice Scan"</p>
+</section>
+
+<section class="dv-turn" id="t4">
+  <div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Finger Tapping Test</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="4a">
+      <div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a>Tapping — big satisfying target + live counter</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Finger Tapping Test" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;padding:24px 24px 32px;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif">
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:none;width:44px;height:44px;border-radius:50%;background:#FFFFFF;border:2px solid #E5E0D8;display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <span style="font-size:16px;font-weight:700;color:#8A97A3;background:#F1ECE3;border-radius:999px;padding:6px 14px;margin-left:auto">แบบทดสอบ 2 / 5</span>
+          </div>
+
+          <h1 style="margin:18px 0 0;font-size:28px;font-weight:800;color:#233A4D;line-height:1.25">Finger Tapping Test</h1>
+          <p style="margin:8px 0 0;font-size:20px;font-weight:600;color:#5A6B7A;line-height:1.5">แตะปุ่มวงกลมตามจังหวะ<br>ให้สม่ำเสมอที่สุด</p>
+
+          <!-- Rhythm indicator -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px">
+            <div style="width:12px;height:12px;border-radius:50%;background:#E8762C"></div>
+            <div style="width:12px;height:12px;border-radius:50%;background:#F0C39E"></div>
+            <div style="width:12px;height:12px;border-radius:50%;background:#F0C39E"></div>
+            <div style="width:12px;height:12px;border-radius:50%;background:#F0C39E"></div>
+            <span style="font-size:15px;font-weight:600;color:#8A97A3;margin-left:6px">จังหวะ</span>
+          </div>
+
+          <!-- Tap target -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center">
+            <div style="position:relative;width:230px;height:230px;display:flex;align-items:center;justify-content:center">
+              <div style="position:absolute;inset:0;border-radius:50%;background:#E8762C;opacity:.35;animation:nm-pulse 1.1s ease-in-out infinite"></div>
+              <button style="position:relative;width:190px;height:190px;border-radius:50%;border:none;background:radial-gradient(circle at 38% 32%,#F2924E,#E8762C 60%,#D9681F);box-shadow:0 12px 30px rgba(232,118,44,.4),inset 0 -6px 12px rgba(0,0,0,.12);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px" style-active="transform:scale(.94)">
+                <span style="font-family:'Noto Sans Thai',sans-serif;font-size:30px;font-weight:800;color:#FFFFFF">แตะ</span>
+                <span style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:1px">TAP</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live counter -->
+          <div style="display:flex;gap:12px;margin-bottom:18px">
+            <div style="flex:1;background:#FFFFFF;border-radius:18px;padding:14px 16px;box-shadow:0 3px 12px rgba(35,58,77,.06);display:flex;flex-direction:column;align-items:center;gap:2px">
+              <span style="font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;color:#E8762C;line-height:1">24</span>
+              <span style="font-size:15px;font-weight:700;color:#8A97A3">ครั้ง</span>
+            </div>
+            <div style="flex:1;background:#FFFFFF;border-radius:18px;padding:14px 16px;box-shadow:0 3px 12px rgba(35,58,77,.06);display:flex;flex-direction:column;align-items:center;gap:2px">
+              <span style="font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;color:#1B6CA8;line-height:1">10</span>
+              <span style="font-size:15px;font-weight:700;color:#8A97A3">วินาทีที่เหลือ</span>
+            </div>
+          </div>
+
+          <button style="width:100%;height:64px;flex:none;border:none;border-radius:20px;background:#E8762C;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:24px;font-weight:800;letter-spacing:.5px;box-shadow:0 6px 18px rgba(232,118,44,.35);cursor:pointer" style-hover="background:#D9681F">พร้อมแล้ว เริ่มเลย</button>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "show the finished state with a score" · "make the beat dots animate" · "design Prompt 5 — Rest Tremor"</p>
+</section>
+
+<section class="dv-turn" id="t3">
+  <div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Spiral Tracing Test — before &amp; during</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="3a">
+      <div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Ready state — spiral is the star</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Spiral Test — Ready" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;padding:24px 24px 32px;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif">
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="flex:none;width:44px;height:44px;border-radius:50%;background:#FFFFFF;border:2px solid #E5E0D8;display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <span style="font-size:16px;font-weight:700;color:#8A97A3;background:#F1ECE3;border-radius:999px;padding:6px 14px;margin-left:auto">แบบทดสอบ 1 / 5</span>
+          </div>
+
+          <h1 style="margin:18px 0 0;font-size:28px;font-weight:800;color:#233A4D;line-height:1.25">Spiral Tracing Test</h1>
+          <p style="margin:8px 0 0;font-size:20px;font-weight:600;color:#5A6B7A;line-height:1.5">ลากนิ้วตามเส้นก้นหอย<br>ช้า ๆ จากด้านในออกด้านนอก</p>
+
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;margin:14px 0">
+            <div style="position:relative;width:310px;height:310px;background:#FFFFFF;border-radius:28px;box-shadow:0 6px 22px rgba(35,58,77,.08);display:flex;align-items:center;justify-content:center">
+              <svg width="270" height="270" viewBox="0 0 270 270" fill="none">
+                <path d="M 135 135 m 0 -6 a 6 6 0 0 1 6 6 a 12 12 0 0 1 -12 12 a 18 18 0 0 1 -18 -18 a 24 24 0 0 1 24 -24 a 30 30 0 0 1 30 30 a 36 36 0 0 1 -36 36 a 42 42 0 0 1 -42 -42 a 48 48 0 0 1 48 -48 a 54 54 0 0 1 54 54 a 60 60 0 0 1 -60 60 a 66 66 0 0 1 -66 -66 a 72 72 0 0 1 72 -72 a 78 78 0 0 1 78 78 a 84 84 0 0 1 -84 84 a 90 90 0 0 1 -90 -90 a 96 96 0 0 1 96 -96 a 102 102 0 0 1 102 102" stroke="#B9C6D1" stroke-width="8" stroke-linecap="round"></path>
+                <circle cx="135" cy="129" r="12" fill="#E8762C"></circle>
+              </svg>
+              <div style="position:absolute;right:18px;bottom:14px;display:flex;align-items:center;gap:6px">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M9 11.5V5.8c0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8v5m0-1.5c0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8v2m0-.6c0-1 .8-1.7 1.7-1.7 1 0 1.7.8 1.7 1.7v3.3c0 3.9-2.4 7-6.6 7-3 0-4.5-1.5-6-3.9l-1.6-2.6c-.5-.9-.3-2 .6-2.5.8-.5 1.8-.3 2.4.4l1.6 2" stroke="#8A97A3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <button style="width:100%;height:64px;flex:none;border:none;border-radius:20px;background:#E8762C;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:24px;font-weight:800;letter-spacing:.5px;box-shadow:0 6px 18px rgba(232,118,44,.35);cursor:pointer" style-hover="background:#D9681F">พร้อมแล้ว เริ่มเลย</button>
+        </div>
+      </x-import>
+    </div>
+
+    <div class="dv-opt" id="3b">
+      <div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>During tracing — user's line overlaid</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Spiral Test — Tracing" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;padding:24px 24px 32px;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif">
+
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:18px;font-weight:700;color:#233A4D">กำลังทดสอบ…</span>
+            <span style="display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;color:#1B6CA8;background:#E3EEF6;border-radius:999px;padding:8px 16px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1B6CA8" stroke-width="2.4"></circle><path d="M12 7v5l3 3" stroke="#1B6CA8" stroke-width="2.4" stroke-linecap="round"></path></svg>
+              0:12
+            </span>
+          </div>
+
+          <p style="margin:14px 0 0;font-size:20px;font-weight:600;color:#5A6B7A;line-height:1.5">ลากต่อไปเรื่อย ๆ ทำได้ดีมาก!</p>
+
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;margin:14px 0">
+            <div style="position:relative;width:310px;height:310px;background:#FFFFFF;border-radius:28px;box-shadow:0 6px 22px rgba(35,58,77,.08);display:flex;align-items:center;justify-content:center">
+              <svg width="270" height="270" viewBox="0 0 270 270" fill="none">
+                <path d="M 135 135 m 0 -6 a 6 6 0 0 1 6 6 a 12 12 0 0 1 -12 12 a 18 18 0 0 1 -18 -18 a 24 24 0 0 1 24 -24 a 30 30 0 0 1 30 30 a 36 36 0 0 1 -36 36 a 42 42 0 0 1 -42 -42 a 48 48 0 0 1 48 -48 a 54 54 0 0 1 54 54 a 60 60 0 0 1 -60 60 a 66 66 0 0 1 -66 -66 a 72 72 0 0 1 72 -72 a 78 78 0 0 1 78 78 a 84 84 0 0 1 -84 84 a 90 90 0 0 1 -90 -90 a 96 96 0 0 1 96 -96 a 102 102 0 0 1 102 102" stroke="#DCE3E9" stroke-width="8" stroke-linecap="round"></path>
+                <path d="M 135 135 m 1 -7 a 6.5 6 4 0 1 6 7 a 12 12.6 -3 0 1 -13 12 a 18 17.5 3 0 1 -17 -19 a 24.6 24 -4 0 1 25 -23 a 30 30.8 2 0 1 29 31 a 36.7 36 -2 0 1 -37 35 a 42 42.9 4 0 1 -41 -43 a 48.9 48 -3 0 1 49 -47 a 54 55 2 0 1 53 55 a 60 61 -2 0 1 -60 59" stroke="#E8762C" stroke-width="5.5" stroke-linecap="round" fill="none"></path>
+                <circle cx="75" cy="135" r="13" fill="#E8762C" stroke="#FFFFFF" stroke-width="4"></circle>
+              </svg>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font-size:17px;font-weight:700;color:#5A6B7A">ความคืบหน้า</span>
+              <span style="font-size:20px;font-weight:800;color:#E8762C">62%</span>
+            </div>
+            <div style="height:14px;background:#F1ECE3;border-radius:999px;overflow:hidden">
+              <div style="width:62%;height:100%;background:#E8762C;border-radius:999px"></div>
+            </div>
+            <button style="margin-top:10px;width:100%;height:56px;border:2px solid #D8DEE4;border-radius:18px;background:#FFFFFF;color:#5A6B7A;font-family:'Noto Sans Thai',sans-serif;font-size:20px;font-weight:700;cursor:pointer" style-hover="border-color:#8A97A3">เริ่มใหม่</button>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "make the traced line green when accurate" · "add a practice round intro" · "design Prompt 4 — Finger Tapping"</p>
+</section>
+
+<section class="dv-turn" id="t2">
+  <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Login — two user types</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="2a">
+      <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Login — stacked type cards + large fields</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Login" style="display:flex;flex-direction:column;height:100%;background:#FFF9F2;padding:24px 24px 32px;box-sizing:border-box;font-family:'Noto Sans Thai',sans-serif;overflow-y:auto">
+
+          <!-- Top row: title + text size toggle -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <h1 style="margin:0;font-size:28px;font-weight:800;color:#233A4D;line-height:1.2">เข้าสู่ระบบ</h1>
+            <div style="display:flex;align-items:center;border:2px solid #D8DEE4;border-radius:14px;overflow:hidden;background:#FFFFFF">
+              <button style="border:none;background:#FFFFFF;color:#5A6B7A;font-family:'Noto Sans Thai',sans-serif;font-weight:700;font-size:15px;padding:9px 12px;cursor:pointer">A</button>
+              <button style="border:none;border-left:2px solid #D8DEE4;background:#1B6CA8;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-weight:700;font-size:17px;padding:9px 12px;cursor:pointer">A+</button>
+              <button style="border:none;border-left:2px solid #D8DEE4;background:#FFFFFF;color:#5A6B7A;font-family:'Noto Sans Thai',sans-serif;font-weight:700;font-size:19px;padding:9px 12px;cursor:pointer">A++</button>
+            </div>
+          </div>
+          <p style="margin:8px 0 0;font-size:18px;font-weight:500;color:#5A6B7A;line-height:1.5">เลือกประเภทผู้ใช้งานของคุณ</p>
+
+          <!-- User type cards -->
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:18px">
+            
+            <button style="display:flex;align-items:center;gap:16px;width:100%;min-height:88px;padding:16px 18px;border:3px solid #E8762C;border-radius:20px;background:#FDEFE2;cursor:pointer;text-align:left;box-sizing:border-box">
+              <div style="flex:none;width:56px;height:56px;border-radius:50%;background:#E8762C;display:flex;align-items:center;justify-content:center">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#fff" stroke-width="2.4"></circle><path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path></svg>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-family:'Noto Sans Thai',sans-serif;font-size:22px;font-weight:800;color:#233A4D">คนทั่วไป</span>
+                <span style="font-family:'Noto Sans Thai',sans-serif;font-size:16px;font-weight:500;color:#5A6B7A">ตรวจคัดกรองเพื่อดูแลสุขภาพ</span>
+              </div>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style="margin-left:auto;flex:none"><circle cx="12" cy="12" r="10" fill="#E8762C"></circle><path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button><button style="display:flex;align-items:center;gap:16px;width:100%;min-height:88px;padding:16px 18px;border:3px solid #D8DEE4;border-radius:20px;background:#FFFFFF;cursor:pointer;text-align:left;box-sizing:border-box" style-hover="border-color:#1B6CA8">
+              <div style="flex:none;width:56px;height:56px;border-radius:50%;background:#E3EEF6;display:flex;align-items:center;justify-content:center">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 4v16M4 12h16" stroke="#1B6CA8" stroke-width="3" stroke-linecap="round"></path></svg>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-family:'Noto Sans Thai',sans-serif;font-size:22px;font-weight:800;color:#233A4D">ผู้ป่วย</span>
+                <span style="font-family:'Noto Sans Thai',sans-serif;font-size:16px;font-weight:500;color:#5A6B7A">ติดตามอาการร่วมกับแพทย์</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Fields -->
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:22px">
+            <label style="display:flex;flex-direction:column;gap:8px">
+              
+              
+            </label>
+            <label style="display:flex;flex-direction:column;gap:8px">
+              
+              
+            </label>
+          </div>
+
+          <button style="margin-top:26px;width:100%;height:64px;flex:none;border:none;border-radius:20px;background:#E8762C;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:24px;font-weight:800;letter-spacing:.5px;box-shadow:0 6px 18px rgba(232,118,44,.35);cursor:pointer" style-hover="background:#D9681F">เริ่มต้นใช้งาน</button>
+          <p style="margin:14px 0 0;font-size:16px;font-weight:500;color:#5A6B7A;text-align:center">ยังไม่มีบัญชี? <a href="#2a" style="color:#1B6CA8;font-weight:700">สมัครใช้งาน</a></p>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "make the patient card selected instead" · "add a phone-number login option" · "design Prompt 3 — Spiral Test"</p>
+</section>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Splash / Start — NeuroMotion AI</span></div>
+  <div class="dv-opts">
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Splash — warm, calm, one action</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="404px,860px">
+        <div data-screen-label="Splash" style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;background:linear-gradient(180deg,#FFF9F2 0%,#FDF3E7 55%,#FBEEDC 100%);padding:36px 28px 40px;box-sizing:border-box;font-family:'Noto Sans Thai','Nunito',sans-serif">
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-top:34px">
+            <!-- Hero icon: hand + pulse line -->
+            <div style="position:relative;width:172px;height:172px;display:flex;align-items:center;justify-content:center">
+              <div style="position:absolute;inset:0;border-radius:50%;background:#E8762C;opacity:.35;animation:nm-pulse 2.8s ease-in-out infinite"></div>
+              <div style="position:absolute;inset:14px;border-radius:50%;background:#FCE3CC"></div>
+              <div style="position:absolute;inset:26px;border-radius:50%;background:#FFFFFF;box-shadow:0 8px 24px rgba(232,118,44,.22)"></div>
+              <svg width="96" height="96" viewBox="0 0 96 96" fill="none" style="position:relative">
+                <path d="M30 52 V30 c0-3.3 2.7-6 6-6 s6 2.7 6 6 v14 M42 44 v-8 c0-3.3 2.7-6 6-6 s6 2.7 6 6 v8 M54 44 v-5 c0-3.3 2.7-6 6-6 s6 2.7 6 6 v13 c0 14-8 26-22 26 -10 0-15-5-20-13 l-5-8 c-1.8-2.9-.9-6.5 2-8.3 2.6-1.6 6-1 7.9 1.4 L30 52" stroke="#1B6CA8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M18 60 h14 l5-10 7 18 6-13 4 5 h24" stroke="#E8762C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+
+            <h1 style="margin:26px 0 0;font-family:'Nunito','Noto Sans Thai',sans-serif;font-weight:900;font-size:36px;line-height:1.15;color:#233A4D;text-align:center;letter-spacing:-.5px">NeuroMotion&nbsp;AI</h1>
+            <p style="margin:12px 0 0;font-size:20px;font-weight:600;line-height:1.5;color:#5A6B7A;text-align:center;max-width:280px">ระบบคัดกรองความเสี่ยง<br>โรคทางระบบประสาทเบื้องต้น</p>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:stretch;gap:16px;width:100%">
+            <button style="width:100%;height:68px;border:none;border-radius:20px;background:#E8762C;color:#FFFFFF;font-family:'Noto Sans Thai',sans-serif;font-size:26px;font-weight:800;letter-spacing:.5px;box-shadow:0 6px 18px rgba(232,118,44,.35);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px" style-hover="background:#D9681F">
+              เริ่มต้นใช้งาน
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+            <p style="margin:0;font-size:15px;font-weight:500;color:#8A97A3;text-align:center;line-height:1.5">เครื่องมือคัดกรองระบบประสาท</p>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "make the orange warmer" · "add a language toggle" · "design Prompt 2 — Login"</p>
+</section>
+</x-dc>
+</body>
+</html>
