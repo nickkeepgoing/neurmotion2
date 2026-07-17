@@ -4,7 +4,7 @@ import Button from './ui/Button';
 import { CheckCircle } from './icons';
 import { useSettings } from '../context/SettingsContext';
 import { speak, stopSpeaking } from '../lib/speech';
-import { completedToday } from '../lib/storage';
+import { clearRetestRound, completedThisRound } from '../lib/storage';
 import { S } from '../lib/strings';
 import type { TestId } from '../lib/types';
 
@@ -13,16 +13,19 @@ const TEST_ORDER: TestId[] = ['spiral', 'tapping', 'tremor', 'facial', 'voice'];
 /**
  * Post-test success panel. Chains straight into the next incomplete test so
  * the user can finish all 5 without going back to the dashboard.
+ * Uses the current retest round (not just "done today") so "ทำการทดสอบอีกครั้ง"
+ * walks through all 5 again.
  */
 export default function TestDone({ subScore }: { subScore: number }) {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const next = useMemo(() => {
-    const done = completedToday();
+    const done = completedThisRound();
     return TEST_ORDER.find((t) => !done.has(t));
   }, []);
 
   useEffect(() => {
+    if (!next) clearRetestRound(); // round finished — future chaining is daily again
     if (settings.voiceOn) speak(next ? S.testDoneSpoken : S.allDoneSpoken);
     return () => stopSpeaking();
     // eslint-disable-next-line react-hooks/exhaustive-deps

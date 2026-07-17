@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BirthDatePicker, {
+  ageFromBirthDate,
+  birthDateFromISO,
+  birthDateToISO,
+  type BirthDate,
+} from '../components/ui/BirthDatePicker';
 import Button from '../components/ui/Button';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { CheckCircle } from '../components/icons';
@@ -47,14 +53,17 @@ export default function Login() {
   const navigate = useNavigate();
   const { settings, update } = useSettings();
   const [userType, setUserType] = useState<'general' | 'patient'>(settings.userType);
-  const [age, setAge] = useState(settings.age ? String(settings.age) : '');
+  const [birth, setBirth] = useState<BirthDate>(
+    () => (settings.birthDate && birthDateFromISO(settings.birthDate)) || { d: 1, m: 0, yBE: 2500 }
+  );
   const [nid, setNid] = useState(settings.nationalId ?? '');
+  const age = ageFromBirthDate(birth);
 
   const start = () => {
-    const parsedAge = parseInt(age, 10);
     update({
       userType,
-      age: Number.isFinite(parsedAge) && parsedAge > 0 ? parsedAge : undefined,
+      age,
+      birthDate: birthDateToISO(birth),
       nationalId: userType === 'patient' && nid.trim() ? nid.trim() : undefined,
     });
     navigate(settings.consented ? '/home' : '/consent');
@@ -96,17 +105,14 @@ export default function Login() {
         />
       </div>
 
-      {/* general: age only — no other personal data required */}
-      <label className="flex flex-col gap-2 mt-6">
-        <span className="text-lg font-bold text-ink">{S.login.ageLabel}</span>
-        <input
-          value={age}
-          onChange={(e) => setAge(e.target.value.replace(/\D/g, '').slice(0, 3))}
-          placeholder={S.login.agePlaceholder}
-          inputMode="numeric"
-          className="h-16 rounded-[18px] border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none"
-        />
-      </label>
+      {/* general: birth date only — no other personal data required */}
+      <div className="flex flex-col gap-2 mt-6">
+        <div className="flex items-baseline justify-between">
+          <span className="text-lg font-bold text-ink">{S.login.birthLabel}</span>
+          <span className="text-base font-bold text-secondary bg-secondary-soft rounded-full px-3 py-0.5">{S.login.ageShow(age)}</span>
+        </div>
+        <BirthDatePicker value={birth} onChange={setBirth} />
+      </div>
 
       {/* patient: national ID (full patient system is future work) */}
       {userType === 'patient' && (

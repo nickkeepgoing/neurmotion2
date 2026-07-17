@@ -26,6 +26,7 @@ export type Settings = {
   textScale: 0 | 1 | 2; // A / A+ / A++
   voiceOn: boolean; // Thai spoken instructions (elderly-friendly)
   age?: number;
+  birthDate?: string; // ISO yyyy-mm-dd (CE)
   nationalId?: string; // patient login (full patient system is future work)
   // registered account profile — stored locally only
   firstName?: string;

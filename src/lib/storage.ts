@@ -99,6 +99,29 @@ export function completedToday(): Set<TestId> {
   return new Set((s?.results ?? []).map((r) => r.test));
 }
 
+const KEY_ROUND = 'nm.roundStart';
+
+/**
+ * "ทำการทดสอบอีกครั้ง": mark the start of a fresh retest round so the
+ * next-test chaining walks through all 5 again, ignoring results saved
+ * earlier today.
+ */
+export function startRetestRound(): void {
+  sessionStorage.setItem(KEY_ROUND, new Date().toISOString());
+}
+
+export function clearRetestRound(): void {
+  sessionStorage.removeItem(KEY_ROUND);
+}
+
+/** Tests completed in the current round (falls back to today's results). */
+export function completedThisRound(): Set<TestId> {
+  const results = todaySession()?.results ?? [];
+  const roundStart = sessionStorage.getItem(KEY_ROUND);
+  const inRound = roundStart ? results.filter((r) => r.timestamp >= roundStart) : results;
+  return new Set(inRound.map((r) => r.test));
+}
+
 /** Latest session (today or most recent past day). */
 export function latestSession(): Session | undefined {
   const all = loadSessions();

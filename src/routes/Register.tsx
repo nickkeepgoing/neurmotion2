@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BirthDatePicker, {
+  ageFromBirthDate,
+  birthDateFromISO,
+  birthDateToISO,
+  type BirthDate,
+} from '../components/ui/BirthDatePicker';
 import Button from '../components/ui/Button';
 import { useSettings } from '../context/SettingsContext';
 import { S } from '../lib/strings';
@@ -45,14 +51,16 @@ export default function Register() {
   const { settings, update } = useSettings();
   const [firstName, setFirstName] = useState(settings.firstName ?? '');
   const [lastName, setLastName] = useState(settings.lastName ?? '');
-  const [age, setAge] = useState(settings.age ? String(settings.age) : '');
+  const [birth, setBirth] = useState<BirthDate>(
+    () => (settings.birthDate && birthDateFromISO(settings.birthDate)) || { d: 1, m: 0, yBE: 2500 }
+  );
   const [phone, setPhone] = useState(settings.phone ?? '');
   const [email, setEmail] = useState(settings.email ?? '');
   const [error, setError] = useState('');
+  const age = ageFromBirthDate(birth);
 
   const submit = () => {
-    const parsedAge = parseInt(age, 10);
-    if (!firstName.trim() || !Number.isFinite(parsedAge) || parsedAge <= 0) {
+    if (!firstName.trim()) {
       setError(S.register.required);
       return;
     }
@@ -60,7 +68,8 @@ export default function Register() {
       firstName: firstName.trim(),
       lastName: lastName.trim() || undefined,
       displayName: firstName.trim(),
-      age: parsedAge,
+      age,
+      birthDate: birthDateToISO(birth),
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
     });
@@ -87,14 +96,16 @@ export default function Register() {
       <div className="flex flex-col gap-4 mt-5">
         <Field label={S.register.firstName} value={firstName} onChange={setFirstName} placeholder={S.register.firstNamePh} required />
         <Field label={S.register.lastName} value={lastName} onChange={setLastName} placeholder={S.register.lastNamePh} />
-        <Field
-          label={S.register.age}
-          value={age}
-          onChange={(v) => setAge(v.replace(/\D/g, '').slice(0, 3))}
-          placeholder={S.register.agePh}
-          inputMode="numeric"
-          required
-        />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between">
+            <span className="text-lg font-bold text-ink">
+              {S.login.birthLabel}
+              <span className="text-risk-high-text"> *</span>
+            </span>
+            <span className="text-base font-bold text-secondary bg-secondary-soft rounded-full px-3 py-0.5">{S.login.ageShow(age)}</span>
+          </div>
+          <BirthDatePicker value={birth} onChange={setBirth} />
+        </div>
         <Field label={S.register.phone} value={phone} onChange={setPhone} placeholder={S.register.phonePh} type="tel" inputMode="tel" />
         <Field label={S.register.email} value={email} onChange={setEmail} placeholder={S.register.emailPh} type="email" inputMode="email" />
       </div>

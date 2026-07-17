@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
-import { completedToday, loadSessions } from '../lib/storage';
+import { completedToday, loadSessions, startRetestRound } from '../lib/storage';
 import { S, thaiDateLong } from '../lib/strings';
 import type { TestId } from '../lib/types';
 
@@ -195,7 +195,10 @@ export default function Home() {
           </button>
           {doneCount > 0 && (
             <button
-              onClick={() => navigate('/test/spiral')}
+              onClick={() => {
+                startRetestRound(); // fresh round → chaining walks all 5 again
+                navigate('/test/spiral');
+              }}
               className="h-12 px-5 rounded-[14px] bg-transparent text-white text-lg font-bold cursor-pointer border-2 border-white/70 active:scale-95 transition-transform"
             >
               {S.home.retestAll}
