@@ -73,10 +73,8 @@ export default function TestIntro({
               />
             ) : (
               <>
-                <div className="w-full flex items-center justify-center py-2">
-                  <div className="scale-[1.6]">
-                    <TestDemo test={testId} />
-                  </div>
+                <div className="w-full">
+                  <TestDemo test={testId} />
                 </div>
                 {!hasClip && (
                   <p className="text-[15px] font-medium text-muted text-center leading-relaxed px-2">{S.flow.noVideo}</p>
@@ -103,8 +101,8 @@ export default function TestIntro({
 
           <div className="flex-1 flex flex-col items-center justify-center py-2">
             {practice ?? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="scale-[1.5] my-4">
+              <div className="flex flex-col items-center gap-3 w-full">
+                <div className="w-full my-2">
                   <TestDemo test={testId} />
                 </div>
                 <p className="text-base font-semibold text-muted-2 text-center px-4">{S.flow.practiceGeneric}</p>
