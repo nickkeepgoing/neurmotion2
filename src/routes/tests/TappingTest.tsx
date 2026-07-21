@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Countdown from '../../components/Countdown';
-import TestDemo from '../../components/TestDemo';
 import TestDone from '../../components/TestDone';
+import TestIntro from '../../components/TestIntro';
 import TestShell from '../../components/TestShell';
-import Button from '../../components/ui/Button';
+import TapPractice from '../../components/practice/TapPractice';
 import { useSettings } from '../../context/SettingsContext';
 import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
@@ -11,11 +11,11 @@ import { S } from '../../lib/strings';
 import { computeTappingMetrics } from '../../lib/tapping';
 import { TAPPING } from '../../lib/thresholds';
 
-type Phase = 'ready' | 'countdown' | 'running' | 'done';
+type Phase = 'intro' | 'countdown' | 'running' | 'done';
 
 export default function TappingTest() {
   const { settings } = useSettings();
-  const [phase, setPhase] = useState<Phase>('ready');
+  const [phase, setPhase] = useState<Phase>('intro');
   const [count, setCount] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TAPPING.durationS);
   const [beat, setBeat] = useState(0);
@@ -96,13 +96,16 @@ export default function TappingTest() {
     );
   }
 
+  if (phase === 'intro') {
+    return (
+      <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction}>
+        <TestIntro testId="tapping" onStart={() => setPhase('countdown')} practice={<TapPractice />} />
+      </TestShell>
+    );
+  }
+
   return (
-    <TestShell
-      stepLabel={S.stepLabel(2)}
-      title={S.tests.tapping.title}
-      instruction={S.tests.tapping.instruction}
-      demo={phase === 'ready' ? <TestDemo test="tapping" /> : undefined}
-    >
+    <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction}>
       {(phase === 'running' || phase === 'countdown') && (
         <>
           {/* Rhythm dots */}
@@ -159,17 +162,7 @@ export default function TappingTest() {
         </>
       )}
 
-      {phase === 'ready' && (
-        <>
-          {/* compact ready view: the start button stays above the fold */}
-          <div className="flex-1" />
-          <Button className="nm-blink" onClick={() => setPhase('countdown')}>
-            {S.ready}
-          </Button>
-        </>
-      )}
-
-      {phase === 'countdown' && <Countdown hint={S.countdownHints.tapping} onDone={begin} />}
+      {phase === 'countdown' && <Countdown hint={S.countdownHints.tapping} beatMs={TAPPING.beatMs} onDone={begin} />}
     </TestShell>
   );
 }

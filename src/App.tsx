@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
+import Admin from './routes/Admin';
 import Consent from './routes/Consent';
 import Home from './routes/Home';
 import Login from './routes/Login';
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/test/facial" element={<FacialTest />} />
             <Route path="/test/voice" element={<VoiceTest />} />
             <Route path="/result" element={<Result />} />
+            <Route path="/admin" element={<Admin />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -49,9 +49,10 @@ export default function TestDemo({ test }: { test: TestId }) {
           </div>
         )}
         {test === 'facial' && (
-          <div className="relative w-full h-full flex items-center justify-center">
-            <span className="absolute text-5xl nm-demo-a">🙂</span>
-            <span className="absolute text-5xl nm-demo-b">😄</span>
+          <div className="relative w-full h-full flex items-center justify-center gap-1">
+            <span className="text-xl text-primary font-black nm-demo-a">←</span>
+            <span className="text-4xl nm-demo-sway inline-block">🧑</span>
+            <span className="text-xl text-primary font-black nm-demo-b">→</span>
           </div>
         )}
         {test === 'voice' && (

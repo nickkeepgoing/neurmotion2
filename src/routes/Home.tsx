@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
+import { highRiskStreak } from '../lib/scoring';
 import { completedToday, loadSessions, startRetestRound } from '../lib/storage';
+import { RISK_STREAK_DAYS } from '../lib/thresholds';
 import { S, thaiDateLong } from '../lib/strings';
 import type { TestId } from '../lib/types';
 
@@ -89,6 +91,7 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
 /** "..." menu: text-size + voice-guidance settings, tucked away per design. */
 function OptionsMenu({ onClose }: { onClose: () => void }) {
   const { settings, update } = useSettings();
+  const navigate = useNavigate();
   return (
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
@@ -109,6 +112,12 @@ function OptionsMenu({ onClose }: { onClose: () => void }) {
             {settings.voiceOn ? S.home.on : S.home.off}
           </button>
         </div>
+        <button
+          onClick={() => navigate('/admin')}
+          className="text-left text-base font-bold text-secondary bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
+        >
+          {S.admin.openAdmin}
+        </button>
       </div>
     </>
   );
@@ -141,6 +150,7 @@ export default function Home() {
     return days;
   }, []);
   const weekDone = week.filter((d) => d.state === 'done').length;
+  const streak = useMemo(() => highRiskStreak(loadSessions()), []);
 
   const name = settings.displayName || (settings.userType === 'patient' ? 'ผู้ป่วย' : 'ผู้ใช้');
 
@@ -171,6 +181,23 @@ export default function Home() {
         </button>
         {menuOpen && <OptionsMenu onClose={() => setMenuOpen(false)} />}
       </div>
+
+      {/* Doctor alert: high-risk for several consecutive days */}
+      {streak >= RISK_STREAK_DAYS && (
+        <button
+          onClick={() => navigate('/result')}
+          className="text-left flex items-start gap-3 rounded-[20px] px-4.5 py-4 bg-risk-high-bg border-2 border-[#F2D2CC] cursor-pointer active:scale-[.99] transition-transform"
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="flex-none mt-0.5">
+            <path d="M12 3l9 16H3l9-16z" stroke="#B23A3A" strokeWidth="2" strokeLinejoin="round" fill="#FBEAEA" />
+            <path d="M12 9v4M12 16.5v.1" stroke="#B23A3A" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+          <span className="flex flex-col gap-0.5">
+            <span className="text-lg font-extrabold text-risk-high-text">{S.doctorAlert.banner}</span>
+            <span className="text-[15px] font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
+          </span>
+        </button>
+      )}
 
       {/* Daily Quest card */}
       <div className="rounded-3xl p-5 flex flex-col gap-3 bg-[linear-gradient(135deg,#E8762C,#D9681F)] shadow-[0_8px_22px_rgba(232,118,44,.32)]">

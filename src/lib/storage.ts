@@ -5,8 +5,8 @@
  * PDPA note: only computed metric numbers are stored — never raw
  * video/audio/sensor streams.
  */
-import { computeOverallScore, riskLevel } from './scoring';
-import type { Session, Settings, TestId, TestResult } from './types';
+import { computeOverallScore, riskLevel, shouldSeeDoctor } from './scoring';
+import type { RiskLevel, Session, Settings, TestId, TestResult } from './types';
 
 const KEY_SETTINGS = 'nm.settings';
 const KEY_SESSIONS = 'nm.sessions';
@@ -126,4 +126,30 @@ export function completedThisRound(): Set<TestId> {
 export function latestSession(): Session | undefined {
   const all = loadSessions();
   return all[all.length - 1];
+}
+
+/** Latest session per calendar day, oldest day first. */
+export function dailyLatestSessions(): Session[] {
+  const byDay = new Map<string, Session>();
+  for (const s of loadSessionsRaw()) {
+    const day = dateKey(s.timestamp);
+    const prev = byDay.get(day);
+    if (!prev || s.timestamp > prev.timestamp) byDay.set(day, s);
+  }
+  return [...byDay.values()].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+}
+
+/**
+ * Trend series for the graph: one point per day using that day's LATEST
+ * session score (never the first), most recent `maxDays` days.
+ */
+export function trendSeries(maxDays = 7): { day: string; score: number; level: RiskLevel }[] {
+  return dailyLatestSessions()
+    .slice(-maxDays)
+    .map((s) => ({ day: s.timestamp, score: s.overallScore, level: s.riskLevel }));
+}
+
+/** True once the user has been high-risk for enough consecutive days. */
+export function doctorAlert(): boolean {
+  return shouldSeeDoctor(loadSessions());
 }

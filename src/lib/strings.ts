@@ -89,8 +89,8 @@ export const S = {
   tests: {
     spiral: { name: 'วาดก้นหอย', title: 'Spiral Tracing Test', instruction: 'ลากนิ้วตามเส้นก้นหอย\nช้า ๆ จากด้านในออกด้านนอก' },
     tapping: { name: 'เคาะนิ้ว', title: 'Finger Tapping Test', instruction: 'แตะปุ่มวงกลมตามจังหวะ\nให้สม่ำเสมอที่สุด' },
-    tremor: { name: 'ความนิ่งของมือ', title: 'Rest Tremor Test', instruction: 'ถือโทรศัพท์ไว้ในมือ\nให้นิ่งที่สุด 10 วินาที' },
-    facial: { name: 'สแกนใบหน้า', title: 'สแกนใบหน้า', instruction: 'ยิ้มกว้าง ๆ แล้วค้างไว้ 3 วินาที' },
+    tremor: { name: 'ความนิ่งของมือ', title: 'ทดสอบความนิ่งของมือ', instruction: 'ทำ 2 ท่า: ถือโทรศัพท์ยกขึ้นในอากาศ\nแล้ววางแขนบนโต๊ะหรือตัก' },
+    facial: { name: 'หันศีรษะ', title: 'ทดสอบการหันศีรษะ', instruction: 'หันหน้าไปทางซ้าย แล้วไปทางขวา\nช้า ๆ ให้สุดทั้งสองข้าง' },
     voice: { name: 'เสียงพูด', title: 'ทดสอบเสียงพูด', instruction: 'ออกเสียง "อาาา" ยาว ๆ\nให้นิ่งที่สุด 5 วินาที' },
   },
   stepLabel: (n: number) => `แบบทดสอบ ${n} / 5`,
@@ -120,8 +120,8 @@ export const S = {
   demoCaption: {
     spiral: 'ใช้นิ้วลากตามเส้น จากจุดกลาง วนออกด้านนอก',
     tapping: 'แตะปุ่มวงกลมเป็นจังหวะสม่ำเสมอตามเสียง',
-    tremor: 'วางมือถือบนฝ่ามือ ถือให้นิ่งจนครบเวลา',
-    facial: 'ยิ้มกว้าง ๆ ค้างไว้ 3 วินาที',
+    tremor: 'ท่าที่ 1 ยกโทรศัพท์ขึ้นในอากาศ · ท่าที่ 2 วางแขนบนโต๊ะ/ตัก',
+    facial: 'หันหน้าไปทางซ้ายจนสุด แล้วหันไปทางขวาจนสุด',
     voice: 'ออกเสียง "อาาา" ยาว ๆ ให้นิ่งที่สุด',
   } as Record<string, string>,
   replayVoice: 'ฟังคำแนะนำอีกครั้ง',
@@ -130,10 +130,66 @@ export const S = {
   countdownHints: {
     spiral: 'วางนิ้วรอที่จุดสีส้มตรงกลาง',
     tapping: 'เตรียมนิ้วไว้เหนือปุ่ม แตะตามเสียง',
-    tremor: 'วางมือถือบนฝ่ามือ ถือนิ่ง ๆ',
-    facial: 'ยกมือถือให้เห็นใบหน้า ยิ้มเตรียมไว้เลย',
+    tremor: 'ยกโทรศัพท์ขึ้นถือไว้ในอากาศ',
+    facial: 'ยกมือถือให้เห็นใบหน้า มองตรงเตรียมไว้',
     voice: 'หายใจเข้า เตรียมออกเสียง "อาาา"',
   } as Record<string, string>,
+
+  // 3-step test flow: watch video → practice → real test
+  flow: {
+    steps: ['ดูคลิป', 'ทดลองใช้', 'ทดสอบจริง'],
+    watchTitle: 'ดูวิธีทำก่อน',
+    noVideo: 'ยังไม่มีคลิปวิดีโอสำหรับแบบทดสอบนี้ — ดูภาพเคลื่อนไหวสาธิตด้านบนได้เลย (ผู้ดูแลระบบเพิ่มคลิปได้ภายหลัง)',
+    toPractice: 'ต่อไป: ทดลองใช้',
+    practiceTitle: 'ทดลองใช้',
+    practiceHint: 'ลองทำดูก่อนได้เลย ยังไม่เก็บคะแนน',
+    practiceTapping: 'ลองแตะปุ่มตามจังหวะเสียง',
+    practiceSpiral: 'ลองใช้นิ้วลากตามเส้นดู',
+    practiceGeneric: 'ทำความเข้าใจวิธีทำจากคลิปและภาพสาธิต',
+    toReal: 'พร้อมแล้ว ทดสอบจริง',
+    watchAgain: 'ดูอีกครั้ง',
+  },
+
+  // Rest / postural tremor two-phase test
+  tremorPhase: {
+    postural: 'ท่าที่ 1 — ยกขึ้นในอากาศ',
+    rest: 'ท่าที่ 2 — วางแขนบนโต๊ะ/ตัก',
+    posturalInstr: 'ยกโทรศัพท์ขึ้นถือไว้ในอากาศ แขนไม่พิง ถือให้นิ่งที่สุด',
+    restInstr: 'วางข้อศอกและแขนบนโต๊ะหรือบนตัก ถือโทรศัพท์ให้นิ่งที่สุด',
+    posturalShort: 'ยกขึ้นในอากาศ',
+    restShort: 'วางแขนบนโต๊ะ/ตัก',
+    nextPhase: 'ต่อไป: วางแขนบนโต๊ะ',
+    switchNow: 'เปลี่ยนท่า! วางแขนลงบนโต๊ะหรือตัก',
+  },
+
+  // Head-turn test prompts
+  headTurn: {
+    lookLeft: 'หันหน้าไปทางซ้ายจนสุด',
+    lookRight: 'หันหน้าไปทางขวาจนสุด',
+    lookCenter: 'มองตรงไว้ก่อน',
+    good: 'ดีมาก!',
+    leftDone: 'ซ้ายเรียบร้อย ✓',
+    rightDone: 'ขวาเรียบร้อย ✓',
+    faceNotFound: 'จัดใบหน้าให้อยู่ในกรอบ',
+  },
+
+  admin: {
+    title: 'ผู้ดูแลระบบ — คลิปสอน',
+    subtitle: 'อัปโหลดคลิปวิดีโอสอนวิธีทำสำหรับแต่ละแบบทดสอบ (เก็บในเครื่องนี้เท่านั้น)',
+    upload: 'อัปโหลดคลิป',
+    replace: 'เปลี่ยนคลิป',
+    remove: 'ลบคลิป',
+    hasVideo: 'มีคลิปแล้ว',
+    noVideo: 'ยังไม่มีคลิป',
+    back: 'กลับ',
+    openAdmin: 'ผู้ดูแลระบบ (คลิปสอน)',
+  },
+
+  doctorAlert: {
+    banner: 'ผลของคุณอยู่ในเกณฑ์เสี่ยงติดต่อกันหลายวัน',
+    detail: (n: number) => `พบผลเสี่ยงสูงต่อเนื่อง ${n} วัน แนะนำให้ไปพบแพทย์เพื่อตรวจอย่างละเอียด`,
+    cta: 'ปรึกษาแพทย์',
+  },
 
   result: {
     badge: 'ผลการคัดกรองเบื้องต้น',
@@ -166,7 +222,41 @@ export const S = {
     noData: 'ยังไม่มีผลทดสอบ — เริ่มทำแบบทดสอบแรกของคุณได้เลย',
     normalLegend: 'ปกติ',
     riskLegend: 'เสี่ยง',
+    detailTitle: 'รายละเอียดผลแต่ละด้าน',
+    tapToExpand: 'แตะเพื่อดูรายละเอียด',
+    mostConcern: (label: string) => `จุดที่ควรใส่ใจ: ${label}`,
+    allNormalDetail: 'ทุกด้านอยู่ในเกณฑ์ปกติ',
+    metricGood: 'ปกติ',
+    metricWatch: 'เฝ้าดู',
+    metricConcern: 'ผิดปกติ',
   },
+
+  /** Human-readable Thai labels for each raw metric key (for the detail view). */
+  metricLabels: {
+    // spiral
+    rmsErrorNorm: 'ความแม่นของเส้นที่ลาก',
+    tremorBandPower: 'แรงสั่นขณะวาด (4–7 Hz)',
+    spacingCV: 'ความสม่ำเสมอของช่องไฟ',
+    speedCV: 'ความลื่นไหลของการลาก',
+    // tapping
+    rate: 'ความเร็วในการเคาะ',
+    itiSD: 'ความสม่ำเสมอของจังหวะ',
+    decrementSlope: 'อาการเคาะช้าลงเรื่อย ๆ',
+    timingError: 'ความตรงจังหวะ',
+    // tremor
+    restBandPower: 'แรงสั่นขณะวางแขน (พัก)',
+    restRms: 'ขนาดการสั่นขณะวางแขน',
+    posturalBandPower: 'แรงสั่นขณะยกมือ',
+    posturalRms: 'ขนาดการสั่นขณะยกมือ',
+    // facial (head-turn)
+    turnRangeDeg: 'ช่วงการหันศีรษะ',
+    turnAsymmetry: 'ความสมมาตรซ้าย-ขวา',
+    turnSmoothness: 'ความลื่นไหลของการหัน',
+    // voice
+    jitterPct: 'ความสั่นของระดับเสียง (jitter)',
+    shimmerPct: 'ความสั่นของความดัง (shimmer)',
+    f0CV: 'ความคงที่ของเสียง',
+  } as Record<string, string>,
 
   daysShort: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
 };

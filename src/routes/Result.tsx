@@ -5,9 +5,10 @@ import Button from '../components/ui/Button';
 import RiskGauge from '../components/ui/RiskGauge';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
-import { testStatus } from '../lib/scoring';
-import { latestSession, loadSessions } from '../lib/storage';
+import { highRiskStreak, metricScores, testStatus } from '../lib/scoring';
+import { latestSession, loadSessions, trendSeries } from '../lib/storage';
 import { S, thaiDate } from '../lib/strings';
+import { RISK_STREAK_DAYS } from '../lib/thresholds';
 import type { RiskLevel, TestId } from '../lib/types';
 
 const STATUS_STYLE: Record<RiskLevel, { dot: string; text: string; label: string }> = {
@@ -83,12 +84,13 @@ export default function Result() {
   const { settings } = useSettings();
   const [consultOpen, setConsultOpen] = useState(false);
   const session = useMemo(() => latestSession(), []);
-  const sessions = useMemo(() => loadSessions(), []);
+  const streak = useMemo(() => highRiskStreak(loadSessions()), []);
 
-  const trendData = sessions.slice(-7).map((s) => ({
-    day: S.daysShort[new Date(s.timestamp).getDay()],
-    score: s.overallScore,
-  }));
+  // one point per day, using that day's LATEST session (never the first)
+  const trendData = useMemo(
+    () => trendSeries(7).map((p) => ({ day: S.daysShort[new Date(p.day).getDay()], score: p.score })),
+    []
+  );
 
   if (!session) {
     return (
@@ -118,6 +120,20 @@ export default function Result() {
         </div>
       </div>
 
+      {/* Doctor alert: high-risk streak */}
+      {streak >= RISK_STREAK_DAYS && (
+        <div className="flex items-start gap-3 rounded-[20px] px-4.5 py-4 bg-risk-high-bg border-2 border-[#F2D2CC]">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="flex-none mt-0.5">
+            <path d="M12 3l9 16H3l9-16z" stroke="#B23A3A" strokeWidth="2" strokeLinejoin="round" fill="#FBEAEA" />
+            <path d="M12 9v4M12 16.5v.1" stroke="#B23A3A" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-lg font-extrabold text-risk-high-text">{S.doctorAlert.banner}</span>
+            <span className="text-[15px] font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
+          </div>
+        </div>
+      )}
+
       {/* Risk gauge */}
       <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 pt-5 pb-5 flex flex-col items-center gap-1">
         <RiskGauge score={session.overallScore} level={level} />
@@ -136,17 +152,47 @@ export default function Result() {
         <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed whitespace-pre-line m-0 mt-1.5">{head.desc}</p>
       </div>
 
-      {/* Per-test breakdown */}
-      <h2 className="text-xl font-extrabold text-ink m-0 mt-1">{S.result.perTest}</h2>
+      {/* Per-test breakdown with detail */}
+      <h2 className="text-xl font-extrabold text-ink m-0 mt-1">{S.result.detailTitle}</h2>
       <div className="flex flex-col gap-2.5 -mt-1.5">
         {TEST_ORDER.filter((t) => session.results.some((r) => r.test === t)).map((t) => {
           const r = session.results.find((x) => x.test === t)!;
-          const st = STATUS_STYLE[testStatus(r.subScore)];
+          const lvl = testStatus(r.subScore);
+          const st = STATUS_STYLE[lvl];
+          const worst = metricScores(t, r.metrics)[0];
+          const detail =
+            lvl === 'low'
+              ? S.result.allNormalDetail
+              : worst && S.metricLabels[worst.name]
+                ? S.result.mostConcern(S.metricLabels[worst.name])
+                : '';
           return (
-            <div key={t} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(35,58,77,.05)]">
-              <span className="flex-none w-3 h-3 rounded-full" style={{ background: st.dot }} />
-              <span className="text-lg font-bold text-ink">{S.tests[t].name}</span>
-              <span className={`ml-auto text-base font-bold ${st.text}`}>{st.label}</span>
+            <div key={t} className="bg-white rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(35,58,77,.05)] flex flex-col gap-1.5">
+              <div className="flex items-center gap-3">
+                <span className="flex-none w-3 h-3 rounded-full" style={{ background: st.dot }} />
+                <span className="text-lg font-bold text-ink">{S.tests[t].name}</span>
+                <span className={`ml-auto text-base font-bold ${st.text}`}>{st.label}</span>
+              </div>
+              {detail && <span className={`text-[15px] font-semibold pl-6 ${lvl === 'low' ? 'text-muted' : st.text}`}>{detail}</span>}
+              {/* sub-metric bars */}
+              {lvl !== 'low' && (
+                <div className="flex flex-col gap-1 pl-6 mt-1">
+                  {metricScores(t, r.metrics)
+                    .filter((m) => S.metricLabels[m.name])
+                    .slice(0, 3)
+                    .map((m) => {
+                      const c = m.score <= 33 ? '#2E9E5B' : m.score <= 66 ? '#F1C232' : '#D64545';
+                      return (
+                        <div key={m.name} className="flex items-center gap-2">
+                          <span className="text-[13px] font-semibold text-muted-2 w-[130px] flex-none truncate">{S.metricLabels[m.name]}</span>
+                          <div className="flex-1 h-2 bg-line-warm rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${m.score}%`, background: c }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           );
         })}

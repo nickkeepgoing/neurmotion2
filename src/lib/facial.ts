@@ -1,61 +1,69 @@
 /**
- * Facial (smile) test — metrics from MediaPipe Face Landmarker blendshapes.
- * Frames are processed locally and discarded; only numbers leave this module.
+ * Facial / head-movement test — head-turn (yaw) range of motion.
  *
- * Per frame we read mouthSmileLeft / mouthSmileRight (0–1) plus a small set
- * of expression blendshapes to estimate overall facial movement (hypomimia).
+ * Instead of a smile, we assess head turning left↔right, in the spirit of the
+ * cranial-nerve / neck movement screen (cf. MSD Manuals, "How To Assess the
+ * Cranial Nerves"): reduced range of motion, marked left/right asymmetry, or
+ * jerky/rigid movement can accompany neurological disease.
+ *
+ * Frames are processed locally and discarded; only numbers leave this module.
  */
-import { mean } from './fft';
+import { cv } from './fft';
 
-export type FaceFrame = {
-  t: number;
-  smileL: number;
-  smileR: number;
-  /** values of several expression blendshapes, for movement estimation */
-  expr: number[];
-};
+/** Minimal landmark shape (MediaPipe normalized coords). */
+type LM = { x: number; y: number };
+
+/**
+ * Estimate head yaw (deg, signed) from face landmarks. Uses the nose tip's
+ * horizontal position relative to the midpoint of the face outline (cheek
+ * landmarks), normalized by half the face width. ±1 proxy ≈ ±60°.
+ */
+export function computeYawDeg(landmarks: LM[] | undefined): number | null {
+  if (!landmarks || landmarks.length < 468) return null;
+  const nose = landmarks[1];
+  const right = landmarks[234]; // face outline, one side
+  const left = landmarks[454]; // face outline, other side
+  if (!nose || !left || !right) return null;
+  const mid = (left.x + right.x) / 2;
+  const half = Math.abs(right.x - left.x) / 2;
+  if (half < 1e-4) return null;
+  const proxy = Math.max(-1.4, Math.min(1.4, (nose.x - mid) / half));
+  return proxy * 60;
+}
+
+export type FaceFrame = { t: number; yawDeg: number };
 
 export type FacialMetrics = {
-  smileAmplitude: number; // peak (95th pct) of (L+R)/2
-  asymmetry: number; // mean |L−R| relative to amplitude
-  movement: number; // mean frame-to-frame blendshape delta
+  turnRangeDeg: number; // total left + right sweep
+  turnAsymmetry: number; // |left − right| / max(left, right)
+  turnSmoothness: number; // CV of angular speed (jerkiness)
+  leftDeg: number;
+  rightDeg: number;
   frames: number;
 };
 
 export function computeFacialMetrics(frames: FaceFrame[]): FacialMetrics {
-  if (frames.length < 5) return { smileAmplitude: 0, asymmetry: 0, movement: 0, frames: frames.length };
-
-  const amps = frames.map((f) => (f.smileL + f.smileR) / 2).sort((a, b) => a - b);
-  const smileAmplitude = amps[Math.floor(amps.length * 0.95)];
-
-  const diffs = frames.map((f) => Math.abs(f.smileL - f.smileR));
-  const asymmetry = mean(diffs) / Math.max(smileAmplitude, 0.1);
-
-  // movement: average absolute change of expression blendshapes per frame
-  const deltas: number[] = [];
-  for (let i = 1; i < frames.length; i++) {
-    const a = frames[i - 1].expr;
-    const b = frames[i].expr;
-    let d = 0;
-    const n = Math.min(a.length, b.length);
-    for (let k = 0; k < n; k++) d += Math.abs(b[k] - a[k]);
-    if (n) deltas.push(d / n);
+  if (frames.length < 5) {
+    return { turnRangeDeg: 0, turnAsymmetry: 1, turnSmoothness: 1, leftDeg: 0, rightDeg: 0, frames: frames.length };
   }
-  const movement = mean(deltas);
 
-  return { smileAmplitude, asymmetry, movement, frames: frames.length };
+  // Re-centre on the median yaw so a slightly off-axis camera doesn't bias
+  // one side. Then the sweep to each side is measured from that centre.
+  const sorted = frames.map((f) => f.yawDeg).sort((a, b) => a - b);
+  const centre = sorted[Math.floor(sorted.length / 2)];
+  const rightDeg = Math.max(0, Math.max(...frames.map((f) => f.yawDeg)) - centre);
+  const leftDeg = Math.max(0, centre - Math.min(...frames.map((f) => f.yawDeg)));
+
+  const turnRangeDeg = leftDeg + rightDeg;
+  const turnAsymmetry = Math.abs(leftDeg - rightDeg) / Math.max(leftDeg, rightDeg, 1);
+
+  // smoothness: CV of angular speed between consecutive frames
+  const speeds: number[] = [];
+  for (let i = 1; i < frames.length; i++) {
+    const dt = (frames[i].t - frames[i - 1].t) / 1000;
+    if (dt > 0) speeds.push(Math.abs(frames[i].yawDeg - frames[i - 1].yawDeg) / dt);
+  }
+  const turnSmoothness = cv(speeds.filter((s) => s > 1)); // ignore near-still frames
+
+  return { turnRangeDeg, turnAsymmetry, turnSmoothness, leftDeg, rightDeg, frames: frames.length };
 }
-
-/** Blendshape category names we sample for the movement metric. */
-export const EXPRESSION_SHAPES = [
-  'mouthSmileLeft',
-  'mouthSmileRight',
-  'browInnerUp',
-  'browOuterUpLeft',
-  'browOuterUpRight',
-  'eyeSquintLeft',
-  'eyeSquintRight',
-  'cheekSquintLeft',
-  'cheekSquintRight',
-  'jawOpen',
-];

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
-import TestDemo from '../../components/TestDemo';
 import TestDone from '../../components/TestDone';
+import TestIntro from '../../components/TestIntro';
 import TestShell from '../../components/TestShell';
 import Button from '../../components/ui/Button';
 import { ShieldIcon, VoiceIcon } from '../../components/icons';
@@ -13,13 +13,13 @@ import { S } from '../../lib/strings';
 import { VOICE } from '../../lib/thresholds';
 import { computeVoiceMetrics } from '../../lib/voice';
 
-type Phase = 'ready' | 'countdown' | 'recording' | 'done' | 'error';
+type Phase = 'intro' | 'countdown' | 'recording' | 'done' | 'error';
 
 /** Records ~5 s of raw PCM locally, analyzes, then discards the audio (PDPA). */
 export default function VoiceTest() {
   const { settings } = useSettings();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState<Phase>('ready');
+  const [phase, setPhase] = useState<Phase>('intro');
   const [secondsLeft, setSecondsLeft] = useState(VOICE.durationS);
   const [subScore, setSubScore] = useState(0);
   const stopRef = useRef<() => void>(() => {});
@@ -145,14 +145,16 @@ export default function VoiceTest() {
     );
   }
 
+  if (phase === 'intro') {
+    return (
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction}>
+        <TestIntro testId="voice" onStart={start} />
+      </TestShell>
+    );
+  }
+
   return (
-    <TestShell
-      stepLabel={S.advancedTest}
-      advanced
-      title={S.tests.voice.title}
-      instruction={S.tests.voice.instruction}
-      demo={phase === 'ready' ? <TestDemo test="voice" /> : undefined}
-    >
+    <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction}>
       <div className="flex-1 flex flex-col items-center justify-center gap-6 py-8">
         {phase !== 'recording' && (
           <div className="relative w-[210px] h-[210px] flex items-center justify-center">
@@ -188,11 +190,6 @@ export default function VoiceTest() {
         <span className="text-base font-semibold text-[#2B5A7E] leading-relaxed">{S.voicePrivacy}</span>
       </div>
 
-      {phase === 'ready' && (
-        <Button className="nm-blink" onClick={start}>
-          {S.ready}
-        </Button>
-      )}
       {phase === 'error' && (
         <Button variant="outline" onClick={() => navigate('/home')}>
           {S.skip}

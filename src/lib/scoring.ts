@@ -2,8 +2,8 @@
  * Scoring: raw metrics → 0–100 sub-scores → overall score → risk level.
  * All ranges/weights live in thresholds.ts. Higher score = more concerning.
  */
-import { METRIC_RANGES, RISK_CUTS, TEST_WEIGHTS } from './thresholds';
-import type { RiskLevel, TestId, TestResult } from './types';
+import { METRIC_RANGES, RISK_CUTS, RISK_STREAK_DAYS, TEST_WEIGHTS } from './thresholds';
+import type { RiskLevel, Session, TestId, TestResult } from './types';
 
 /** Linear map from `good` (0) to `bad` (100), clamped. Handles inverted ranges. */
 export function normalizeMetric(value: number, good: number, bad: number): number {
@@ -45,4 +45,40 @@ export function riskLevel(score: number): RiskLevel {
 /** Per-test status for UI rows: normal / watch / check. */
 export function testStatus(subScore: number): RiskLevel {
   return riskLevel(subScore);
+}
+
+/** Per-metric normalized 0–100 scores for one test, sorted most concerning first. */
+export function metricScores(test: TestId, metrics: Record<string, number>): { name: string; score: number }[] {
+  const ranges = METRIC_RANGES[test] ?? {};
+  return Object.entries(ranges)
+    .filter(([name]) => name in metrics)
+    .map(([name, range]) => ({ name, score: Math.round(normalizeMetric(metrics[name], range.good, range.bad)) }))
+    .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Number of consecutive most-recent days whose session is high-risk.
+ * Used to trigger the "please see a doctor" alert after RISK_STREAK_DAYS days.
+ * `sessions` may be in any order.
+ */
+export function highRiskStreak(sessions: Session[]): number {
+  // one session per day: keep the latest per day, newest first
+  const byDay = new Map<string, Session>();
+  for (const s of sessions) {
+    const day = s.timestamp.slice(0, 10);
+    const prev = byDay.get(day);
+    if (!prev || s.timestamp > prev.timestamp) byDay.set(day, s);
+  }
+  const days = [...byDay.keys()].sort((a, b) => b.localeCompare(a)); // newest first
+  let streak = 0;
+  for (const day of days) {
+    if (byDay.get(day)!.riskLevel === 'high') streak += 1;
+    else break;
+  }
+  return streak;
+}
+
+/** Whether the high-risk streak has reached the doctor-alert threshold. */
+export function shouldSeeDoctor(sessions: Session[]): boolean {
+  return highRiskStreak(sessions) >= RISK_STREAK_DAYS;
 }

@@ -1,22 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import Countdown from '../../components/Countdown';
-import TestDemo from '../../components/TestDemo';
 import TestDone from '../../components/TestDone';
+import TestIntro from '../../components/TestIntro';
 import TestShell from '../../components/TestShell';
 import Button from '../../components/ui/Button';
+import SpiralPractice from '../../components/practice/SpiralPractice';
 import { useSettings } from '../../context/SettingsContext';
 import { computeSpiralMetrics, spiralB, templatePoints, type Pt } from '../../lib/spiral';
 import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
 
-type Phase = 'ready' | 'countdown' | 'tracing' | 'done';
+type Phase = 'intro' | 'countdown' | 'tracing' | 'done';
 
 const CANVAS = 310; // css px, square
 
 export default function SpiralTest() {
   const { settings } = useSettings();
-  const [phase, setPhase] = useState<Phase>('ready');
+  const [phase, setPhase] = useState<Phase>('intro');
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [subScore, setSubScore] = useState(0);
@@ -25,7 +26,7 @@ export default function SpiralTest() {
   const ptsRef = useRef<Pt[]>([]);
   const drawingRef = useRef(false);
   const startTimeRef = useRef(0);
-  const phaseRef = useRef<Phase>('ready');
+  const phaseRef = useRef<Phase>('intro');
   phaseRef.current = phase;
 
   const cx = CANVAS / 2;
@@ -44,7 +45,7 @@ export default function SpiralTest() {
     // template spiral
     const tpl = templatePoints(cx, cy, b);
     ctx.beginPath();
-    ctx.strokeStyle = phaseRef.current === 'ready' ? '#B9C6D1' : '#DCE3E9';
+    ctx.strokeStyle = phaseRef.current === 'countdown' ? '#B9C6D1' : '#DCE3E9';
     ctx.lineWidth = 8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -165,12 +166,19 @@ export default function SpiralTest() {
     );
   }
 
+  if (phase === 'intro') {
+    return (
+      <TestShell stepLabel={S.stepLabel(1)} title={S.tests.spiral.title} instruction={S.tests.spiral.instruction}>
+        <TestIntro testId="spiral" onStart={start} practice={<SpiralPractice />} />
+      </TestShell>
+    );
+  }
+
   return (
     <TestShell
-      stepLabel={phase !== 'tracing' ? S.stepLabel(1) : `⏱ 0:${String(elapsed).padStart(2, '0')}`}
-      title={phase !== 'tracing' ? S.tests.spiral.title : S.testing}
-      instruction={phase !== 'tracing' ? S.tests.spiral.instruction : S.keepGoing}
-      demo={phase === 'ready' ? <TestDemo test="spiral" /> : undefined}
+      stepLabel={phase === 'tracing' ? `⏱ 0:${String(elapsed).padStart(2, '0')}` : S.stepLabel(1)}
+      title={phase === 'tracing' ? S.testing : S.tests.spiral.title}
+      instruction={phase === 'tracing' ? S.keepGoing : S.tests.spiral.instruction}
     >
       <div className="flex-1 flex items-center justify-center my-3.5">
         <div className="relative bg-white rounded-[28px] shadow-[0_6px_22px_rgba(35,58,77,.08)] p-0 flex items-center justify-center">
@@ -186,9 +194,7 @@ export default function SpiralTest() {
         </div>
       </div>
 
-      {phase !== 'tracing' ? (
-        <Button className="nm-blink" onClick={start}>{S.ready}</Button>
-      ) : (
+      {phase === 'tracing' && (
         <div className="flex flex-col gap-2.5">
           <div className="flex justify-between items-baseline">
             <span className="text-[17px] font-bold text-muted-2">{S.progress}</span>

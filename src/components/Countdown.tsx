@@ -12,45 +12,65 @@ export default function Countdown({
   onDone,
   hint,
   inline = false,
+  beatMs,
 }: {
   onDone: () => void;
   hint?: string;
   inline?: boolean;
+  /** If set, play a metronome tick every `beatMs` during the countdown so the
+   *  user hears the rhythm before the real test starts (tapping test). */
+  beatMs?: number;
 }) {
   const [n, setN] = useState(3);
   const audioRef = useRef<AudioContext | null>(null);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
+  const tick = (freq: number, dur: number, vol: number) => {
+    const ctx = audioRef.current;
+    if (!ctx || ctx.state === 'closed') return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + dur + 0.02);
+    } catch {
+      /* audio unavailable — countdown still works visually */
+    }
+  };
+
   useEffect(() => {
     try {
       audioRef.current = new AudioContext();
+      void audioRef.current.resume();
     } catch {
       audioRef.current = null;
     }
+    // metronome preview: tick at the beat while counting down
+    let beatId: ReturnType<typeof setInterval> | undefined;
+    if (beatMs) {
+      tick(660, 0.08, 0.1);
+      beatId = setInterval(() => tick(660, 0.08, 0.1), beatMs);
+    }
     return () => {
+      if (beatId) clearInterval(beatId);
       audioRef.current?.close().catch(() => {});
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const ctx = audioRef.current;
-    if (ctx && ctx.state !== 'closed') {
-      try {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.frequency.value = n === 0 ? 990 : 660; // higher pitch on "go"
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (n === 0 ? 0.25 : 0.12));
-        osc.connect(gain).connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
-      } catch {
-        /* audio unavailable — countdown still works visually */
-      }
-    }
+    // the number "voice" beep (skip when a metronome is already ticking, to
+    // avoid doubled sounds on the tapping test)
+    if (!beatMs) tick(n === 0 ? 990 : 660, n === 0 ? 0.25 : 0.12, 0.15);
+    else if (n === 0) tick(990, 0.25, 0.15);
     const id = setTimeout(() => (n === 0 ? doneRef.current() : setN(n - 1)), n === 0 ? 500 : 1000);
     return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [n]);
 
   if (inline) {
