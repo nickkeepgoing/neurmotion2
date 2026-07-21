@@ -229,7 +229,32 @@ export const S = {
     metricGood: 'ปกติ',
     metricWatch: 'เฝ้าดู',
     metricConcern: 'ผิดปกติ',
+    detailSheetSub: 'ผลแต่ละตัวชี้วัด',
+    metricLegend: 'ยิ่งแถบยาว = ยิ่งควรใส่ใจ',
+    testDisclaimer: 'ตัวเลขเหล่านี้เป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย',
   },
+
+  /** One-line "what it measures" for each metric (shown in the detail sheet). */
+  metricDesc: {
+    rmsErrorNorm: 'เส้นที่ลากเบี่ยงจากแบบมากแค่ไหน',
+    tremorBandPower: 'พบการสั่นความถี่ 4–7 Hz ขณะวาดหรือไม่',
+    spacingCV: 'ช่องไฟระหว่างวงสม่ำเสมอแค่ไหน',
+    speedCV: 'ความเร็วการลากคงที่หรือสะดุด',
+    rate: 'จำนวนครั้งที่เคาะได้ต่อวินาที',
+    itiSD: 'จังหวะการเคาะสม่ำเสมอแค่ไหน',
+    decrementSlope: 'เคาะช้าลงเรื่อย ๆ หรือไม่',
+    timingError: 'เคาะตรงกับจังหวะที่กำหนดแค่ไหน',
+    restBandPower: 'การสั่น 4–7 Hz ขณะวางแขนพัก (สำคัญที่สุด)',
+    restRms: 'แอมพลิจูด (ความแรง) ของการสั่นขณะวางแขน',
+    posturalBandPower: 'การสั่นขณะยกมือค้างในอากาศ',
+    posturalRms: 'แอมพลิจูด (ความแรง) ของการสั่นขณะยกมือ',
+    turnRangeDeg: 'หันศีรษะได้กว้างแค่ไหน (ซ้าย+ขวา)',
+    turnAsymmetry: 'หันซ้ายกับขวาได้เท่ากันหรือไม่',
+    turnSmoothness: 'การหันลื่นไหลหรือสะดุด',
+    jitterPct: 'ระดับเสียงสั่นแค่ไหน (jitter)',
+    shimmerPct: 'ความดังของเสียงสั่นแค่ไหน (shimmer)',
+    f0CV: 'เสียงคงที่ตลอดการออกเสียงหรือไม่',
+  } as Record<string, string>,
 
   /** Human-readable Thai labels for each raw metric key (for the detail view). */
   metricLabels: {

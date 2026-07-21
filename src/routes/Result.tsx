@@ -25,6 +25,58 @@ const RISK_HEAD: Record<RiskLevel, { label: string; desc: string; color: string 
 
 const TEST_ORDER: TestId[] = ['spiral', 'tapping', 'tremor', 'facial', 'voice'];
 
+function metricLevel(score: number): RiskLevel {
+  return score <= 33 ? 'low' : score <= 66 ? 'medium' : 'high';
+}
+
+/** Full per-test detail: every metric with its status, bar, and explanation. */
+function TestDetailSheet({ test, metrics, subScore, onClose }: { test: TestId; metrics: Record<string, number>; subScore: number; onClose: () => void }) {
+  const lvl = testStatus(subScore);
+  const head = STATUS_STYLE[lvl];
+  const rows = metricScores(test, metrics).filter((m) => S.metricLabels[m.name]);
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-3 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1 mb-1" />
+        <div className="flex items-center gap-3">
+          <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: head.dot }} />
+          <h2 className="text-2xl font-extrabold text-ink m-0">{S.tests[test].name}</h2>
+          <span className={`ml-auto text-lg font-extrabold ${head.text}`}>{head.label}</span>
+        </div>
+        <p className="text-[15px] font-semibold text-muted m-0">
+          {S.result.detailSheetSub} · {S.result.metricLegend}
+        </p>
+
+        <div className="flex flex-col gap-3.5 mt-1">
+          {rows.map((m) => {
+            const ml = metricLevel(m.score);
+            const c = ml === 'low' ? '#2E9E5B' : ml === 'medium' ? '#F1C232' : '#D64545';
+            const chip = ml === 'low' ? S.result.metricGood : ml === 'medium' ? S.result.metricWatch : S.result.metricConcern;
+            const chipCls = ml === 'low' ? 'text-risk-low-text bg-risk-low-bg' : ml === 'medium' ? 'text-risk-med-text bg-risk-med-bg' : 'text-risk-high-text bg-risk-high-bg';
+            return (
+              <div key={m.name} className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[16px] font-bold text-ink">{S.metricLabels[m.name]}</span>
+                  <span className={`ml-auto text-[13px] font-extrabold rounded-full px-2.5 py-0.5 ${chipCls}`}>{chip}</span>
+                </div>
+                <div className="h-2.5 bg-line-warm rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.max(m.score, 4)}%`, background: c }} />
+                </div>
+                {S.metricDesc[m.name] && <span className="text-[14px] font-medium text-muted-2 leading-relaxed">{S.metricDesc[m.name]}</span>}
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="text-[13px] font-medium text-muted text-center leading-relaxed mt-2">{S.result.testDisclaimer}</p>
+        <Button variant="outline" size="md" onClick={onClose}>
+          {S.result.close}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /** Bottom sheet with real ways to reach a doctor (demo-safe: hotline + map). */
 function ConsultSheet({ onClose }: { onClose: () => void }) {
   return (
@@ -83,6 +135,7 @@ export default function Result() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const [consultOpen, setConsultOpen] = useState(false);
+  const [openTest, setOpenTest] = useState<TestId | null>(null);
   const session = useMemo(() => latestSession(), []);
   const streak = useMemo(() => highRiskStreak(loadSessions()), []);
 
@@ -152,48 +205,31 @@ export default function Result() {
         <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed whitespace-pre-line m-0 mt-1.5">{head.desc}</p>
       </div>
 
-      {/* Per-test breakdown with detail */}
+      {/* Per-test breakdown — tap a row for full detail */}
       <h2 className="text-xl font-extrabold text-ink m-0 mt-1">{S.result.detailTitle}</h2>
       <div className="flex flex-col gap-2.5 -mt-1.5">
         {TEST_ORDER.filter((t) => session.results.some((r) => r.test === t)).map((t) => {
           const r = session.results.find((x) => x.test === t)!;
           const lvl = testStatus(r.subScore);
           const st = STATUS_STYLE[lvl];
-          const worst = metricScores(t, r.metrics)[0];
-          const detail =
-            lvl === 'low'
-              ? S.result.allNormalDetail
-              : worst && S.metricLabels[worst.name]
-                ? S.result.mostConcern(S.metricLabels[worst.name])
-                : '';
+          const worst = metricScores(t, r.metrics).find((m) => S.metricLabels[m.name]);
+          const detail = lvl === 'low' ? S.result.allNormalDetail : worst ? S.result.mostConcern(S.metricLabels[worst.name]) : '';
           return (
-            <div key={t} className="bg-white rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(35,58,77,.05)] flex flex-col gap-1.5">
-              <div className="flex items-center gap-3">
-                <span className="flex-none w-3 h-3 rounded-full" style={{ background: st.dot }} />
+            <button
+              key={t}
+              onClick={() => setOpenTest(t)}
+              className="text-left bg-white rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(35,58,77,.05)] flex items-center gap-3 cursor-pointer active:scale-[.99] transition-transform border-0 w-full"
+            >
+              <span className="flex-none w-3 h-3 rounded-full" style={{ background: st.dot }} />
+              <div className="flex flex-col min-w-0">
                 <span className="text-lg font-bold text-ink">{S.tests[t].name}</span>
-                <span className={`ml-auto text-base font-bold ${st.text}`}>{st.label}</span>
+                {detail && <span className={`text-[14px] font-semibold ${lvl === 'low' ? 'text-muted' : st.text}`}>{detail}</span>}
               </div>
-              {detail && <span className={`text-[15px] font-semibold pl-6 ${lvl === 'low' ? 'text-muted' : st.text}`}>{detail}</span>}
-              {/* sub-metric bars */}
-              {lvl !== 'low' && (
-                <div className="flex flex-col gap-1 pl-6 mt-1">
-                  {metricScores(t, r.metrics)
-                    .filter((m) => S.metricLabels[m.name])
-                    .slice(0, 3)
-                    .map((m) => {
-                      const c = m.score <= 33 ? '#2E9E5B' : m.score <= 66 ? '#F1C232' : '#D64545';
-                      return (
-                        <div key={m.name} className="flex items-center gap-2">
-                          <span className="text-[13px] font-semibold text-muted-2 w-[130px] flex-none truncate">{S.metricLabels[m.name]}</span>
-                          <div className="flex-1 h-2 bg-line-warm rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${m.score}%`, background: c }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </div>
+              <span className={`ml-auto text-base font-bold ${st.text}`}>{st.label}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="flex-none">
+                <path d="M9 5l7 7-7 7" stroke="#8A97A3" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
           );
         })}
       </div>
@@ -283,6 +319,14 @@ export default function Result() {
       <p className="text-sm font-medium text-muted text-center leading-relaxed whitespace-pre-line m-0">{S.result.disclaimer}</p>
 
       {consultOpen && <ConsultSheet onClose={() => setConsultOpen(false)} />}
+      {openTest && (
+        <TestDetailSheet
+          test={openTest}
+          metrics={session.results.find((r) => r.test === openTest)!.metrics}
+          subScore={session.results.find((r) => r.test === openTest)!.subScore}
+          onClose={() => setOpenTest(null)}
+        />
+      )}
     </div>
   );
 }
