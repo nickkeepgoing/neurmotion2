@@ -5,7 +5,7 @@
  * PDPA note: only computed metric numbers are stored — never raw
  * video/audio/sensor streams.
  */
-import { computeOverallScore, riskLevel, shouldSeeDoctor } from './scoring';
+import { computeOverallScore, overallRiskLevel, shouldSeeDoctor } from './scoring';
 import type { RiskLevel, Session, Settings, TestId, TestResult } from './types';
 
 const KEY_SETTINGS = 'nm.settings';
@@ -54,8 +54,15 @@ export function loadSessions(): Session[] {
   return loadSessionsRaw().sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 }
 
+/**
+ * LOCAL calendar day for a stored timestamp.
+ *
+ * Slicing the ISO string gave the UTC day, so in Thailand (UTC+7) anything
+ * before 07:00 local was filed under the previous day — silently merging two
+ * days or breaking a genuine streak. 'en-CA' formats as YYYY-MM-DD.
+ */
 function dateKey(iso: string): string {
-  return iso.slice(0, 10);
+  return new Date(iso).toLocaleDateString('en-CA');
 }
 
 /** Today's session, if any. */
@@ -87,7 +94,8 @@ export function saveTestResult(result: TestResult, userType: Session['userType']
   session.results = session.results.filter((r) => r.test !== result.test);
   session.results.push(result);
   session.overallScore = computeOverallScore(session.results);
-  session.riskLevel = riskLevel(session.overallScore);
+  // red-flag override: one severely abnormal domain can't be averaged to "low"
+  session.riskLevel = overallRiskLevel(session.overallScore, session.results);
   session.timestamp = new Date().toISOString();
   saveSessions(sessions);
   return session;
@@ -112,6 +120,18 @@ export function startRetestRound(): void {
 
 export function clearRetestRound(): void {
   sessionStorage.removeItem(KEY_ROUND);
+}
+
+const TEST_ORDER: TestId[] = ['spiral', 'tapping', 'tremor', 'facial', 'voice'];
+
+/**
+ * Next test still outstanding in this round, skipping `except`.
+ * Used so that skipping a test continues the run instead of dropping the user
+ * back to the dashboard and breaking the chain.
+ */
+export function nextIncompleteTest(except?: TestId): TestId | undefined {
+  const done = completedThisRound();
+  return TEST_ORDER.find((t) => !done.has(t) && t !== except);
 }
 
 /** Tests completed in the current round (falls back to today's results). */

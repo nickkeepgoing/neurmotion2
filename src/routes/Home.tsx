@@ -45,6 +45,20 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
       <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
         <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1" />
+        {/* an explicit close control — tapping the scrim isn't discoverable for
+            someone who stops rather than guesses */}
+        <div className="flex items-center">
+          <h2 className="text-2xl font-extrabold text-ink m-0">{S.home.calendarTitle}</h2>
+          <button
+            onClick={onClose}
+            aria-label={S.result.close}
+            className="ml-auto min-w-14 min-h-14 rounded-full bg-[#F4F6F8] border-2 border-field flex items-center justify-center cursor-pointer"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="#5A6B7A" strokeWidth="2.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
         <div className="flex items-center justify-between">
           <button onClick={() => shift(-1)} aria-label="เดือนก่อนหน้า" className="min-w-14 min-h-14 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>

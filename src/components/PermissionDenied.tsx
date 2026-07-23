@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import Button from './ui/Button';
+import { nextIncompleteTest } from '../lib/storage';
 import { S } from '../lib/strings';
+import type { TestId } from '../lib/types';
 
 /**
  * Permission-denied state with a working retry.
@@ -9,7 +11,15 @@ import { S } from '../lib/strings';
  * then try again" — a sentence that means nothing to someone who only uses
  * LINE, and there was no retry control anywhere on it.
  */
-export default function PermissionDenied({ kind, onRetry }: { kind: 'camera' | 'mic' | 'motion'; onRetry: () => void }) {
+export default function PermissionDenied({
+  kind,
+  test,
+  onRetry,
+}: {
+  kind: 'camera' | 'mic' | 'motion';
+  test: TestId;
+  onRetry: () => void;
+}) {
   const navigate = useNavigate();
   const copy = S.permission[kind];
 
@@ -27,7 +37,14 @@ export default function PermissionDenied({ kind, onRetry }: { kind: 'camera' | '
         <Button className="nm-blink" onClick={onRetry}>
           {S.permission.retry}
         </Button>
-        <Button variant="outline" onClick={() => navigate('/home')}>
+        {/* skipping continues the run rather than breaking the chain */}
+        <Button
+          variant="outline"
+          onClick={() => {
+            const next = nextIncompleteTest(test);
+            navigate(next ? `/test/${next}` : '/result');
+          }}
+        >
           {S.skip}
         </Button>
       </div>

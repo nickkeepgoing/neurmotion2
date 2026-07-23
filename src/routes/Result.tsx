@@ -5,7 +5,7 @@ import Button from '../components/ui/Button';
 import RiskGauge from '../components/ui/RiskGauge';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
-import { highRiskStreak, metricScores, testStatus } from '../lib/scoring';
+import { highRiskStreak, metricScores, redFlagTests, riskLevel, testStatus } from '../lib/scoring';
 import { latestSession, loadSessions, trendSeries } from '../lib/storage';
 import { S, thaiDate } from '../lib/strings';
 import { RISK_CUTS, RISK_STREAK_DAYS } from '../lib/thresholds';
@@ -167,6 +167,7 @@ export default function Result() {
 
   const level = session.riskLevel;
   const head = RISK_HEAD[level];
+  const redFlags = redFlagTests(session.results);
 
   /**
    * Honest trend wording. The old version fired "แนวโน้มดีขึ้นตลอดสัปดาห์
@@ -258,6 +259,12 @@ export default function Result() {
         <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed whitespace-pre-line m-0 mt-1.5">{head.desc}</p>
         {level === 'low' && (
           <p className="text-base font-medium text-muted-2 text-center leading-relaxed m-0 mt-2 px-1">{S.result.lowCaveat}</p>
+        )}
+        {/* name the domain that triggered the red-flag override */}
+        {redFlags.length > 0 && riskLevel(session.overallScore) === 'low' && (
+          <p className="text-base font-semibold text-risk-med-text bg-risk-med-bg rounded-2xl px-4 py-3 leading-relaxed m-0 mt-3">
+            {S.result.redFlag(redFlags.map((t) => S.tests[t].name).join(' · '))}
+          </p>
         )}
       </div>
 

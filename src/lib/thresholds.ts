@@ -112,6 +112,20 @@ export const TEST_WEIGHTS: Record<string, number> = {
 /** Overall score → risk level cut points (tunable). */
 export const RISK_CUTS = { lowMax: 33, mediumMax: 66 };
 
+/**
+ * A single test scoring at or above this is a "red flag": the overall risk may
+ * not be reported as low, however good the other tests were.
+ *
+ * Rationale: the overall score is a weighted mean, which is compensatory. A
+ * textbook ISOLATED rest tremor — the most specific parkinsonian sign this app
+ * measures — would be averaged away by four normal tests and reported as low
+ * risk. Clinical parkinsonism is domain-selective and asymmetric early on, so
+ * a purely averaged model only fires once the disease is advanced enough to
+ * affect everything, which is exactly the population that no longer needs
+ * screening.
+ */
+export const RED_FLAG_SUBSCORE = 80;
+
 /** Consecutive high-risk days that trigger the "see a doctor" alert. */
 export const RISK_STREAK_DAYS = 5;
 

@@ -233,7 +233,7 @@ export default function FacialTest() {
   if (phase === 'error') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title}>
-        <PermissionDenied kind="camera" onRetry={start} />
+        <PermissionDenied kind="camera" test="facial" onRetry={start} />
       </TestShell>
     );
   }

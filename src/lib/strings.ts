@@ -271,6 +271,8 @@ export const S = {
     metricWatch: 'เฝ้าดู',
     metricConcern: 'ผิดปกติ',
     detailSheetSub: 'ผลแต่ละตัวชี้วัด',
+    // shown when one domain is severely abnormal even though the average is not
+    redFlag: (names: string) => `แม้คะแนนรวมจะยังไม่สูง แต่พบความผิดปกติชัดเจนที่ "${names}" จึงยังไม่ถือว่าปกติ`,
     metricLegend: 'ยิ่งแถบยาว = ยิ่งควรใส่ใจ',
     testDisclaimer: 'ตัวเลขเหล่านี้เป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย',
   },

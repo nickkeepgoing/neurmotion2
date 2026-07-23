@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from './ui/Button';
 import { useSettings } from '../context/SettingsContext';
 import { speak, stopSpeaking } from '../lib/speech';
+import { nextIncompleteTest } from '../lib/storage';
 import { S } from '../lib/strings';
 import type { TestId } from '../lib/types';
 
@@ -40,7 +41,14 @@ export default function TestInvalid({ test, onRetry }: { test: TestId; onRetry: 
         <Button className="nm-blink" onClick={onRetry}>
           {S.invalid.retry}
         </Button>
-        <Button variant="outline" onClick={() => navigate('/home')}>
+        {/* skipping continues the run rather than breaking the chain */}
+        <Button
+          variant="outline"
+          onClick={() => {
+            const next = nextIncompleteTest(test);
+            navigate(next ? `/test/${next}` : '/result');
+          }}
+        >
           {S.skip}
         </Button>
       </div>

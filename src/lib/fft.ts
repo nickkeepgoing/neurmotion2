@@ -71,23 +71,43 @@ export function resampleUniform(t: number[], v: number[], hz: number): Float64Ar
  */
 export function bandPowerRatio(signal: Float64Array, sampleHz: number, loHz: number, hiHz: number): number {
   if (signal.length < 8) return 0;
+  const len = signal.length;
   // next power of two ≥ length, zero-padded
-  const n = 1 << Math.ceil(Math.log2(signal.length));
+  const n = 1 << Math.ceil(Math.log2(len));
   const re = new Float64Array(n);
   const im = new Float64Array(n);
-  // remove mean (kills the DC bin properly)
+
+  /* Linear detrend, then a Hann window.
+     Hand tremor rides on top of large, slow movement — postural sway, drift,
+     the curvature of the spiral itself — which can carry a thousand times more
+     power than the tremor. With a rectangular window that low-frequency energy
+     leaks across the spectrum at only −13 dB, putting the leakage floor near
+     the signal we are trying to measure inside 4–7 Hz. Detrending removes the
+     ramp and Hann drops the sidelobes to −31 dB with a much steeper rolloff. */
+  const slope = linearSlope(signal); // per sample
+  const mid = (len - 1) / 2;
   let mean = 0;
-  for (const s of signal) mean += s;
-  mean /= signal.length;
-  for (let i = 0; i < signal.length; i++) re[i] = signal[i] - mean;
+  for (let i = 0; i < len; i++) mean += signal[i];
+  mean /= len;
+  for (let i = 0; i < len; i++) {
+    const detrended = signal[i] - mean - slope * (i - mid);
+    const w = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (len - 1))); // Hann
+    re[i] = detrended * w;
+  }
   fft(re, im);
 
+  /* Band-limit the denominator too. Without this the ratio is dominated by
+     whatever DC-adjacent drift survived, which makes a sloppy-but-steady hand
+     look better than an accurate-but-tremulous one. */
   const df = sampleHz / n;
+  const DENOM_LO = 0.5;
+  const DENOM_HI = Math.min(15, sampleHz / 2);
   let band = 0;
   let total = 0;
   for (let k = 1; k < n / 2; k++) {
-    const p = re[k] * re[k] + im[k] * im[k];
     const f = k * df;
+    if (f < DENOM_LO || f > DENOM_HI) continue;
+    const p = re[k] * re[k] + im[k] * im[k];
     total += p;
     if (f >= loHz && f <= hiHz) band += p;
   }

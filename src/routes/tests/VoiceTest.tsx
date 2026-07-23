@@ -161,7 +161,7 @@ export default function VoiceTest() {
   if (phase === 'error') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title}>
-        <PermissionDenied kind="mic" onRetry={start} />
+        <PermissionDenied kind="mic" test="voice" onRetry={start} />
       </TestShell>
     );
   }

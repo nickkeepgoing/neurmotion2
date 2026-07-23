@@ -156,7 +156,7 @@ export default function TremorTest() {
   if (phase === 'denied') {
     return (
       <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title}>
-        <PermissionDenied kind="motion" onRetry={start} />
+        <PermissionDenied kind="motion" test="tremor" onRetry={start} />
       </TestShell>
     );
   }

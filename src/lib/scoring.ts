@@ -2,7 +2,7 @@
  * Scoring: raw metrics → 0–100 sub-scores → overall score → risk level.
  * All ranges/weights live in thresholds.ts. Higher score = more concerning.
  */
-import { METRIC_RANGES, RISK_CUTS, RISK_STREAK_DAYS, TEST_WEIGHTS } from './thresholds';
+import { METRIC_RANGES, RED_FLAG_SUBSCORE, RISK_CUTS, RISK_STREAK_DAYS, TEST_WEIGHTS } from './thresholds';
 import type { RiskLevel, Session, TestId, TestResult } from './types';
 
 /** Linear map from `good` (0) to `bad` (100), clamped. Handles inverted ranges. */
@@ -42,6 +42,24 @@ export function riskLevel(score: number): RiskLevel {
   return 'high';
 }
 
+/** Tests whose own sub-score is a red flag, worst first. */
+export function redFlagTests(results: TestResult[]): TestId[] {
+  return results
+    .filter((r) => r.subScore >= RED_FLAG_SUBSCORE)
+    .sort((a, b) => b.subScore - a.subScore)
+    .map((r) => r.test);
+}
+
+/**
+ * Overall risk level, with the red-flag override applied: a single severely
+ * abnormal domain can never be averaged down to "low". See RED_FLAG_SUBSCORE.
+ */
+export function overallRiskLevel(score: number, results: TestResult[]): RiskLevel {
+  const base = riskLevel(score);
+  if (base === 'low' && redFlagTests(results).length > 0) return 'medium';
+  return base;
+}
+
 /** Per-test status for UI rows: normal / watch / check. */
 export function testStatus(subScore: number): RiskLevel {
   return riskLevel(subScore);
@@ -56,24 +74,43 @@ export function metricScores(test: TestId, metrics: Record<string, number>): { n
     .sort((a, b) => b.score - a.score);
 }
 
+/** Local calendar day (YYYY-MM-DD) for a stored timestamp. */
+function localDay(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-CA');
+}
+
+/** Shift a YYYY-MM-DD key by `n` days. */
+function shiftDay(key: string, n: number): string {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d + n).toLocaleDateString('en-CA');
+}
+
 /**
- * Number of consecutive most-recent days whose session is high-risk.
- * Used to trigger the "please see a doctor" alert after RISK_STREAK_DAYS days.
- * `sessions` may be in any order.
+ * Consecutive CALENDAR days, counting back from today, whose session is
+ * high-risk. `sessions` may be in any order.
+ *
+ * Two bugs this fixes: it used to walk the list of days that HAVE sessions,
+ * so results months apart still counted as "consecutive"; and it was not
+ * anchored to today, so a streak that ended long ago kept firing the alert.
+ * A missed day now ends the streak, which is what "ต่อเนื่อง N วัน" claims.
  */
 export function highRiskStreak(sessions: Session[]): number {
-  // one session per day: keep the latest per day, newest first
+  // latest session per local day
   const byDay = new Map<string, Session>();
   for (const s of sessions) {
-    const day = s.timestamp.slice(0, 10);
+    const day = localDay(s.timestamp);
     const prev = byDay.get(day);
     if (!prev || s.timestamp > prev.timestamp) byDay.set(day, s);
   }
-  const days = [...byDay.keys()].sort((a, b) => b.localeCompare(a)); // newest first
+
+  const today = new Date().toLocaleDateString('en-CA');
+  // allow the streak to end yesterday — the user may not have tested yet today
+  let cursor = byDay.has(today) ? today : shiftDay(today, -1);
+
   let streak = 0;
-  for (const day of days) {
-    if (byDay.get(day)!.riskLevel === 'high') streak += 1;
-    else break;
+  while (byDay.get(cursor)?.riskLevel === 'high') {
+    streak += 1;
+    cursor = shiftDay(cursor, -1);
   }
   return streak;
 }
