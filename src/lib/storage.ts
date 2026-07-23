@@ -153,3 +153,16 @@ export function trendSeries(maxDays = 7): { day: string; score: number; level: R
 export function doctorAlert(): boolean {
   return shouldSeeDoctor(loadSessions());
 }
+
+/**
+ * Erase everything this app stored about the user.
+ *
+ * PDPA: the consent screen promises "ถอนความยินยอมได้ทุกเมื่อ" — this is the
+ * mechanism that makes that promise true. Doubles as a clean reset between
+ * demo users.
+ */
+export function eraseAllData(): void {
+  localStorage.removeItem(KEY_SETTINGS);
+  localStorage.removeItem(KEY_SESSIONS);
+  sessionStorage.removeItem(KEY_ROUND);
+}

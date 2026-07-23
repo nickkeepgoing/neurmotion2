@@ -4,7 +4,7 @@ import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import { highRiskStreak } from '../lib/scoring';
-import { completedToday, loadSessions, startRetestRound } from '../lib/storage';
+import { completedToday, eraseAllData, loadSessions, startRetestRound } from '../lib/storage';
 import { RISK_STREAK_DAYS } from '../lib/thresholds';
 import { S, thaiDateLong } from '../lib/strings';
 import type { TestId } from '../lib/types';
@@ -112,12 +112,28 @@ function OptionsMenu({ onClose }: { onClose: () => void }) {
             {settings.voiceOn ? S.home.on : S.home.off}
           </button>
         </div>
+        {/* PDPA: makes the consent screen's "withdraw at any time" promise real.
+            (Also the clean reset between demo users.) */}
         <button
-          onClick={() => navigate('/admin')}
-          className="text-left text-base font-bold text-secondary bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
+          onClick={() => {
+            if (confirm(S.home.eraseConfirm)) {
+              eraseAllData();
+              window.location.href = '/';
+            }
+          }}
+          className="text-left min-h-14 text-base font-bold text-risk-high-text bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
         >
-          {S.admin.openAdmin}
+          {S.home.eraseLabel}
         </button>
+        {/* Admin is an internal tool — not shown to patients. Reachable at /admin. */}
+        {import.meta.env.DEV && (
+          <button
+            onClick={() => navigate('/admin')}
+            className="text-left min-h-14 text-base font-bold text-secondary bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
+          >
+            {S.admin.openAdmin}
+          </button>
+        )}
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
+import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
 import Button from '../../components/ui/Button';
 import { ShieldIcon } from '../../components/icons';
@@ -12,9 +13,9 @@ import { computeSubScore } from '../../lib/scoring';
 import { speak } from '../../lib/speech';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
-import { FACIAL } from '../../lib/thresholds';
+import { FACIAL, MIN_VALID } from '../../lib/thresholds';
 
-type Phase = 'intro' | 'loading' | 'countdown' | 'scanning' | 'done' | 'error';
+type Phase = 'intro' | 'loading' | 'countdown' | 'scanning' | 'done' | 'error' | 'invalid';
 
 /**
  * Head-turn test (cranial-nerve style): the user turns their head fully left
@@ -192,12 +193,22 @@ export default function FacialTest() {
 
   const finish = () => {
     const m = computeFacialMetrics(framesRef.current);
+    // Too few landmark frames means the camera never really saw the face.
+    // Unlike the other tests this one fails toward a FALSE ALARM (asymmetry
+    // and smoothness default to 1 → a high-risk score), so gating it matters
+    // just as much: never tell someone they show concerning signs because
+    // the camera couldn't find them.
+    if (m.frames < MIN_VALID.facialFrames) {
+      setPhase('invalid');
+      return;
+    }
     const metrics = {
       turnRangeDeg: m.turnRangeDeg,
       turnAsymmetry: m.turnAsymmetry,
       turnSmoothness: m.turnSmoothness,
       leftDeg: m.leftDeg,
       rightDeg: m.rightDeg,
+      frames: m.frames,
     };
     const score = computeSubScore('facial', metrics);
     saveTestResult({ test: 'facial', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
@@ -209,6 +220,14 @@ export default function FacialTest() {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title}>
         <TestDone subScore={subScore} />
+      </TestShell>
+    );
+  }
+
+  if (phase === 'invalid') {
+    return (
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title}>
+        <TestInvalid test="facial" onRetry={start} />
       </TestShell>
     );
   }

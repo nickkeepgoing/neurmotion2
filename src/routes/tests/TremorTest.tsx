@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
+import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
 import Button from '../../components/ui/Button';
 import { useSettings } from '../../context/SettingsContext';
@@ -10,11 +11,12 @@ import { speak } from '../../lib/speech';
 import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
-import { TREMOR } from '../../lib/thresholds';
+import { MIN_VALID, TREMOR } from '../../lib/thresholds';
 import { combineTremor, computePhaseMetrics, requestMotionPermission, type MotionSample } from '../../lib/tremor';
 
 type Phase =
   | 'intro'
+  | 'invalid'
   | 'countdown' // 3-2-1 before phase 1 (postural)
   | 'postural' // hold in the air
   | 'switch' // rest your arm on a table/lap
@@ -100,13 +102,26 @@ export default function TremorTest() {
 
   const endPostural = () => {
     if (phaseRef.current !== 'postural') return;
-    if (computePhaseMetrics(posturalRef.current).samples < 20) return setPhase('unsupported');
+    if (computePhaseMetrics(posturalRef.current).samples < MIN_VALID.tremorSamplesPerPhase) {
+      return setPhase('unsupported');
+    }
     if (settings.voiceOn) speak(S.tremorPhase.switchNow);
     setPhase('switch');
   };
 
   const endRest = () => {
     if (phaseRef.current !== 'rest') return;
+    // The rest phase carries the heaviest weights (rest tremor is the most
+    // specific parkinsonian sign), and the lib returns healthy-looking zeros
+    // when there is no data — so it must be gated exactly like the postural
+    // phase, or a failed capture reads as "no tremor detected".
+    if (
+      computePhaseMetrics(restRef.current).samples < MIN_VALID.tremorSamplesPerPhase ||
+      computePhaseMetrics(posturalRef.current).samples < MIN_VALID.tremorSamplesPerPhase
+    ) {
+      setPhase('invalid');
+      return;
+    }
     const m = combineTremor(posturalRef.current, restRef.current);
     const metrics = {
       restBandPower: m.restBandPower,
@@ -125,6 +140,14 @@ export default function TremorTest() {
     return (
       <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title}>
         <TestDone subScore={subScore} />
+      </TestShell>
+    );
+  }
+
+  if (phase === 'invalid') {
+    return (
+      <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title}>
+        <TestInvalid test="tremor" onRetry={start} />
       </TestShell>
     );
   }

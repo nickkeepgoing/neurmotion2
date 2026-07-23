@@ -20,26 +20,40 @@ export default function SpiralPractice() {
     const dpr = window.devicePixelRatio || 1;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, SIZE, SIZE);
-    // template
+    // template — same high-contrast "road" as the real test
     const tpl = templatePoints(cx, cy, b);
+    const strokeTemplate = (color: string, width: number) => {
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      tpl.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+      ctx.stroke();
+    };
+    strokeTemplate('#E3EEF6', 17);
+    strokeTemplate('#5A6B7A', 3.5);
     ctx.beginPath();
-    ctx.strokeStyle = '#DCE3E9';
-    ctx.lineWidth = 7;
-    ctx.lineCap = 'round';
-    tpl.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.fillStyle = '#E8762C';
+    ctx.fillStyle = '#BC5411';
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2.5;
     ctx.arc(cx, cy, 9, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
     // user
     const pts = ptsRef.current;
     if (pts.length > 1) {
-      ctx.beginPath();
-      ctx.strokeStyle = '#E8762C';
-      ctx.lineWidth = 5;
-      pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-      ctx.stroke();
+      const strokeUser = (color: string, width: number) => {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+        ctx.stroke();
+      };
+      strokeUser('#FFFFFF', 9);
+      strokeUser('#BC5411', 5);
     }
   };
 

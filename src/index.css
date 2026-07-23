@@ -3,8 +3,12 @@
 /* Design tokens — exact values from the approved Claude Design export
    (design/reference/NeuroMotion Screens.dc.html) */
 @theme {
+  /* Brand orange stays for decorative surfaces (halos, icon chips, tints).
+     White text on it is only 2.97:1, so anything CARRYING TEXT uses the
+     deeper action variant: #BC5411 = 4.76:1 on white, #A34509 = 6.15:1. */
   --color-primary: #e8762c;
-  --color-primary-dark: #d9681f;
+  --color-primary-action: #bc5411;
+  --color-primary-dark: #a34509;
   --color-primary-soft: #fdefe2;
   --color-primary-softer: #fce3cc;
   --color-secondary: #1b6ca8;
@@ -12,11 +16,15 @@
   --color-secondary-soft: #e3eef6;
   --color-bg: #fff9f2;
   --color-ink: #233a4d;
-  --color-muted: #8a97a3;
+  /* was #8A97A3 = 2.85:1 on the warm bg — below AA, and it carried ~30 labels
+     including the medical disclaimer. #64727E = 4.73:1 on #FFF9F2. */
+  --color-muted: #64727e;
   --color-muted-2: #5a6b7a;
   --color-line: #e8eaed;
   --color-line-warm: #f1ece3;
-  --color-field: #d8dee4;
+  /* borders are the only affordance boundary on inputs/outline buttons, so
+     they need 3:1 (WCAG 1.4.11). #D8DEE4 was 1.36:1; #7E8E9C is 3.37:1. */
+  --color-field: #7e8e9c;
   --color-risk-low: #2e9e5b;
   --color-risk-low-text: #256b43;
   --color-risk-low-bg: #e9f5ec;

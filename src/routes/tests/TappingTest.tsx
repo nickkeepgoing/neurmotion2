@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Countdown from '../../components/Countdown';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
+import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
 import TapPractice from '../../components/practice/TapPractice';
 import { useSettings } from '../../context/SettingsContext';
@@ -9,9 +10,9 @@ import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
 import { computeTappingMetrics } from '../../lib/tapping';
-import { TAPPING } from '../../lib/thresholds';
+import { MIN_VALID, TAPPING } from '../../lib/thresholds';
 
-type Phase = 'intro' | 'countdown' | 'running' | 'done';
+type Phase = 'intro' | 'countdown' | 'running' | 'done' | 'invalid';
 
 export default function TappingTest() {
   const { settings } = useSettings();
@@ -73,6 +74,13 @@ export default function TappingTest() {
   };
 
   const finish = () => {
+    // Too few taps → the interval statistics are meaningless and every one of
+    // them would clamp to "perfect". Refuse to score rather than report a
+    // reassuring number for someone who could not do the test.
+    if (tapsRef.current.length < MIN_VALID.tappingCount) {
+      setPhase('invalid');
+      return;
+    }
     const m = computeTappingMetrics(tapsRef.current);
     const metrics = { rate: m.rate, itiSD: m.itiSD, decrementSlope: m.decrementSlope, timingError: m.timingError, count: m.count };
     const score = computeSubScore('tapping', metrics);
@@ -92,6 +100,14 @@ export default function TappingTest() {
     return (
       <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title}>
         <TestDone subScore={subScore} />
+      </TestShell>
+    );
+  }
+
+  if (phase === 'invalid') {
+    return (
+      <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title}>
+        <TestInvalid test="tapping" onRetry={() => setPhase('countdown')} />
       </TestShell>
     );
   }
@@ -134,8 +150,7 @@ export default function TappingTest() {
                   bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]
                   ${phase === 'running' ? (beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b') : ''}`}
               >
-                <span className="text-3xl font-extrabold text-white">แตะ</span>
-                <span className="font-num text-[15px] font-bold text-white/85 tracking-widest">TAP</span>
+                <span className="text-4xl font-extrabold text-white">แตะ</span>
               </button>
               {/* demo hand bouncing on the target while counting down */}
               {phase === 'countdown' && (

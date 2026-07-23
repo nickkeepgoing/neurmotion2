@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
+import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
 import Button from '../../components/ui/Button';
 import { ShieldIcon, VoiceIcon } from '../../components/icons';
@@ -10,10 +11,10 @@ import { useSettings } from '../../context/SettingsContext';
 import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
-import { VOICE } from '../../lib/thresholds';
+import { MIN_VALID, VOICE } from '../../lib/thresholds';
 import { computeVoiceMetrics } from '../../lib/voice';
 
-type Phase = 'intro' | 'countdown' | 'recording' | 'done' | 'error';
+type Phase = 'intro' | 'countdown' | 'recording' | 'done' | 'error' | 'invalid';
 
 /** Records ~5 s of raw PCM locally, analyzes, then discards the audio (PDPA). */
 export default function VoiceTest() {
@@ -125,6 +126,12 @@ export default function VoiceTest() {
             off += c.length;
           }
           const m = computeVoiceMetrics(pcm, ctx.sampleRate);
+          // Silence / muted mic returns zeros, which normalise to a PERFECT
+          // voice score. Require real phonation before scoring.
+          if (m.voicedRatio < MIN_VALID.voiceVoicedRatio) {
+            setPhase('invalid');
+            return;
+          }
           const metrics = { jitterPct: m.jitterPct, shimmerPct: m.shimmerPct, f0CV: m.f0CV, meanF0: m.meanF0, voicedRatio: m.voicedRatio };
           const score = computeSubScore('voice', metrics);
           saveTestResult({ test: 'voice', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
@@ -141,6 +148,14 @@ export default function VoiceTest() {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title}>
         <TestDone subScore={subScore} />
+      </TestShell>
+    );
+  }
+
+  if (phase === 'invalid') {
+    return (
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title}>
+        <TestInvalid test="voice" onRetry={start} />
       </TestShell>
     );
   }

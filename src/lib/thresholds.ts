@@ -34,9 +34,13 @@ export const METRIC_RANGES: Record<string, Record<string, MetricRange>> = {
     speedCV: { good: 0.35, bad: 1.0, weight: 0.2 },
   },
   tapping: {
-    // Taps per second. Healthy index-finger tapping ≈ 4–6 Hz;
-    // bradykinesia slows this markedly (<2 Hz concerning).
-    rate: { good: 5, bad: 2, weight: 0.3 },
+    // NOTE: there is deliberately no `rate` metric here. This test is
+    // metronome-PACED at TAPPING.beatMs (2.0 taps/s), so a perfectly
+    // compliant user always produces ~2 taps/s. Scoring that against
+    // maximal-tapping norms (4–6 Hz) pinned every user at 100/100 and made
+    // "tapping speed" the reported concern for 100% of users. Measuring
+    // bradykinesia by rate requires a separate UNPACED max-speed block
+    // (cf. MDS-UPDRS 3.4) — until that exists, rate is not scored.
     // SD of inter-tap intervals (ms). Healthy rhythmic tapping ≈ 20–50 ms.
     itiSD: { good: 30, bad: 130, weight: 0.3 },
     // Slope of inter-tap interval over time (ms per tap). Positive slope =
@@ -72,6 +76,28 @@ export const METRIC_RANGES: Record<string, Record<string, MetricRange>> = {
     // Coefficient of variation of F0 across the sustained vowel.
     f0CV: { good: 0.015, bad: 0.09, weight: 0.25 },
   },
+};
+
+/**
+ * Minimum data required before a test result may be SCORED AND SAVED.
+ *
+ * Safety rule: an attempt that produced too little data must be reported as
+ * "ทำไม่สำเร็จ — ลองใหม่", never scored. Previously the metric functions
+ * returned zeros on insufficient data, and zero normalises to the *healthy*
+ * end — so "the test didn't work" and "you are fine" were indistinguishable
+ * to the user (and, for the facial test, no data scored as high risk).
+ */
+export const MIN_VALID = {
+  /** taps needed for inter-tap-interval statistics to mean anything */
+  tappingCount: 6,
+  /** accelerometer samples required in EACH of the two tremor phases */
+  tremorSamplesPerPhase: 20,
+  /** fraction of voice frames that must contain detectable phonation */
+  voiceVoicedRatio: 0.25,
+  /** face-landmark frames required for the head-turn test */
+  facialFrames: 30,
+  /** fraction of the spiral that must actually be traced */
+  spiralCoverage: 0.7,
 };
 
 /** Relative weight of each test in the overall score. */

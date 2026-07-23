@@ -84,11 +84,13 @@ export const S = {
     voiceLabel: 'เสียงแนะนำภาษาไทย',
     on: 'เปิด',
     off: 'ปิด',
+    eraseLabel: 'ลบข้อมูลของฉันทั้งหมด',
+    eraseConfirm: 'ยืนยันลบข้อมูลทั้งหมดของคุณ? การกระทำนี้ย้อนกลับไม่ได้',
   },
 
   tests: {
-    spiral: { name: 'วาดก้นหอย', title: 'Spiral Tracing Test', instruction: 'ลากนิ้วตามเส้นก้นหอย\nช้า ๆ จากด้านในออกด้านนอก' },
-    tapping: { name: 'เคาะนิ้ว', title: 'Finger Tapping Test', instruction: 'แตะปุ่มวงกลมตามจังหวะ\nให้สม่ำเสมอที่สุด' },
+    spiral: { name: 'วาดก้นหอย', title: 'ทดสอบวาดก้นหอย', instruction: 'ลากนิ้วตามเส้นก้นหอย\nช้า ๆ จากด้านในออกด้านนอก' },
+    tapping: { name: 'เคาะนิ้ว', title: 'ทดสอบเคาะนิ้ว', instruction: 'แตะปุ่มวงกลมตามจังหวะ\nให้สม่ำเสมอที่สุด' },
     tremor: { name: 'ความนิ่งของมือ', title: 'ทดสอบความนิ่งของมือ', instruction: 'ทำ 2 ท่า: ถือโทรศัพท์ยกขึ้นในอากาศ\nแล้ววางแขนบนโต๊ะหรือตัก' },
     facial: { name: 'หันศีรษะ', title: 'ทดสอบการหันศีรษะ', instruction: 'หันหน้าไปทางซ้าย แล้วไปทางขวา\nช้า ๆ ให้สุดทั้งสองข้าง' },
     voice: { name: 'เสียงพูด', title: 'ทดสอบเสียงพูด', instruction: 'ออกเสียง "อาาา" ยาว ๆ\nให้นิ่งที่สุด 5 วินาที' },
@@ -125,6 +127,18 @@ export const S = {
     voice: 'ออกเสียง "อาาา" ยาว ๆ ให้นิ่งที่สุด',
   } as Record<string, string>,
   replayVoice: 'ฟังคำแนะนำอีกครั้ง',
+
+  /** Shown when a test produced too little data to score honestly. */
+  invalid: {
+    title: 'ยังทำไม่สำเร็จ',
+    retry: 'ลองใหม่อีกครั้ง',
+    note: 'ผลที่ไม่สมบูรณ์จะไม่ถูกบันทึก เพื่อไม่ให้คะแนนคลาดเคลื่อน',
+    spiral: 'ยังลากไม่ครบเส้น ลองลากตามเส้นจากตรงกลางออกไปจนถึงวงนอกสุดนะคะ',
+    tapping: 'แตะน้อยเกินไป จึงยังประเมินไม่ได้ ลองแตะตามจังหวะอีกครั้งนะคะ',
+    tremor: 'เก็บข้อมูลการสั่นได้ไม่ครบ ลองถือโทรศัพท์ให้นิ่งแล้วทำใหม่นะคะ',
+    facial: 'กล้องจับใบหน้าได้ไม่ชัดพอ ลองจัดใบหน้าให้อยู่ในกรอบแล้วทำใหม่นะคะ',
+    voice: 'ยังไม่ได้ยินเสียงชัดพอ ลองออกเสียง "อาาา" ให้ดังและยาวขึ้นนะคะ',
+  } as Record<string, string>,
   countdownReady: 'เตรียมตัว…',
   countdownGo: 'เริ่ม!',
   countdownHints: {
@@ -139,7 +153,9 @@ export const S = {
   flow: {
     steps: ['ดูคลิป', 'ทดลองใช้', 'ทดสอบจริง'],
     watchTitle: 'ดูวิธีทำก่อน',
-    noVideo: 'ยังไม่มีคลิปวิดีโอสำหรับแบบทดสอบนี้ — ดูภาพเคลื่อนไหวสาธิตด้านบนได้เลย (ผู้ดูแลระบบเพิ่มคลิปได้ภายหลัง)',
+    // The demo animation IS the designed content; a video is a bonus. Never
+    // mention admins to a patient.
+    noVideo: 'ดูภาพสาธิตด้านบนให้เข้าใจก่อน แล้วไปลองทำในขั้นถัดไปได้เลย',
     toPractice: 'ต่อไป: ทดลองใช้',
     practiceTitle: 'ทดลองใช้',
     practiceHint: 'ลองทำดูก่อนได้เลย ยังไม่เก็บคะแนน',
@@ -197,6 +213,9 @@ export const S = {
     riskMedium: 'ความเสี่ยงปานกลาง',
     riskHigh: 'พบสัญญาณที่ควรใส่ใจ',
     lowDesc: 'ผลของคุณวันนี้อยู่ในเกณฑ์ปกติ',
+    // A "low" screening result must never be read as "you don't have the disease".
+    lowCaveat:
+      'ผลปกติไม่ได้ยืนยันว่าไม่มีโรค — หากมีอาการ เช่น มือสั่น เคลื่อนไหวช้าลง หรือลายมือเล็กลง ควรพบแพทย์แม้ผลจะปกติ',
     mediumDesc: 'มีบางรายการที่ควรเฝ้าดู ลองทำแบบทดสอบสม่ำเสมอ',
     highDesc: 'พบสัญญาณบางอย่างที่ควรปรึกษาแพทย์\nไม่ต้องกังวล เราอยู่เคียงข้างคุณ',
     perTest: 'ผลรายการทดสอบ',
@@ -204,7 +223,10 @@ export const S = {
     statusWatch: 'เฝ้าดู',
     statusCheck: 'ควรตรวจเพิ่ม',
     trend: 'แนวโน้มของคุณ',
-    trendGood: 'แนวโน้มดีขึ้นตลอดสัปดาห์ เยี่ยมมาก!',
+    trendHint: 'คะแนนความเสี่ยง · ยิ่งต่ำยิ่งดี',
+    trendGood: 'แนวโน้มดีขึ้น ทำได้ดีมาก!',
+    trendWorse: 'แนวโน้มสูงขึ้น ควรสังเกตอาการและปรึกษาแพทย์',
+    trendFlat: 'แนวโน้มค่อนข้างคงที่',
     trendNeedMore: 'ทำแบบทดสอบต่อเนื่องหลายวัน เพื่อดูแนวโน้มของคุณ',
     careTitle: 'คำแนะนำ',
     careLow: 'ทำแบบทดสอบต่อเนื่องทุกวัน เพื่อติดตามสุขภาพของคุณ',
@@ -237,22 +259,22 @@ export const S = {
   /** One-line "what it measures" for each metric (shown in the detail sheet). */
   metricDesc: {
     rmsErrorNorm: 'เส้นที่ลากเบี่ยงจากแบบมากแค่ไหน',
-    tremorBandPower: 'พบการสั่นความถี่ 4–7 Hz ขณะวาดหรือไม่',
+    tremorBandPower: 'มีมือสั่นถี่ ๆ ขณะลากเส้นหรือไม่',
     spacingCV: 'ช่องไฟระหว่างวงสม่ำเสมอแค่ไหน',
     speedCV: 'ความเร็วการลากคงที่หรือสะดุด',
     rate: 'จำนวนครั้งที่เคาะได้ต่อวินาที',
     itiSD: 'จังหวะการเคาะสม่ำเสมอแค่ไหน',
     decrementSlope: 'เคาะช้าลงเรื่อย ๆ หรือไม่',
     timingError: 'เคาะตรงกับจังหวะที่กำหนดแค่ไหน',
-    restBandPower: 'การสั่น 4–7 Hz ขณะวางแขนพัก (สำคัญที่สุด)',
+    restBandPower: 'มือสั่นถี่ ๆ ขณะวางแขนพัก (สำคัญที่สุด)',
     restRms: 'แอมพลิจูด (ความแรง) ของการสั่นขณะวางแขน',
     posturalBandPower: 'การสั่นขณะยกมือค้างในอากาศ',
     posturalRms: 'แอมพลิจูด (ความแรง) ของการสั่นขณะยกมือ',
     turnRangeDeg: 'หันศีรษะได้กว้างแค่ไหน (ซ้าย+ขวา)',
     turnAsymmetry: 'หันซ้ายกับขวาได้เท่ากันหรือไม่',
     turnSmoothness: 'การหันลื่นไหลหรือสะดุด',
-    jitterPct: 'ระดับเสียงสั่นแค่ไหน (jitter)',
-    shimmerPct: 'ความดังของเสียงสั่นแค่ไหน (shimmer)',
+    jitterPct: 'ระดับเสียงสูงต่ำสั่นแค่ไหน',
+    shimmerPct: 'ความดังของเสียงสั่นแค่ไหน',
     f0CV: 'เสียงคงที่ตลอดการออกเสียงหรือไม่',
   } as Record<string, string>,
 
@@ -260,7 +282,7 @@ export const S = {
   metricLabels: {
     // spiral
     rmsErrorNorm: 'ความแม่นของเส้นที่ลาก',
-    tremorBandPower: 'แรงสั่นขณะวาด (4–7 Hz)',
+    tremorBandPower: 'แรงสั่นขณะวาด',
     spacingCV: 'ความสม่ำเสมอของช่องไฟ',
     speedCV: 'ความลื่นไหลของการลาก',
     // tapping
@@ -278,8 +300,8 @@ export const S = {
     turnAsymmetry: 'ความสมมาตรซ้าย-ขวา',
     turnSmoothness: 'ความลื่นไหลของการหัน',
     // voice
-    jitterPct: 'ความสั่นของระดับเสียง (jitter)',
-    shimmerPct: 'ความสั่นของความดัง (shimmer)',
+    jitterPct: 'ความสั่นของระดับเสียง',
+    shimmerPct: 'ความสั่นของความดัง',
     f0CV: 'ความคงที่ของเสียง',
   } as Record<string, string>,
 

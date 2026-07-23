@@ -64,7 +64,7 @@ export default function Register() {
       setError(S.register.required);
       return;
     }
-    update({
+    const profile = {
       firstName: firstName.trim(),
       lastName: lastName.trim() || undefined,
       displayName: firstName.trim(),
@@ -72,8 +72,14 @@ export default function Register() {
       birthDate: birthDateToISO(birth),
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
-    });
-    navigate(settings.consented ? '/home' : '/consent');
+    };
+    if (settings.consented) {
+      update(profile);
+      navigate('/home');
+      return;
+    }
+    // PDPA: defer persisting name/phone/email/DOB until consent is accepted.
+    navigate('/consent', { state: { profile } });
   };
 
   return (

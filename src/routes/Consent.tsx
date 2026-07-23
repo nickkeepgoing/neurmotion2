@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import { ShieldIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import { S } from '../lib/strings';
+import type { Settings } from '../lib/types';
 
 function ConsentBox({
   checked,
@@ -43,7 +44,10 @@ function ConsentBox({
 
 export default function Consent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { update } = useSettings();
+  /** profile carried from login/register, held in memory until consent */
+  const pendingProfile = (location.state as { profile?: Partial<Settings> } | null)?.profile;
   // PDPA: both boxes start UNCHECKED — the user must actively opt in.
   const [storeOk, setStoreOk] = useState(false);
   const [trainOk, setTrainOk] = useState(false);
@@ -54,7 +58,9 @@ export default function Consent() {
       setShowHint(true);
       return;
     }
-    update({ consented: true, consentTraining: trainOk });
+    // Persist the profile carried from login/register ONLY now that consent
+    // has actually been given (PDPA: no collection without a lawful basis).
+    update({ ...(pendingProfile ?? {}), consented: true, consentTraining: trainOk });
     navigate('/home');
   };
 
@@ -79,7 +85,10 @@ export default function Consent() {
 
       <div className="mt-auto pt-6 flex flex-col gap-3.5">
         <p className="text-[15px] font-medium text-muted text-center leading-relaxed">{S.consent.dataNote}</p>
-        <Button onClick={accept} disabled={!storeOk} className={storeOk ? 'nm-blink' : ''}>
+        {/* Deliberately NOT `disabled`: a disabled button never fires onClick,
+            so the "please tick box 1" hint was unreachable dead code and the
+            user just tapped a faded button and got silence. */}
+        <Button onClick={accept} className={storeOk ? 'nm-blink' : ''}>
           {S.consent.accept}
         </Button>
       </div>

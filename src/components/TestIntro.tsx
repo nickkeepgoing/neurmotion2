@@ -77,7 +77,7 @@ export default function TestIntro({
                   <TestDemo test={testId} />
                 </div>
                 {!hasClip && (
-                  <p className="text-[15px] font-medium text-muted text-center leading-relaxed px-2">{S.flow.noVideo}</p>
+                  <p className="text-base font-semibold text-muted-2 text-center leading-relaxed px-2">{S.flow.noVideo}</p>
                 )}
               </>
             )}

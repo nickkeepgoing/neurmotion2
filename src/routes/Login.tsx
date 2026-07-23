@@ -60,13 +60,21 @@ export default function Login() {
   const age = ageFromBirthDate(birth);
 
   const start = () => {
-    update({
+    const profile = {
       userType,
       age,
       birthDate: birthDateToISO(birth),
       nationalId: userType === 'patient' && nid.trim() ? nid.trim() : undefined,
-    });
-    navigate(settings.consented ? '/home' : '/consent');
+    };
+    if (settings.consented) {
+      update(profile);
+      navigate('/home');
+      return;
+    }
+    // PDPA: nothing personal may be persisted before consent is given. Carry
+    // the profile to the consent screen in router state instead of writing it
+    // (birth date, age and national ID are personal data).
+    navigate('/consent', { state: { profile } });
   };
 
   return (

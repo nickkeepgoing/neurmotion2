@@ -45,12 +45,49 @@ function unwrapTheta(pts: Pt[], cx: number, cy: number): number[] {
     prev = raw;
     out.push(raw + offset);
   }
-  // shift so the trace starts near θ≈0 at the center
-  if (out.length) {
-    const shift = Math.round(out[0] / (2 * Math.PI)) * 2 * Math.PI;
-    for (let i = 0; i < out.length; i++) out[i] -= shift;
-  }
   return out;
+}
+
+/** Below this radius (px) the angle about the centre is too noisy to trust. */
+const MIN_REGISTRATION_RADIUS = 15;
+
+/**
+ * Recover the trace's angular origin θ0.
+ *
+ * The user starts on the centre dot, where atan2 is numerically meaningless —
+ * the first sample's angle is essentially arbitrary in (−π, π]. Since the
+ * template radius is r = b·θ, an uncorrected offset becomes a CONSTANT radial
+ * bias of b·θ0 — up to half the gap between turns — so a perfectly traced
+ * spiral could score as badly off-template. (The previous
+ * `round(θ[0] / 2π) · 2π` correction was a no-op: that expression is 0 for
+ * every value atan2 can return.)
+ *
+ * We therefore pick the θ0 that minimises RMS radial error, ignoring points
+ * near the centre where the angle is ill-conditioned.
+ */
+function registerTheta(theta: number[], radii: number[], b: number): number[] {
+  const usable: number[] = [];
+  for (let i = 0; i < radii.length; i++) if (radii[i] >= MIN_REGISTRATION_RADIUS) usable.push(i);
+  if (usable.length < 5) return theta;
+
+  let best = 0;
+  let bestErr = Infinity;
+  for (let k = -Math.PI; k <= Math.PI; k += 0.02) {
+    let sum = 0;
+    let n = 0;
+    for (const i of usable) {
+      const th = theta[i] - k;
+      if (th <= 0) continue; // template undefined behind the origin
+      const e = radii[i] - b * th;
+      sum += e * e;
+      n++;
+    }
+    if (n >= 5 && sum / n < bestErr) {
+      bestErr = sum / n;
+      best = k;
+    }
+  }
+  return theta.map((t) => t - best);
 }
 
 export type SpiralMetrics = {
@@ -66,17 +103,21 @@ export function computeSpiralMetrics(pts: Pt[], cx: number, cy: number, b: numbe
     return { rmsErrorNorm: 1, tremorBandPower: 0, spacingCV: 1, speedCV: 1, coverage: 0 };
   }
 
-  const theta = unwrapTheta(pts, cx, cy);
+  const radii = pts.map((p) => Math.hypot(p.x - cx, p.y - cy));
+  const theta = registerTheta(unwrapTheta(pts, cx, cy), radii, b);
   const turnGap = 2 * Math.PI * b;
 
-  // --- radial error vs template ---
+  // --- radial error vs template (skip the ill-conditioned centre) ---
   const errs: number[] = [];
   const errT: number[] = [];
   for (let i = 0; i < pts.length; i++) {
-    const r = Math.hypot(pts[i].x - cx, pts[i].y - cy);
+    if (radii[i] < MIN_REGISTRATION_RADIUS) continue;
     const rTemplate = b * Math.max(theta[i], 0);
-    errs.push(r - rTemplate);
+    errs.push(radii[i] - rTemplate);
     errT.push(pts[i].t);
+  }
+  if (errs.length < 5) {
+    return { rmsErrorNorm: 1, tremorBandPower: 0, spacingCV: 1, speedCV: 1, coverage: 0 };
   }
   const rms = Math.sqrt(errs.reduce((s, e) => s + e * e, 0) / errs.length);
   const rmsErrorNorm = rms / turnGap;
@@ -90,7 +131,7 @@ export function computeSpiralMetrics(pts: Pt[], cx: number, cy: number, b: numbe
   let nextCross = 2 * Math.PI;
   for (let i = 1; i < pts.length; i++) {
     if (theta[i - 1] < nextCross && theta[i] >= nextCross) {
-      crossR.push(Math.hypot(pts[i].x - cx, pts[i].y - cy));
+      crossR.push(radii[i]);
       nextCross += 2 * Math.PI;
     }
   }
