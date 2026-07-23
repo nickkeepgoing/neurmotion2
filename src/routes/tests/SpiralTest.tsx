@@ -232,7 +232,7 @@ export default function SpiralTest() {
       {phase === 'tracing' && (
         <div className="flex flex-col gap-2.5">
           <div className="flex justify-between items-baseline">
-            <span className="text-[17px] font-bold text-muted-2">{S.progress}</span>
+            <span className="text-lg font-bold text-muted-2">{S.progress}</span>
             <span className="text-xl font-extrabold text-primary">{progress}%</span>
           </div>
           <div className="h-3.5 bg-line-warm rounded-full overflow-hidden">

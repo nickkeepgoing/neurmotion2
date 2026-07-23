@@ -64,7 +64,7 @@ export default function TestDemo({ test }: { test: TestId }) {
       </div>
       <div className="flex flex-col gap-1">
         <span className="text-base font-extrabold text-secondary">{S.demoTitle}</span>
-        <span className="text-[15px] font-semibold text-muted-2 leading-relaxed">{S.demoCaption[test]}</span>
+        <span className="text-base font-semibold text-muted-2 leading-relaxed">{S.demoCaption[test]}</span>
       </div>
     </div>
   );

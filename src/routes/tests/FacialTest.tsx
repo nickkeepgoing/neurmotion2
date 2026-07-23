@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
+import PermissionDenied from '../../components/PermissionDenied';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
-import Button from '../../components/ui/Button';
 import { ShieldIcon } from '../../components/icons';
 import { useSettings } from '../../context/SettingsContext';
 import { computeFacialMetrics, computeYawDeg, type FaceFrame } from '../../lib/facial';
@@ -24,7 +23,6 @@ type Phase = 'intro' | 'loading' | 'countdown' | 'scanning' | 'done' | 'error' |
  */
 export default function FacialTest() {
   const { settings } = useSettings();
-  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>('intro');
   const [prompt, setPrompt] = useState(S.headTurn.lookCenter);
   const [leftDone, setLeftDone] = useState(false);
@@ -232,6 +230,14 @@ export default function FacialTest() {
     );
   }
 
+  if (phase === 'error') {
+    return (
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title}>
+        <PermissionDenied kind="camera" onRetry={start} />
+      </TestShell>
+    );
+  }
+
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title} instruction={S.tests.facial.instruction}>
@@ -244,10 +250,10 @@ export default function FacialTest() {
     <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title} instruction={S.tests.facial.instruction}>
       {/* progress chips */}
       <div className="flex items-center gap-2 mt-3">
-        <span className={`flex-1 text-center text-[15px] font-bold rounded-full py-2 ${leftDone ? 'bg-risk-low text-white' : 'bg-line-warm text-muted'}`}>
+        <span className={`flex-1 text-center text-base font-bold rounded-full py-2 ${leftDone ? 'bg-risk-low text-white' : 'bg-line-warm text-muted'}`}>
           {leftDone ? S.headTurn.leftDone : `← ${S.headTurn.lookLeft}`}
         </span>
-        <span className={`flex-1 text-center text-[15px] font-bold rounded-full py-2 ${rightDone ? 'bg-risk-low text-white' : 'bg-line-warm text-muted'}`}>
+        <span className={`flex-1 text-center text-base font-bold rounded-full py-2 ${rightDone ? 'bg-risk-low text-white' : 'bg-line-warm text-muted'}`}>
           {rightDone ? S.headTurn.rightDone : `${S.headTurn.lookRight} →`}
         </span>
       </div>
@@ -259,9 +265,6 @@ export default function FacialTest() {
 
           {phase === 'loading' && (
             <span className="relative text-white text-lg font-bold px-6 text-center leading-relaxed">{S.modelLoading}</span>
-          )}
-          {phase === 'error' && (
-            <span className="relative text-white text-lg font-bold px-6 text-center leading-relaxed">{S.permissionDenied}</span>
           )}
 
           <svg width="230" height="290" viewBox="0 0 230 290" className="absolute">
@@ -290,12 +293,6 @@ export default function FacialTest() {
         </span>
         <span className="text-base font-semibold text-[#2B5A7E] leading-relaxed">{S.facialPrivacy}</span>
       </div>
-
-      {phase === 'error' && (
-        <Button variant="outline" onClick={() => navigate('/home')}>
-          {S.skip}
-        </Button>
-      )}
     </TestShell>
   );
 }

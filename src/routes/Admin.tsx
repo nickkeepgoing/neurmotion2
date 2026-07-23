@@ -83,7 +83,7 @@ export default function Admin() {
             <path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <h1 className="text-[26px] font-extrabold text-ink m-0">{S.admin.title}</h1>
+        <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
       </div>
       <p className="text-base font-medium text-muted-2 leading-relaxed">{S.admin.subtitle}</p>
 

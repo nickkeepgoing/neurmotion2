@@ -69,7 +69,7 @@ export default function TestShell({
         </span>
       </div>
 
-      <h1 className="mt-4 text-[28px] font-extrabold text-ink leading-tight">{title}</h1>
+      <h1 className="mt-4 text-3xl font-extrabold text-ink leading-tight">{title}</h1>
       {instruction && (
         <p className="mt-2 text-xl font-semibold text-muted-2 leading-relaxed whitespace-pre-line">{instruction}</p>
       )}

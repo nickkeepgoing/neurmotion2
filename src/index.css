@@ -37,6 +37,33 @@
 
   --font-thai: 'Noto Sans Thai', 'Nunito', system-ui, sans-serif;
   --font-num: 'Nunito', 'Noto Sans Thai', system-ui, sans-serif;
+
+  /* Elderly-first type scale.
+     Every role is defined in rem so the A / A+ / A++ control scales ALL text,
+     and the smallest role is already 18px at the default setting — the floor
+     this project committed to. Redefining Tailwind's own --text-* tokens lifts
+     every existing text-sm/base/lg call site at once.
+     Thai needs generous line-height: stacked vowels and tone marks collide
+     below ~1.45. */
+  --text-sm: 1.125rem;
+  --text-sm--line-height: 1.6;
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.55;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.45;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 1.75rem;
+  --text-3xl--line-height: 1.25;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 1.2;
+  /* numerals (scores, counters, countdown) */
+  --text-num-md: 2rem;
+  --text-num-md--line-height: 1;
+  --text-num-lg: 3.5rem;
+  --text-num-lg--line-height: 1;
 }
 
 html {
@@ -45,8 +72,8 @@ html {
 }
 
 /* Global text-size toggle (A / A+ / A++): scales rem-based sizes app-wide */
-html[data-textscale='1'] { font-size: 17.5px; }
-html[data-textscale='2'] { font-size: 19.5px; }
+html[data-textscale='1'] { font-size: 18px; }
+html[data-textscale='2'] { font-size: 20px; }
 
 body {
   margin: 0;

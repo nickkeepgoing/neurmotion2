@@ -132,7 +132,7 @@ export default function TappingTest() {
                 className={`w-3 h-3 rounded-full transition-colors ${phase === 'running' && beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`}
               />
             ))}
-            <span className="text-[15px] font-semibold text-muted ml-1.5">{S.rhythm}</span>
+            <span className="text-base font-semibold text-muted ml-1.5">{S.rhythm}</span>
           </div>
 
           {/* Tap target — visible during the countdown too, so the user sees
@@ -165,12 +165,12 @@ export default function TappingTest() {
           {phase === 'running' && (
             <div className="flex gap-3 mb-2">
               <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
-                <span className="font-num text-[32px] font-black text-primary leading-none">{count}</span>
-                <span className="text-[15px] font-bold text-muted">{S.taps}</span>
+                <span className="font-num text-num-md font-black text-primary leading-none">{count}</span>
+                <span className="text-base font-bold text-muted">{S.taps}</span>
               </div>
               <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
-                <span className="font-num text-[32px] font-black text-secondary leading-none">{secondsLeft}</span>
-                <span className="text-[15px] font-bold text-muted">{S.secondsLeft}</span>
+                <span className="font-num text-num-md font-black text-secondary leading-none">{secondsLeft}</span>
+                <span className="text-base font-bold text-muted">{S.secondsLeft}</span>
               </div>
             </div>
           )}

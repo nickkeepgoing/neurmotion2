@@ -35,8 +35,11 @@ function daysInMonth(m: number, yBE: number): number {
   return new Date(yBE - 543, m + 1, 0).getDate();
 }
 
+// `min-w-0 w-full` lets the three columns shrink inside their flex row —
+// without it the intrinsic width of the widest option pushed the row past the
+// viewport once the text scaled up (A++).
 const selectCls =
-  'h-16 rounded-[18px] border-2 border-field bg-white px-3 text-xl font-semibold text-ink focus:border-secondary focus:outline-none cursor-pointer appearance-none text-center';
+  'min-h-16 w-full min-w-0 rounded-[18px] border-2 border-field bg-white px-1.5 text-xl font-semibold text-ink focus:border-secondary focus:outline-none cursor-pointer appearance-none text-center';
 
 export default function BirthDatePicker({ value, onChange }: { value: BirthDate; onChange: (b: BirthDate) => void }) {
   const nowBE = new Date().getFullYear() + 543;
@@ -53,7 +56,7 @@ export default function BirthDatePicker({ value, onChange }: { value: BirthDate;
 
   return (
     <div className="flex gap-2.5">
-      <label className="flex-1 flex flex-col gap-1.5">
+      <label className="flex-1 min-w-0 flex flex-col gap-1.5">
         <span className="text-sm font-bold text-muted text-center">วัน</span>
         <select className={selectCls} value={value.d} onChange={(e) => set({ d: parseInt(e.target.value, 10) })} aria-label="วันเกิด — วัน">
           {Array.from({ length: dim }, (_, i) => (
@@ -63,7 +66,7 @@ export default function BirthDatePicker({ value, onChange }: { value: BirthDate;
           ))}
         </select>
       </label>
-      <label className="flex-[1.6] flex flex-col gap-1.5">
+      <label className="flex-[1.6] min-w-0 flex flex-col gap-1.5">
         <span className="text-sm font-bold text-muted text-center">เดือน</span>
         <select className={selectCls} value={value.m} onChange={(e) => set({ m: parseInt(e.target.value, 10) })} aria-label="วันเกิด — เดือน">
           {THAI_MONTHS_FULL.map((name, i) => (
@@ -73,7 +76,7 @@ export default function BirthDatePicker({ value, onChange }: { value: BirthDate;
           ))}
         </select>
       </label>
-      <label className="flex-1 flex flex-col gap-1.5">
+      <label className="flex-1 min-w-0 flex flex-col gap-1.5">
         <span className="text-sm font-bold text-muted text-center">ปี พ.ศ.</span>
         <select className={selectCls} value={value.yBE} onChange={(e) => set({ yBE: parseInt(e.target.value, 10) })} aria-label="วันเกิด — ปี พ.ศ.">
           {years.map((y) => (

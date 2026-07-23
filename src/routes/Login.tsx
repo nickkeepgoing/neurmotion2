@@ -37,7 +37,7 @@ function TypeCard({
     >
       <div className={`flex-none w-14 h-14 rounded-full flex items-center justify-center ${iconBg}`}>{icon}</div>
       <div className="flex flex-col gap-0.5">
-        <span className="text-[22px] font-extrabold text-ink">{title}</span>
+        <span className="text-xl font-extrabold text-ink">{title}</span>
         <span className="text-base font-medium text-muted-2">{desc}</span>
       </div>
       {selected && (
@@ -80,7 +80,7 @@ export default function Login() {
   return (
     <div className="min-h-dvh bg-bg flex flex-col px-6 pt-6 pb-8 max-w-md mx-auto">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-[28px] font-extrabold text-ink">{S.login.title}</h1>
+        <h1 className="text-3xl font-extrabold text-ink">{S.login.title}</h1>
         <TextSizeToggle />
       </div>
       <p className="mt-2 text-lg font-medium text-muted-2">{S.login.subtitle}</p>
@@ -142,7 +142,7 @@ export default function Login() {
       </Button>
       <p className="mt-3.5 text-base font-medium text-muted-2 text-center">
         {S.login.noAccount}{' '}
-        <button onClick={() => navigate('/register')} className="text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
+        <button onClick={() => navigate('/register')} className="min-h-14 px-2 text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
           {S.login.register}
         </button>
       </p>

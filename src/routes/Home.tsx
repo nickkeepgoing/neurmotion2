@@ -46,13 +46,13 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
       <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
         <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1" />
         <div className="flex items-center justify-between">
-          <button onClick={() => shift(-1)} aria-label="เดือนก่อนหน้า" className="w-12 h-12 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
+          <button onClick={() => shift(-1)} aria-label="เดือนก่อนหน้า" className="min-w-14 min-h-14 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
           <span className="text-xl font-extrabold text-ink">
             {THAI_MONTHS[ym.m]} {ym.y + 543}
           </span>
-          <button onClick={() => shift(1)} aria-label="เดือนถัดไป" className="w-12 h-12 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
+          <button onClick={() => shift(1)} aria-label="เดือนถัดไป" className="min-w-14 min-h-14 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         </div>
@@ -105,7 +105,7 @@ function OptionsMenu({ onClose }: { onClose: () => void }) {
           <button
             onClick={() => update({ voiceOn: !settings.voiceOn })}
             aria-pressed={settings.voiceOn}
-            className={`h-11 px-4 rounded-full font-extrabold text-base cursor-pointer border-2 transition-colors ${
+            className={`min-h-14 px-5 rounded-full font-extrabold text-base cursor-pointer border-2 transition-colors ${
               settings.voiceOn ? 'bg-secondary border-secondary text-white' : 'bg-white border-field text-muted-2'
             }`}
           >
@@ -210,7 +210,7 @@ export default function Home() {
           </svg>
           <span className="flex flex-col gap-0.5">
             <span className="text-lg font-extrabold text-risk-high-text">{S.doctorAlert.banner}</span>
-            <span className="text-[15px] font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
+            <span className="text-base font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
           </span>
         </button>
       )}
@@ -223,7 +223,7 @@ export default function Home() {
             {S.home.questProgress(doneCount, total)}
           </span>
         </div>
-        <p className="text-[17px] font-semibold text-white/90 leading-relaxed m-0">
+        <p className="text-lg font-semibold text-white/90 leading-relaxed m-0">
           {doneCount >= total ? S.home.questDone : S.home.questDesc(total - doneCount)}
         </p>
         <div className="h-3.5 bg-white/25 rounded-full overflow-hidden">
@@ -268,7 +268,7 @@ export default function Home() {
                 {isDone ? (
                   <CheckCircle />
                 ) : (
-                  <span className="text-[13px] font-bold text-[#B27A2E] bg-[#FDF3E7] rounded-full px-2.5 py-1">{S.home.pending}</span>
+                  <span className="text-base font-bold text-[#B27A2E] bg-[#FDF3E7] rounded-full px-2.5 py-1">{S.home.pending}</span>
                 )}
               </div>
               <span className="text-lg font-extrabold text-ink">{S.tests[t.id].name}</span>
@@ -283,17 +283,17 @@ export default function Home() {
           className="bg-secondary-soft rounded-[20px] p-4 flex flex-col gap-2 items-center justify-center border-2 border-dashed border-[#9DBBD3] cursor-pointer active:scale-[.97] transition-transform"
         >
           <ChartIcon />
-          <span className="text-[17px] font-extrabold text-secondary text-center">{S.home.viewResult}</span>
+          <span className="text-lg font-extrabold text-secondary text-center">{S.home.viewResult}</span>
         </button>
       </div>
 
       {/* Weekly summary + calendar */}
       <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 py-4.5">
         <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-[19px] font-extrabold text-ink m-0">{S.home.weekTitle}</h2>
+          <h2 className="text-xl font-extrabold text-ink m-0">{S.home.weekTitle}</h2>
           <div className="flex items-baseline gap-3">
-            <span className="text-[15px] font-bold text-risk-low-text">{S.home.weekDone(weekDone, 7)}</span>
-            <button onClick={() => setCalOpen(true)} className="text-[15px] font-bold text-secondary bg-transparent border-0 cursor-pointer underline p-0">
+            <span className="text-base font-bold text-risk-low-text">{S.home.weekDone(weekDone, 7)}</span>
+            <button onClick={() => setCalOpen(true)} className="min-h-14 px-2 text-base font-bold text-secondary bg-transparent border-0 cursor-pointer underline">
               {S.home.calendar}
             </button>
           </div>
@@ -306,7 +306,7 @@ export default function Home() {
                   d.state === 'done' ? 'bg-risk-low' : d.state === 'today' ? 'bg-white border-2 border-dashed border-[#D8C9B4]' : 'bg-line-warm'
                 }`}
               />
-              <span className={`text-[13px] ${d.state === 'today' ? 'font-bold text-primary' : 'font-semibold text-muted'}`}>{d.label}</span>
+              <span className={`text-base ${d.state === 'today' ? 'font-bold text-primary' : 'font-semibold text-muted'}`}>{d.label}</span>
             </div>
           ))}
         </div>

@@ -65,11 +65,14 @@ export default function Consent() {
   };
 
   return (
-    <div className="min-h-dvh bg-bg flex flex-col px-6 pt-8 pb-8 max-w-md mx-auto">
+    <>
+    {/* pb reserve is in rem so it grows with the text scale and never hides the
+        sticky footer's content */}
+    <div className="min-h-dvh bg-bg flex flex-col px-6 pt-8 pb-[13rem] max-w-md mx-auto">
       <div className="w-16 h-16 rounded-[18px] bg-secondary-soft flex items-center justify-center">
         <ShieldIcon size={34} />
       </div>
-      <h1 className="mt-4 text-[28px] font-extrabold text-ink leading-tight">{S.consent.title}</h1>
+      <h1 className="mt-4 text-3xl font-extrabold text-ink leading-tight">{S.consent.title}</h1>
       <p className="mt-2 text-lg font-medium text-muted-2 leading-relaxed">{S.consent.subtitle}</p>
 
       <div className="flex flex-col gap-3.5 mt-6">
@@ -83,15 +86,24 @@ export default function Consent() {
         </p>
       )}
 
-      <div className="mt-auto pt-6 flex flex-col gap-3.5">
-        <p className="text-[15px] font-medium text-muted text-center leading-relaxed">{S.consent.dataNote}</p>
-        {/* Deliberately NOT `disabled`: a disabled button never fires onClick,
-            so the "please tick box 1" hint was unreachable dead code and the
-            user just tapped a faded button and got silence. */}
-        <Button onClick={accept} className={storeOk ? 'nm-blink' : ''}>
-          {S.consent.accept}
-        </Button>
-      </div>
+      {/* the long PDPA note belongs in the scroll area — footers are for actions */}
+      <p className="mt-6 text-base font-medium text-muted-2 text-center leading-relaxed">{S.consent.dataNote}</p>
     </div>
+
+    {/* Sticky footer: at A++ the accept button used to sit 333px below the
+        fold, so the user who most needs the large text could not reach the
+        only way forward. */}
+    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-[0_-6px_18px_rgba(35,58,77,.07)] flex flex-col gap-2">
+      <p className={`text-base font-semibold text-center m-0 ${storeOk ? 'text-risk-low-text' : 'text-muted-2'}`}>
+        {storeOk ? S.consent.readyToStart : S.consent.mustAccept}
+      </p>
+      {/* Deliberately NOT `disabled`: a disabled button never fires onClick,
+          so the "please tick box 1" hint was unreachable dead code and the
+          user just tapped a faded button and got silence. */}
+      <Button onClick={accept} className={storeOk ? 'nm-blink' : ''}>
+        {S.consent.accept}
+      </Button>
+    </footer>
+    </>
   );
 }

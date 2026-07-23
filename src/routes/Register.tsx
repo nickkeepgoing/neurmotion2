@@ -96,7 +96,7 @@ export default function Register() {
         </button>
       </div>
 
-      <h1 className="mt-4 text-[28px] font-extrabold text-ink">{S.register.title}</h1>
+      <h1 className="mt-4 text-3xl font-extrabold text-ink">{S.register.title}</h1>
       <p className="mt-2 text-lg font-medium text-muted-2 leading-relaxed">{S.register.subtitle}</p>
 
       <div className="flex flex-col gap-4 mt-5">
@@ -127,7 +127,7 @@ export default function Register() {
       </Button>
       <p className="mt-3.5 text-base font-medium text-muted-2 text-center">
         {S.register.haveAccount}{' '}
-        <button onClick={() => navigate('/login')} className="text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
+        <button onClick={() => navigate('/login')} className="min-h-14 px-2 text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
           {S.register.backToLogin}
         </button>
       </p>

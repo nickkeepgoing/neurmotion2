@@ -42,7 +42,7 @@ export default function TapPractice() {
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className={`w-3 h-3 rounded-full transition-colors ${beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`} />
         ))}
-        <span className="text-[15px] font-semibold text-muted ml-1">{S.rhythm}</span>
+        <span className="text-base font-semibold text-muted ml-1">{S.rhythm}</span>
       </div>
 
       <div className="relative w-[190px] h-[190px] flex items-center justify-center">

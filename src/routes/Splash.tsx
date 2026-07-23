@@ -23,13 +23,13 @@ export default function Splash() {
       </div>
 
       <div className="w-full flex flex-col gap-4">
-        <Button className="h-[68px] text-[26px] nm-blink" onClick={() => navigate('/login')}>
+        <Button className="h-[68px] text-3xl nm-blink" onClick={() => navigate('/login')}>
           {S.start}
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Button>
-        <p className="text-[15px] font-medium text-muted text-center">{S.splashFootnote}</p>
+        <p className="text-base font-medium text-muted text-center">{S.splashFootnote}</p>
       </div>
     </div>
   );

@@ -54,7 +54,7 @@ function TestDetailSheet({ test, metrics, subScore, onClose }: { test: TestId; m
           <h2 className="text-2xl font-extrabold text-ink m-0">{S.tests[test].name}</h2>
           <span className={`ml-auto text-lg font-extrabold ${head.text}`}>{head.label}</span>
         </div>
-        <p className="text-[15px] font-semibold text-muted m-0">
+        <p className="text-base font-semibold text-muted m-0">
           {S.result.detailSheetSub} · {S.result.metricLegend}
         </p>
 
@@ -67,19 +67,19 @@ function TestDetailSheet({ test, metrics, subScore, onClose }: { test: TestId; m
             return (
               <div key={m.name} className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[16px] font-bold text-ink">{S.metricLabels[m.name]}</span>
-                  <span className={`ml-auto text-[13px] font-extrabold rounded-full px-2.5 py-0.5 ${chipCls}`}>{chip}</span>
+                  <span className="text-base font-bold text-ink">{S.metricLabels[m.name]}</span>
+                  <span className={`ml-auto text-base font-extrabold rounded-full px-2.5 py-0.5 ${chipCls}`}>{chip}</span>
                 </div>
                 <div className="h-2.5 bg-line-warm rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all" style={{ width: `${Math.max(m.score, 4)}%`, background: c }} />
                 </div>
-                {S.metricDesc[m.name] && <span className="text-[14px] font-medium text-muted-2 leading-relaxed">{S.metricDesc[m.name]}</span>}
+                {S.metricDesc[m.name] && <span className="text-base font-medium text-muted-2 leading-relaxed">{S.metricDesc[m.name]}</span>}
               </div>
             );
           })}
         </div>
 
-        <p className="text-[13px] font-medium text-muted text-center leading-relaxed mt-2">{S.result.testDisclaimer}</p>
+        <p className="text-base font-medium text-muted text-center leading-relaxed mt-2">{S.result.testDisclaimer}</p>
         <Button variant="outline" size="md" onClick={onClose}>
           {S.result.close}
         </Button>
@@ -221,7 +221,7 @@ export default function Result() {
         </span>
         <span className="text-base font-semibold text-muted-2">{S.result.badge} · ไม่ใช่การวินิจฉัย</span>
         <div className="flex items-baseline justify-between gap-2.5">
-          <h1 className="text-[26px] font-extrabold text-ink m-0">คุณ{name}</h1>
+          <h1 className="text-3xl font-extrabold text-ink m-0">คุณ{name}</h1>
           <span className="text-base font-semibold text-muted whitespace-nowrap">{thaiDate(new Date(session.timestamp))}</span>
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function Result() {
           </svg>
           <div className="flex flex-col gap-0.5">
             <span className="text-lg font-extrabold text-risk-high-text">{S.doctorAlert.banner}</span>
-            <span className="text-[15px] font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
+            <span className="text-base font-semibold text-[#8A5A5A] leading-relaxed">{S.doctorAlert.detail(streak)}</span>
           </div>
         </div>
       )}
@@ -253,7 +253,7 @@ export default function Result() {
               <circle cx="12" cy="16.5" r="1.5" fill="#fff" />
             </svg>
           )}
-          <span className={`text-[26px] font-extrabold ${head.color}`}>{head.label}</span>
+          <span className={`text-3xl font-extrabold ${head.color}`}>{head.label}</span>
         </div>
         <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed whitespace-pre-line m-0 mt-1.5">{head.desc}</p>
         {level === 'low' && (
@@ -374,7 +374,7 @@ export default function Result() {
         )}
         <div className="flex flex-col gap-1">
           <span className={`text-lg font-extrabold ${level === 'high' ? 'text-[#1B4E76]' : 'text-[#8C4A16]'}`}>{S.result.careTitle}</span>
-          <span className={`text-[17px] font-semibold leading-relaxed ${level === 'high' ? 'text-[#2B5A7E]' : 'text-[#7A5A3A]'}`}>{care}</span>
+          <span className={`text-lg font-semibold leading-relaxed ${level === 'high' ? 'text-[#2B5A7E]' : 'text-[#7A5A3A]'}`}>{care}</span>
         </div>
       </div>
 

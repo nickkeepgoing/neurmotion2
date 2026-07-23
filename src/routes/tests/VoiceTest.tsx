@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
+import PermissionDenied from '../../components/PermissionDenied';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
-import Button from '../../components/ui/Button';
 import { ShieldIcon, VoiceIcon } from '../../components/icons';
 import { useSettings } from '../../context/SettingsContext';
 import { computeSubScore } from '../../lib/scoring';
@@ -19,7 +18,6 @@ type Phase = 'intro' | 'countdown' | 'recording' | 'done' | 'error' | 'invalid';
 /** Records ~5 s of raw PCM locally, analyzes, then discards the audio (PDPA). */
 export default function VoiceTest() {
   const { settings } = useSettings();
-  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>('intro');
   const [secondsLeft, setSecondsLeft] = useState(VOICE.durationS);
   const [subScore, setSubScore] = useState(0);
@@ -160,6 +158,14 @@ export default function VoiceTest() {
     );
   }
 
+  if (phase === 'error') {
+    return (
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title}>
+        <PermissionDenied kind="mic" onRetry={start} />
+      </TestShell>
+    );
+  }
+
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction}>
@@ -193,9 +199,6 @@ export default function VoiceTest() {
           </>
         )}
 
-        {phase === 'error' && (
-          <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed px-2">{S.permissionDenied}</p>
-        )}
       </div>
 
       <div className="flex items-start gap-2.5 bg-secondary-soft rounded-2xl px-4 py-3 mb-4">
@@ -204,12 +207,6 @@ export default function VoiceTest() {
         </span>
         <span className="text-base font-semibold text-[#2B5A7E] leading-relaxed">{S.voicePrivacy}</span>
       </div>
-
-      {phase === 'error' && (
-        <Button variant="outline" onClick={() => navigate('/home')}>
-          {S.skip}
-        </Button>
-      )}
 
       {phase === 'countdown' && <Countdown hint={S.countdownHints.voice} onDone={record} />}
     </TestShell>

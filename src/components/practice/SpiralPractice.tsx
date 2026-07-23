@@ -97,7 +97,7 @@ export default function SpiralPractice() {
             ptsRef.current = [];
             redraw();
           }}
-          className="text-base font-bold text-secondary bg-transparent border-0 underline cursor-pointer"
+          className="min-h-14 px-2 text-base font-bold text-secondary bg-transparent border-0 underline cursor-pointer"
         >
           {S.restart}
         </button>

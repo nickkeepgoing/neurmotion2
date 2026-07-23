@@ -93,7 +93,7 @@ export default function TestIntro({
         <div className="flex flex-col flex-1">
           <div className="mt-4 flex items-baseline justify-between gap-2">
             <h2 className="text-xl font-extrabold text-ink">{S.flow.practiceTitle}</h2>
-            <button onClick={() => setStep(0)} className="text-base font-bold text-secondary bg-transparent border-0 underline cursor-pointer">
+            <button onClick={() => setStep(0)} className="min-h-14 px-2 text-base font-bold text-secondary bg-transparent border-0 underline cursor-pointer">
               {S.flow.watchAgain}
             </button>
           </div>

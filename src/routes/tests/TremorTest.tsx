@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Countdown from '../../components/Countdown';
+import PermissionDenied from '../../components/PermissionDenied';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
@@ -152,6 +153,14 @@ export default function TremorTest() {
     );
   }
 
+  if (phase === 'denied') {
+    return (
+      <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title}>
+        <PermissionDenied kind="motion" onRetry={start} />
+      </TestShell>
+    );
+  }
+
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title} instruction={S.tests.tremor.instruction}>
@@ -166,12 +175,12 @@ export default function TremorTest() {
   return (
     <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title} instruction={phaseInstr}>
       {/* phase chips */}
-      {phase !== 'unsupported' && phase !== 'denied' && (
+      {phase !== 'unsupported' && (
         <div className="flex items-center gap-2 mt-3">
-          <span className={`flex-1 text-center text-[15px] font-bold rounded-full py-2 ${phase === 'postural' || phase === 'countdown' ? 'bg-secondary text-white' : 'bg-secondary-soft text-secondary'}`}>
+          <span className={`flex-1 text-center text-base font-bold rounded-full py-2 ${phase === 'postural' || phase === 'countdown' ? 'bg-secondary text-white' : 'bg-secondary-soft text-secondary'}`}>
             1 · {S.tremorPhase.posturalShort}
           </span>
-          <span className={`flex-1 text-center text-[15px] font-bold rounded-full py-2 ${phase === 'rest' || phase === 'countdown2' || phase === 'switch' ? 'bg-secondary text-white' : 'bg-line-warm text-muted'}`}>
+          <span className={`flex-1 text-center text-base font-bold rounded-full py-2 ${phase === 'rest' || phase === 'countdown2' || phase === 'switch' ? 'bg-secondary text-white' : 'bg-line-warm text-muted'}`}>
             2 · {S.tremorPhase.restShort}
           </span>
         </div>
@@ -227,7 +236,7 @@ export default function TremorTest() {
             );
           })()}
 
-        {(phase === 'unsupported' || phase === 'denied') && (
+        {phase === 'unsupported' && (
           <div className="flex flex-col items-center gap-5 px-2">
             <div className="w-16 h-16 rounded-full bg-risk-med-bg flex items-center justify-center">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -235,9 +244,7 @@ export default function TremorTest() {
                 <path d="M12 10v4M12 17v.1" stroke="#9C7A10" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed">
-              {phase === 'unsupported' ? S.motionUnsupported : S.permissionDenied}
-            </p>
+            <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed">{S.motionUnsupported}</p>
           </div>
         )}
       </div>
@@ -247,7 +254,7 @@ export default function TremorTest() {
           {S.ready}
         </Button>
       )}
-      {(phase === 'unsupported' || phase === 'denied') && (
+      {phase === 'unsupported' && (
         <Button variant="outline" onClick={() => navigate('/home')}>
           {S.skip}
         </Button>
