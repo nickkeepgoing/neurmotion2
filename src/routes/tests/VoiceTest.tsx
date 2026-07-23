@@ -5,6 +5,7 @@ import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
+import VoicePractice from '../../components/practice/VoicePractice';
 import { ShieldIcon, VoiceIcon } from '../../components/icons';
 import { useSettings } from '../../context/SettingsContext';
 import { computeSubScore } from '../../lib/scoring';
@@ -169,7 +170,7 @@ export default function VoiceTest() {
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction}>
-        <TestIntro testId="voice" onStart={start} />
+        <TestIntro testId="voice" onStart={start} practice={<VoicePractice />} />
       </TestShell>
     );
   }

@@ -5,6 +5,7 @@ import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
+import HeadTurnPractice from '../../components/practice/HeadTurnPractice';
 import { ShieldIcon } from '../../components/icons';
 import { useSettings } from '../../context/SettingsContext';
 import { computeFacialMetrics, computeYawDeg, type FaceFrame } from '../../lib/facial';
@@ -169,11 +170,17 @@ export default function FacialTest() {
           setPrompt(S.headTurn.good);
         }
 
+        const bothDone = leftRef.current && rightRef.current;
         const elapsed = (now - framesRef.current[0].t) / 1000;
-        if ((leftRef.current && rightRef.current) || elapsed >= FACIAL.captureS + 3) {
+        if (bothDone || elapsed >= FACIAL.timeoutS) {
           finishedRef.current = true;
           cleanup();
-          finish();
+          // Running out of time with only one side turned is an INCOMPLETE
+          // attempt — scoring it would report a range of motion the user never
+          // actually failed to produce, and it used to end the test silently
+          // while the second prompt was still on screen.
+          if (bothDone) finish();
+          else setPhase('invalid');
           return;
         }
         raf = requestAnimationFrame(loop);
@@ -241,7 +248,7 @@ export default function FacialTest() {
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title} instruction={S.tests.facial.instruction}>
-        <TestIntro testId="facial" onStart={start} />
+        <TestIntro testId="facial" onStart={start} practice={<HeadTurnPractice />} />
       </TestShell>
     );
   }

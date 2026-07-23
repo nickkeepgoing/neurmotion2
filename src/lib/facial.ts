@@ -17,6 +17,15 @@ type LM = { x: number; y: number };
  * Estimate head yaw (deg, signed) from face landmarks. Uses the nose tip's
  * horizontal position relative to the midpoint of the face outline (cheek
  * landmarks), normalized by half the face width. ±1 proxy ≈ ±60°.
+ *
+ * SIGN CONVENTION: positive = the subject turned to THEIR OWN RIGHT.
+ *
+ * Landmark x is in the RAW camera frame, which is not mirrored — in a raw
+ * selfie frame the subject's left side appears on the image's right. So when
+ * the subject turns to their left, nose.x INCREASES. The preview is flipped in
+ * CSS for the user's benefit, which made the two disagree: turning left ticked
+ * "right". Negating here fixes the live prompts and computeFacialMetrics at
+ * once, since both read this one value.
  */
 export function computeYawDeg(landmarks: LM[] | undefined): number | null {
   if (!landmarks || landmarks.length < 468) return null;
@@ -28,7 +37,7 @@ export function computeYawDeg(landmarks: LM[] | undefined): number | null {
   const half = Math.abs(right.x - left.x) / 2;
   if (half < 1e-4) return null;
   const proxy = Math.max(-1.4, Math.min(1.4, (nose.x - mid) / half));
-  return proxy * 60;
+  return -proxy * 60;
 }
 
 export type FaceFrame = { t: number; yawDeg: number };

@@ -170,8 +170,12 @@ export const TAPPING = { beatMs: 500, durationS: 10 };
  */
 export const TREMOR = { phaseS: 8, sampleHz: 60 };
 
-/** Facial head-turn test: seconds to capture the left+right turn. */
-export const FACIAL = { captureS: 6, minTurnDeg: 20 };
+/**
+ * Facial head-turn test. `timeoutS` is generous because an elderly user may
+ * need several attempts to reach full rotation; running out of time means the
+ * attempt is INCOMPLETE, not that the result is bad.
+ */
+export const FACIAL = { captureS: 6, timeoutS: 25, minTurnDeg: 20 };
 
 /** Voice test: recording duration (s). */
 export const VOICE = { durationS: 5 };

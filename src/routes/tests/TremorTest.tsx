@@ -6,6 +6,7 @@ import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
+import TremorPractice from '../../components/practice/TremorPractice';
 import Button from '../../components/ui/Button';
 import { useSettings } from '../../context/SettingsContext';
 import { speak } from '../../lib/speech';
@@ -164,7 +165,7 @@ export default function TremorTest() {
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title} instruction={S.tests.tremor.instruction}>
-        <TestIntro testId="tremor" onStart={start} />
+        <TestIntro testId="tremor" onStart={start} practice={<TremorPractice />} />
       </TestShell>
     );
   }
