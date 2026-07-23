@@ -179,7 +179,7 @@ export default function SpiralTest() {
       speedCV: m.speedCV,
       coverage: m.coverage,
     };
-    const score = computeSubScore('spiral', metrics);
+    const score = computeSubScore('spiral', metrics, settings.age);
     saveTestResult({ test: 'spiral', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
     setSubScore(score);
     setPhase('done');

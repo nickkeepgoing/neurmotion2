@@ -4,26 +4,61 @@ import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
 import TestInvalid from '../../components/TestInvalid';
 import TestShell from '../../components/TestShell';
+import Button from '../../components/ui/Button';
 import TapPractice from '../../components/practice/TapPractice';
 import { useSettings } from '../../context/SettingsContext';
 import { computeSubScore } from '../../lib/scoring';
 import { saveTestResult } from '../../lib/storage';
 import { S } from '../../lib/strings';
-import { computeTappingMetrics } from '../../lib/tapping';
+import { combineTapping } from '../../lib/tapping';
 import { MIN_VALID, TAPPING } from '../../lib/thresholds';
 
-type Phase = 'intro' | 'countdown' | 'running' | 'done' | 'invalid';
+/** The three blocks, in order. See lib/tapping.ts for why each exists. */
+type Block = 'paced' | 'maxDominant' | 'maxOther';
+const BLOCK_ORDER: Block[] = ['paced', 'maxDominant', 'maxOther'];
+
+type Phase = 'intro' | 'countdown' | 'running' | 'switch' | 'done' | 'invalid';
+
+/** Progress across the three blocks. */
+function BlockChips({ block }: { block: Block }) {
+  const labels: Record<Block, string> = {
+    paced: S.tapBlock.pacedShort,
+    maxDominant: S.tapBlock.maxDominantShort,
+    maxOther: S.tapBlock.maxOtherShort,
+  };
+  const idx = BLOCK_ORDER.indexOf(block);
+  return (
+    <div className="flex items-center gap-1.5 mt-3">
+      {BLOCK_ORDER.map((b, i) => (
+        <span
+          key={b}
+          className={`flex-1 text-center text-base font-bold rounded-full py-2 px-1 ${
+            i === idx ? 'bg-secondary text-white' : i < idx ? 'bg-secondary-soft text-secondary' : 'bg-line-warm text-muted'
+          }`}
+        >
+          {i + 1} · {labels[b]}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export default function TappingTest() {
   const { settings } = useSettings();
   const [phase, setPhase] = useState<Phase>('intro');
+  const [block, setBlock] = useState<Block>('paced');
   const [count, setCount] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(TAPPING.durationS);
   const [beat, setBeat] = useState(0);
   const [subScore, setSubScore] = useState(0);
 
   const tapsRef = useRef<number[]>([]);
+  const blocksRef = useRef<Record<Block, number[]>>({ paced: [], maxDominant: [], maxOther: [] });
+  const blockRef = useRef<Block>('paced');
+  blockRef.current = block;
   const audioRef = useRef<AudioContext | null>(null);
+
+  const isPaced = block === 'paced';
 
   // metronome beep
   const click = (accent: boolean) => {
@@ -41,27 +76,25 @@ export default function TappingTest() {
 
   useEffect(() => {
     if (phase !== 'running') return;
-    const beatId = setInterval(() => {
-      setBeat((b) => {
-        click(b % 4 === 3);
-        return b + 1;
-      });
-    }, TAPPING.beatMs);
-    const tickId = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          finish();
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+    // the metronome runs in the paced block only — the maximal blocks are
+    // deliberately unpaced, since a beat would cap the rate being measured
+    const beatId = isPaced
+      ? setInterval(() => {
+          setBeat((b) => {
+            click(b % 4 === 3);
+            return b + 1;
+          });
+        }, TAPPING.beatMs)
+      : undefined;
+    const tickId = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
+    const endId = setTimeout(endBlock, TAPPING.durationS * 1000);
     return () => {
-      clearInterval(beatId);
+      if (beatId) clearInterval(beatId);
       clearInterval(tickId);
+      clearTimeout(endId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, block]);
 
   const begin = () => {
     tapsRef.current = [];
@@ -73,20 +106,48 @@ export default function TappingTest() {
     setPhase('running');
   };
 
+  /** Store this block's taps, then move to the next block or score. */
+  const endBlock = () => {
+    const current = blockRef.current;
+    blocksRef.current[current] = tapsRef.current.slice();
+    const next = BLOCK_ORDER[BLOCK_ORDER.indexOf(current) + 1];
+    if (next) {
+      setBlock(next);
+      setPhase('switch');
+      return;
+    }
+    finish();
+  };
+
   const finish = () => {
+    const b = blocksRef.current;
     // Too few taps → the interval statistics are meaningless and every one of
     // them would clamp to "perfect". Refuse to score rather than report a
     // reassuring number for someone who could not do the test.
-    if (tapsRef.current.length < MIN_VALID.tappingCount) {
+    if (BLOCK_ORDER.some((k) => b[k].length < MIN_VALID.tappingCount)) {
       setPhase('invalid');
       return;
     }
-    const m = computeTappingMetrics(tapsRef.current);
-    const metrics = { rate: m.rate, itiSD: m.itiSD, decrementSlope: m.decrementSlope, timingError: m.timingError, count: m.count };
-    const score = computeSubScore('tapping', metrics);
+    const m = combineTapping(b.paced, b.maxDominant, b.maxOther);
+    const metrics = {
+      rate: m.rate,
+      itiSD: m.itiSD,
+      decrementSlope: m.decrementSlope,
+      timingError: m.timingError,
+      asymmetry: m.asymmetry,
+      count: m.count,
+    };
+    const score = computeSubScore('tapping', metrics, settings.age);
     saveTestResult({ test: 'tapping', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
     setSubScore(score);
     setPhase('done');
+  };
+
+  /** Restart the whole test from the first block. */
+  const restart = () => {
+    blocksRef.current = { paced: [], maxDominant: [], maxOther: [] };
+    setBlock('paced');
+    setPhase('countdown');
   };
 
   const tap = () => {
@@ -107,7 +168,7 @@ export default function TappingTest() {
   if (phase === 'invalid') {
     return (
       <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title}>
-        <TestInvalid test="tapping" onRetry={() => setPhase('countdown')} />
+        <TestInvalid test="tapping" onRetry={restart} />
       </TestShell>
     );
   }
@@ -115,31 +176,62 @@ export default function TappingTest() {
   if (phase === 'intro') {
     return (
       <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction}>
-        <TestIntro testId="tapping" onStart={() => setPhase('countdown')} practice={<TapPractice />} />
+        <TestIntro testId="tapping" onStart={restart} practice={<TapPractice />} />
+      </TestShell>
+    );
+  }
+
+  const blockInstr = isPaced ? S.tapBlock.pacedInstr : S.tapBlock.maxInstr;
+
+  if (phase === 'switch') {
+    return (
+      <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={blockInstr}>
+        <BlockChips block={block} />
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 px-2">
+          <div className="w-20 h-20 rounded-full bg-primary-soft flex items-center justify-center text-4xl">
+            {block === 'maxOther' ? '🔄' : '⚡'}
+          </div>
+          <p className="text-2xl font-extrabold text-ink text-center leading-relaxed m-0">
+            {block === 'maxOther' ? S.tapBlock.switchToOther : S.tapBlock.switchToMax}
+          </p>
+          <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed m-0">
+            {block === 'maxOther' ? S.tapBlock.switchToOtherDesc : S.tapBlock.maxInstr}
+          </p>
+        </div>
+        <Button className="nm-blink" onClick={() => setPhase('countdown')}>
+          {S.ready}
+        </Button>
       </TestShell>
     );
   }
 
   return (
-    <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction}>
+    <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={blockInstr}>
+      <BlockChips block={block} />
       {(phase === 'running' || phase === 'countdown') && (
         <>
-          {/* Rhythm dots */}
-          <div className="flex items-center justify-center gap-3.5 mt-5">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full transition-colors ${phase === 'running' && beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`}
-              />
-            ))}
-            <span className="text-base font-semibold text-muted ml-1.5">{S.rhythm}</span>
-          </div>
+          {/* Rhythm dots — paced block only */}
+          {isPaced ? (
+            <div className="flex items-center justify-center gap-3.5 mt-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-colors ${phase === 'running' && beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`}
+                />
+              ))}
+              <span className="text-base font-semibold text-muted ml-1.5">{S.rhythm}</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center mt-4">
+              <span className="text-lg font-extrabold text-primary-dark">{S.tapBlock.maxHint}</span>
+            </div>
+          )}
 
           {/* Tap target — visible during the countdown too, so the user sees
               exactly where to tap before the test starts */}
           <div className="flex-1 flex items-center justify-center py-6">
             <div className="relative w-[230px] h-[230px] flex items-center justify-center">
-              {phase === 'running' && (
+              {phase === 'running' && isPaced && (
                 <div className={`absolute inset-0 rounded-full bg-primary ${beat % 2 === 0 ? 'nm-beat-ring-a' : 'nm-beat-ring-b'}`} />
               )}
               <button
@@ -148,7 +240,7 @@ export default function TappingTest() {
                 aria-label="แตะ"
                 className={`relative w-[190px] h-[190px] rounded-full border-0 cursor-pointer flex flex-col items-center justify-center gap-1 select-none active:scale-95 transition-transform touch-none-important
                   bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]
-                  ${phase === 'running' ? (beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b') : ''}`}
+                  ${phase === 'running' && isPaced ? (beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b') : ''}`}
               >
                 <span className="text-4xl font-extrabold text-white">แตะ</span>
               </button>
@@ -177,7 +269,14 @@ export default function TappingTest() {
         </>
       )}
 
-      {phase === 'countdown' && <Countdown hint={S.countdownHints.tapping} beatMs={TAPPING.beatMs} onDone={begin} />}
+      {/* the metronome preview plays only for the paced block */}
+      {phase === 'countdown' && (
+        <Countdown
+          hint={isPaced ? S.countdownHints.tapping : S.tapBlock.maxInstr}
+          beatMs={isPaced ? TAPPING.beatMs : undefined}
+          onDone={begin}
+        />
+      )}
     </TestShell>
   );
 }

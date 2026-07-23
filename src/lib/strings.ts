@@ -185,6 +185,22 @@ export const S = {
     watchAgain: 'ดูอีกครั้ง',
   },
 
+  // Tapping runs in three blocks: paced, then max-speed on each hand
+  tapBlock: {
+    paced: 'ช่วงที่ 1 — เคาะตามจังหวะ',
+    maxDominant: 'ช่วงที่ 2 — เคาะให้เร็วที่สุด (มือถนัด)',
+    maxOther: 'ช่วงที่ 3 — เคาะให้เร็วที่สุด (อีกมือ)',
+    pacedShort: 'ตามจังหวะ',
+    maxDominantShort: 'เร็วสุด · มือถนัด',
+    maxOtherShort: 'เร็วสุด · อีกมือ',
+    pacedInstr: 'แตะปุ่มตามเสียงจังหวะ ให้สม่ำเสมอที่สุด',
+    maxInstr: 'แตะให้เร็วและแรงที่สุดเท่าที่ทำได้ ไม่ต้องตามจังหวะ',
+    switchToMax: 'ต่อไป เคาะให้เร็วที่สุด',
+    switchToOther: 'เปลี่ยนมือ! ใช้อีกมือหนึ่ง',
+    switchToOtherDesc: 'ทดสอบอีกมือเพื่อเปรียบเทียบซ้าย-ขวา ซึ่งช่วยให้ผลแม่นยำขึ้น',
+    maxHint: 'เร็วที่สุด!',
+  },
+
   // Rest / postural tremor two-phase test
   tremorPhase: {
     postural: 'ท่าที่ 1 — ยกขึ้นในอากาศ',
@@ -287,6 +303,7 @@ export const S = {
     itiSD: 'จังหวะการเคาะสม่ำเสมอแค่ไหน',
     decrementSlope: 'เคาะช้าลงเรื่อย ๆ หรือไม่',
     timingError: 'เคาะตรงกับจังหวะที่กำหนดแค่ไหน',
+    asymmetry: 'มือสองข้างเคาะได้เร็วต่างกันมากไหม',
     restBandPower: 'มือสั่นถี่ ๆ ขณะวางแขนพัก (สำคัญที่สุด)',
     restRms: 'แอมพลิจูด (ความแรง) ของการสั่นขณะวางแขน',
     posturalBandPower: 'การสั่นขณะยกมือค้างในอากาศ',
@@ -311,6 +328,7 @@ export const S = {
     itiSD: 'ความสม่ำเสมอของจังหวะ',
     decrementSlope: 'อาการเคาะช้าลงเรื่อย ๆ',
     timingError: 'ความตรงจังหวะ',
+    asymmetry: 'ความต่างระหว่างสองมือ',
     // tremor
     restBandPower: 'แรงสั่นขณะวางแขน (พัก)',
     restRms: 'ขนาดการสั่นขณะวางแขน',

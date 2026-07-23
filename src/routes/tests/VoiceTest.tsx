@@ -131,7 +131,7 @@ export default function VoiceTest() {
             return;
           }
           const metrics = { jitterPct: m.jitterPct, shimmerPct: m.shimmerPct, f0CV: m.f0CV, meanF0: m.meanF0, voicedRatio: m.voicedRatio };
-          const score = computeSubScore('voice', metrics);
+          const score = computeSubScore('voice', metrics, settings.age);
           saveTestResult({ test: 'voice', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
           setSubScore(score);
           setPhase('done');

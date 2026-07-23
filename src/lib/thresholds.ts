@@ -34,20 +34,22 @@ export const METRIC_RANGES: Record<string, Record<string, MetricRange>> = {
     speedCV: { good: 0.35, bad: 1.0, weight: 0.2 },
   },
   tapping: {
-    // NOTE: there is deliberately no `rate` metric here. This test is
-    // metronome-PACED at TAPPING.beatMs (2.0 taps/s), so a perfectly
-    // compliant user always produces ~2 taps/s. Scoring that against
-    // maximal-tapping norms (4–6 Hz) pinned every user at 100/100 and made
-    // "tapping speed" the reported concern for 100% of users. Measuring
-    // bradykinesia by rate requires a separate UNPACED max-speed block
-    // (cf. MDS-UPDRS 3.4) — until that exists, rate is not scored.
-    // SD of inter-tap intervals (ms). Healthy rhythmic tapping ≈ 20–50 ms.
-    itiSD: { good: 30, bad: 130, weight: 0.3 },
-    // Slope of inter-tap interval over time (ms per tap). Positive slope =
-    // progressive slowing = the bradykinesia "decrement" sign.
-    decrementSlope: { good: 0, bad: 5, weight: 0.25 },
+    // Taps per second in the UNPACED maximal block, taken from the slower hand.
+    // Healthy maximal index-finger tapping ≈ 4–6 Hz; bradykinesia slows this
+    // markedly. (Scored only from the maximal block — under a metronome every
+    // compliant user taps at the metronome's rate, which is why this metric
+    // previously pinned everyone at 100/100.)
+    rate: { good: 5, bad: 2, weight: 0.25 },
+    // SD of inter-tap intervals in the PACED block (ms). Healthy ≈ 20–50 ms.
+    itiSD: { good: 30, bad: 130, weight: 0.2 },
+    // Slope of inter-tap interval over the maximal block (ms per tap).
+    // Positive = progressive slowing = the bradykinesia "decrement" sign.
+    decrementSlope: { good: 0, bad: 5, weight: 0.2 },
     // Mean absolute timing error vs the guided beat (ms).
     timingError: { good: 50, bad: 180, weight: 0.15 },
+    // Left/right difference in maximal rate (0–1). Early Parkinson's is
+    // markedly asymmetric, so a large gap between hands is itself a sign.
+    asymmetry: { good: 0.1, bad: 0.45, weight: 0.2 },
   },
   tremor: {
     // REST phase (forearm supported on a surface) — the most specific sign of
@@ -100,6 +102,32 @@ export const MIN_VALID = {
   spiralCoverage: 0.7,
 };
 
+/**
+ * Age adjustment.
+ *
+ * Fine-motor speed, timing variability, cervical range of motion and voice
+ * stability all decline with normal ageing. A single fixed cut point therefore
+ * over-flags the old and under-flags the young — and this app's target users
+ * are 60+. For each metric below, the `good` anchor is shifted toward `bad` by
+ * this FRACTION OF THE GOOD→BAD SPAN for every decade above AGE_REF, so a
+ * healthy 80-year-old is compared against what is normal at 80.
+ *
+ * Values are conservative engineering estimates, not calibrated norms, and are
+ * capped at AGE_MAX_DECADES so the scale can never be widened into uselessness.
+ */
+export const AGE_REF = 60;
+export const AGE_MAX_DECADES = 3; // no further leniency past ~90
+
+export const AGE_SHIFT: Record<string, Record<string, number>> = {
+  spiral: { rmsErrorNorm: 0.1, tremorBandPower: 0.06, spacingCV: 0.08, speedCV: 0.1 },
+  // maximal tapping rate falls roughly 5–8% per decade in healthy adults
+  tapping: { rate: 0.12, itiSD: 0.12, decrementSlope: 0.08, timingError: 0.1, asymmetry: 0.05 },
+  tremor: { restBandPower: 0.06, restRms: 0.08, posturalBandPower: 0.08, posturalRms: 0.1 },
+  // cervical rotation declines markedly with age and cervical spondylosis
+  facial: { turnRangeDeg: 0.14, turnAsymmetry: 0.06, turnSmoothness: 0.1 },
+  voice: { jitterPct: 0.12, shimmerPct: 0.12, f0CV: 0.1 },
+};
+
 /** Relative weight of each test in the overall score. */
 export const TEST_WEIGHTS: Record<string, number> = {
   spiral: 0.3,
@@ -132,7 +160,7 @@ export const RISK_STREAK_DAYS = 5;
 /** Parkinsonian tremor frequency band (Hz), used by spiral + tremor tests. */
 export const TREMOR_BAND = { lo: 4, hi: 7 };
 
-/** Tapping test: guided beat interval (ms) and test duration (s). */
+/** Tapping test: guided beat interval (ms) and duration (s) of each block. */
 export const TAPPING = { beatMs: 500, durationS: 10 };
 
 /**

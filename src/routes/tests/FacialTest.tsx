@@ -208,7 +208,7 @@ export default function FacialTest() {
       rightDeg: m.rightDeg,
       frames: m.frames,
     };
-    const score = computeSubScore('facial', metrics);
+    const score = computeSubScore('facial', metrics, settings.age);
     saveTestResult({ test: 'facial', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
     setSubScore(score);
     setPhase('done');

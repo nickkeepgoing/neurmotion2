@@ -131,7 +131,7 @@ export default function TremorTest() {
       posturalRms: m.posturalRms,
       samples: m.samples,
     };
-    const score = computeSubScore('tremor', metrics);
+    const score = computeSubScore('tremor', metrics, settings.age);
     saveTestResult({ test: 'tremor', metrics, subScore: score, timestamp: new Date().toISOString() }, settings.userType);
     setSubScore(score);
     setPhase('done');

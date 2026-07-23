@@ -2,7 +2,17 @@
  * Scoring: raw metrics → 0–100 sub-scores → overall score → risk level.
  * All ranges/weights live in thresholds.ts. Higher score = more concerning.
  */
-import { METRIC_RANGES, RED_FLAG_SUBSCORE, RISK_CUTS, RISK_STREAK_DAYS, TEST_WEIGHTS } from './thresholds';
+import {
+  AGE_MAX_DECADES,
+  AGE_REF,
+  AGE_SHIFT,
+  METRIC_RANGES,
+  RED_FLAG_SUBSCORE,
+  RISK_CUTS,
+  RISK_STREAK_DAYS,
+  TEST_WEIGHTS,
+  type MetricRange,
+} from './thresholds';
 import type { RiskLevel, Session, TestId, TestResult } from './types';
 
 /** Linear map from `good` (0) to `bad` (100), clamped. Handles inverted ranges. */
@@ -11,13 +21,30 @@ export function normalizeMetric(value: number, good: number, bad: number): numbe
   return Math.min(100, Math.max(0, raw));
 }
 
+/**
+ * The metric's good/bad anchors for a person of this age.
+ *
+ * Normal ageing slows fine motor speed, widens timing variability and reduces
+ * range of motion; without this the same cut point over-flags an 80-year-old
+ * and under-flags a 55-year-old. Passing no age leaves the range untouched.
+ */
+export function ageAdjustedRange(test: TestId, name: string, range: MetricRange, age?: number): MetricRange {
+  if (!age || age <= AGE_REF) return range;
+  const shift = AGE_SHIFT[test]?.[name];
+  if (!shift) return range;
+  const decades = Math.min((age - AGE_REF) / 10, AGE_MAX_DECADES);
+  const span = range.bad - range.good;
+  return { ...range, good: range.good + span * shift * decades };
+}
+
 /** Weighted sub-score for one test from its raw metrics. */
-export function computeSubScore(test: TestId, metrics: Record<string, number>): number {
+export function computeSubScore(test: TestId, metrics: Record<string, number>, age?: number): number {
   const ranges = METRIC_RANGES[test];
   let sum = 0;
   let wsum = 0;
-  for (const [name, range] of Object.entries(ranges)) {
+  for (const [name, base] of Object.entries(ranges)) {
     if (!(name in metrics)) continue;
+    const range = ageAdjustedRange(test, name, base, age);
     sum += normalizeMetric(metrics[name], range.good, range.bad) * range.weight;
     wsum += range.weight;
   }
@@ -66,11 +93,14 @@ export function testStatus(subScore: number): RiskLevel {
 }
 
 /** Per-metric normalized 0–100 scores for one test, sorted most concerning first. */
-export function metricScores(test: TestId, metrics: Record<string, number>): { name: string; score: number }[] {
+export function metricScores(test: TestId, metrics: Record<string, number>, age?: number): { name: string; score: number }[] {
   const ranges = METRIC_RANGES[test] ?? {};
   return Object.entries(ranges)
     .filter(([name]) => name in metrics)
-    .map(([name, range]) => ({ name, score: Math.round(normalizeMetric(metrics[name], range.good, range.bad)) }))
+    .map(([name, base]) => {
+      const range = ageAdjustedRange(test, name, base, age);
+      return { name, score: Math.round(normalizeMetric(metrics[name], range.good, range.bad)) };
+    })
     .sort((a, b) => b.score - a.score);
 }
 

@@ -41,10 +41,22 @@ function metricLevel(score: number): RiskLevel {
 }
 
 /** Full per-test detail: every metric with its status, bar, and explanation. */
-function TestDetailSheet({ test, metrics, subScore, onClose }: { test: TestId; metrics: Record<string, number>; subScore: number; onClose: () => void }) {
+function TestDetailSheet({
+  test,
+  metrics,
+  subScore,
+  age,
+  onClose,
+}: {
+  test: TestId;
+  metrics: Record<string, number>;
+  subScore: number;
+  age?: number;
+  onClose: () => void;
+}) {
   const lvl = testStatus(subScore);
   const head = STATUS_STYLE[lvl];
-  const rows = metricScores(test, metrics).filter((m) => S.metricLabels[m.name]);
+  const rows = metricScores(test, metrics, age).filter((m) => S.metricLabels[m.name]);
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
       <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-3 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -279,7 +291,7 @@ export default function Result() {
           // Averaging can leave a test in the "low" band while one metric sits
           // at 100/100 — the row then claimed "ทุกด้านอยู่ในเกณฑ์ปกติ" while
           // its own detail sheet said that metric was abnormal.
-          const worst = metricScores(t, r.metrics).find((m) => S.metricLabels[m.name]);
+          const worst = metricScores(t, r.metrics, settings.age).find((m) => S.metricLabels[m.name]);
           const worstLvl = worst ? metricLevel(worst.score) : 'low';
           const detail =
             worst && worstLvl !== 'low' ? S.result.mostConcern(S.metricLabels[worst.name]) : S.result.allNormalDetail;
@@ -407,6 +419,7 @@ export default function Result() {
           test={openTest}
           metrics={session.results.find((r) => r.test === openTest)!.metrics}
           subScore={session.results.find((r) => r.test === openTest)!.subScore}
+          age={settings.age}
           onClose={() => setOpenTest(null)}
         />
       )}
