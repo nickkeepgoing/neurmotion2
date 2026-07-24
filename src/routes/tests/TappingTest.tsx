@@ -47,9 +47,12 @@ function BlockChips({ block }: { block: Block }) {
           </div>
         ))}
       </div>
-      <span className="text-base font-bold text-ink">
-        ช่วงที่ {idx + 1} จาก 3 · {labels[block]}
-      </span>
+      <div className="rounded-2xl bg-secondary-soft px-4 py-2.5 flex items-center gap-2 flex-wrap">
+        <span className="text-base font-extrabold text-white bg-secondary rounded-full px-2.5 py-0.5">
+          {idx + 1}/3
+        </span>
+        <span className="text-lg font-extrabold text-ink">{labels[block]}</span>
+      </div>
     </div>
   );
 }

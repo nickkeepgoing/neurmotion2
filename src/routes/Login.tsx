@@ -49,6 +49,18 @@ function TypeCard({
   );
 }
 
+/** Numbered section header — makes the order to follow obvious. */
+function StepHeader({ n, text }: { n: number; text: string }) {
+  return (
+    <div className="flex items-center gap-3 mt-7 mb-3">
+      <span className="flex-none w-9 h-9 rounded-full bg-secondary text-white flex items-center justify-center font-num text-xl font-black">
+        {n}
+      </span>
+      <h2 className="text-2xl font-extrabold text-ink m-0">{text}</h2>
+    </div>
+  );
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const { settings, update } = useSettings();
@@ -78,18 +90,21 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-dvh bg-bg flex flex-col px-6 pt-6 pb-8 max-w-md mx-auto">
+    <>
+    {/* pb reserve (rem) so the sticky footer never covers the last field */}
+    <div className="min-h-dvh bg-bg flex flex-col px-6 pt-7 pb-[11rem] max-w-md mx-auto">
       <h1 className="text-3xl font-extrabold text-ink">{S.login.title}</h1>
 
-      {/* size control on its own tidy labelled row so it doesn't crowd the title */}
-      <div className="mt-3 flex items-center gap-3 bg-white rounded-[16px] border border-line px-3 py-2">
-        <span className="text-base font-bold text-muted-2 flex-none">{S.home.textSizeLabel}</span>
+      {/* size control — a light helper, not a heavy card, so it doesn't compete
+          with the title as the first thing on screen */}
+      <p className="mt-1.5 text-base font-semibold text-muted-2">{S.login.sizeHelper}</p>
+      <div className="mt-2">
         <TextSizeToggle />
       </div>
 
-      {/* section 1 — choose user type */}
-      <h2 className="mt-6 text-xl font-extrabold text-ink">{S.login.subtitle}</h2>
-      <div className="flex flex-col gap-3.5 mt-3">
+      {/* STEP 1 — choose user type */}
+      <StepHeader n={1} text={S.login.step1} />
+      <div className="flex flex-col gap-3.5">
         <TypeCard
           selected={userType === 'general'}
           onClick={() => setUserType('general')}
@@ -117,39 +132,46 @@ export default function Login() {
         />
       </div>
 
-      {/* section 2 — birth date only (general); no other personal data required */}
-      <div className="flex flex-col gap-2 mt-6">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-xl font-extrabold text-ink">{S.login.birthLabel}</h2>
-          <span className="text-base font-extrabold text-secondary bg-secondary-soft rounded-full px-3 py-1">{S.login.ageShow(age)}</span>
-        </div>
-        <BirthDatePicker value={birth} onChange={setBirth} />
+      {/* STEP 2 — birth date only (general); no other personal data required */}
+      <StepHeader n={2} text={S.login.step2} />
+      <p className="text-base font-semibold text-muted-2 mb-2 -mt-1">{S.login.birthHelp}</p>
+      <BirthDatePicker value={birth} onChange={setBirth} />
+      <div className="mt-3 self-start flex items-center gap-2 bg-secondary-soft rounded-full px-4 py-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#1B6CA8" strokeWidth="2" />
+          <path d="M12 7v5l3 2" stroke="#1B6CA8" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        <span className="text-lg font-extrabold text-secondary">{S.login.ageShow(age)}</span>
       </div>
 
       {/* patient: national ID (full patient system is future work) */}
       {userType === 'patient' && (
-        <label className="flex flex-col gap-2 mt-4">
+        <label className="flex flex-col gap-2 mt-5">
           <span className="text-lg font-bold text-ink">{S.login.nidLabel}</span>
           <input
             value={nid}
             onChange={(e) => setNid(e.target.value.replace(/\D/g, '').slice(0, 13))}
             placeholder={S.login.nidPlaceholder}
             inputMode="numeric"
-            className="h-16 rounded-[18px] border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none tracking-wider"
+            className="min-h-16 rounded-[18px] border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none tracking-wider"
           />
-          <span className="text-sm font-medium text-muted leading-relaxed">{S.login.nidNote}</span>
+          <span className="text-base font-medium text-muted leading-relaxed">{S.login.nidNote}</span>
         </label>
       )}
+    </div>
 
-      <Button className="mt-7 nm-blink" onClick={start}>
+    {/* sticky footer keeps the one primary action always visible and prominent */}
+    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-[0_-6px_18px_rgba(35,58,77,.07)] flex flex-col gap-2">
+      <Button className="nm-blink" onClick={start}>
         {S.start}
       </Button>
-      <p className="mt-3.5 text-base font-medium text-muted-2 text-center">
+      <p className="text-base font-medium text-muted-2 text-center m-0">
         {S.login.noAccount}{' '}
-        <button onClick={() => navigate('/register')} className="min-h-14 px-2 text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
+        <button onClick={() => navigate('/register')} className="min-h-11 px-2 text-secondary font-bold bg-transparent border-0 cursor-pointer text-base underline">
           {S.login.register}
         </button>
       </p>
-    </div>
+    </footer>
+    </>
   );
 }
