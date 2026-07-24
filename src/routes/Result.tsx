@@ -6,10 +6,10 @@ import RiskGauge from '../components/ui/RiskGauge';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import { highRiskStreak, metricScores, redFlagTests, riskLevel, testStatus } from '../lib/scoring';
-import { latestSession, loadSessions, trendSeries } from '../lib/storage';
+import { dailyLatestSessions, latestSession, loadSessions } from '../lib/storage';
 import { S, thaiDate } from '../lib/strings';
 import { RISK_CUTS, RISK_STREAK_DAYS } from '../lib/thresholds';
-import type { RiskLevel, TestId } from '../lib/types';
+import type { RiskLevel, Session, TestId } from '../lib/types';
 
 /** Amber is unreadable as a thin line/dot (#F1C232 on white ≈ 1.7:1) — use a
  *  darker amber for small graphics and keep #F1C232 for large fills only. */
@@ -100,6 +100,60 @@ function TestDetailSheet({
   );
 }
 
+/** Full risk history: one row per day, newest first, with exact scores. */
+function TrendDetailSheet({ rows, onClose }: { rows: Session[]; onClose: () => void }) {
+  const today = new Date().toLocaleDateString('en-CA');
+  const ordered = [...rows].reverse();
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-4 pb-8 flex flex-col gap-3 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="w-12 h-1.5 rounded-full bg-line self-center mb-1" />
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-extrabold text-ink m-0">{S.result.trendDetailTitle}</h2>
+          <button
+            onClick={onClose}
+            aria-label={S.result.close}
+            className="ml-auto min-w-14 min-h-14 rounded-full bg-[#F4F6F8] border-2 border-field flex items-center justify-center cursor-pointer"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="#5A6B7A" strokeWidth="2.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2.5 mt-1">
+          {ordered.map((s, i) => {
+            const st = STATUS_STYLE[s.riskLevel];
+            const isToday = s.timestamp.slice(0, 10) === today || new Date(s.timestamp).toLocaleDateString('en-CA') === today;
+            const doneNames = TEST_ORDER.filter((t) => s.results.some((r) => r.test === t)).map((t) => S.tests[t].name);
+            return (
+              <div key={s.id} className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-1.5">
+                <div className="flex items-center gap-3">
+                  <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: st.dot }} />
+                  <span className="text-lg font-bold text-ink">{thaiDate(new Date(s.timestamp))}</span>
+                  {(isToday || i === 0) && (
+                    <span className="text-sm font-extrabold rounded-full px-2.5 py-0.5 bg-secondary-soft text-secondary">
+                      {isToday ? S.result.todayLabel : S.result.latestBadge}
+                    </span>
+                  )}
+                  <span className="ml-auto font-num text-2xl font-black" style={{ color: bandColor(s.overallScore) }}>
+                    {s.overallScore}
+                  </span>
+                  <span className={`text-base font-bold ${st.text}`}>{st.label}</span>
+                </div>
+                {doneNames.length > 0 && (
+                  <span className="text-base font-medium text-muted pl-[26px]">{doneNames.join(' · ')}</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-base font-medium text-muted text-center leading-relaxed mt-1">{S.result.trendHint}</p>
+      </div>
+    </div>
+  );
+}
+
 /** Bottom sheet with real ways to reach a doctor (demo-safe: hotline + map). */
 function ConsultSheet({ onClose }: { onClose: () => void }) {
   return (
@@ -114,9 +168,9 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
 
         <a
           href="tel:1330"
-          className="flex items-center gap-4 rounded-[20px] bg-secondary text-white px-5 h-16 no-underline shadow-[0_6px_18px_rgba(27,108,168,.3)] active:scale-[.97] transition-transform"
+          className="flex items-center gap-4 rounded-[20px] bg-secondary text-white px-5 min-h-[5.25rem] py-3 no-underline shadow-[0_6px_18px_rgba(27,108,168,.3)] active:scale-[.97] transition-transform"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="flex-none">
             <path
               d="M6.6 3h3l1.5 4.5-2 1.5a13 13 0 0 0 5.9 5.9l1.5-2 4.5 1.5v3c0 1.1-.9 2-2 2A17.5 17.5 0 0 1 4.6 5c0-1.1.9-2 2-2z"
               stroke="#fff"
@@ -124,9 +178,9 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="flex flex-col leading-tight">
-            <span className="text-xl font-extrabold">{S.result.callHotline}</span>
-            <span className="text-sm font-semibold text-white/80">{S.result.callHotlineSub}</span>
+          <span className="flex flex-col gap-0.5 leading-snug min-w-0">
+            <span className="text-lg font-extrabold">{S.result.callHotline}</span>
+            <span className="text-base font-semibold text-white/85">{S.result.callHotlineSub}</span>
           </span>
         </a>
 
@@ -134,15 +188,15 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
           href="https://www.google.com/maps/search/โรงพยาบาล+ใกล้ฉัน"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-4 rounded-[20px] bg-white border-2 border-field text-ink px-5 h-16 no-underline active:scale-[.97] transition-transform"
+          className="flex items-center gap-4 rounded-[20px] bg-white border-2 border-field text-ink px-5 min-h-[5.25rem] py-3 no-underline active:scale-[.97] transition-transform"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="flex-none">
             <path d="M12 21s-7-5.5-7-11a7 7 0 1 1 14 0c0 5.5-7 11-7 11z" stroke="#1B6CA8" strokeWidth="2" strokeLinejoin="round" />
             <circle cx="12" cy="10" r="2.5" stroke="#1B6CA8" strokeWidth="2" />
           </svg>
-          <span className="flex flex-col leading-tight">
-            <span className="text-xl font-extrabold text-ink">{S.result.findHospital}</span>
-            <span className="text-sm font-semibold text-muted">{S.result.findHospitalSub}</span>
+          <span className="flex flex-col gap-0.5 leading-snug min-w-0">
+            <span className="text-lg font-extrabold text-ink">{S.result.findHospital}</span>
+            <span className="text-base font-semibold text-muted">{S.result.findHospitalSub}</span>
           </span>
         </a>
 
@@ -158,15 +212,24 @@ export default function Result() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const [consultOpen, setConsultOpen] = useState(false);
+  const [trendOpen, setTrendOpen] = useState(false);
   const [openTest, setOpenTest] = useState<TestId | null>(null);
   const session = useMemo(() => latestSession(), []);
   const streak = useMemo(() => highRiskStreak(loadSessions()), []);
 
-  // one point per day, using that day's LATEST session (never the first)
+  // one point per day, using that day's LATEST session (never the first).
+  // The most recent 7 days; the last point is the latest and is marked so.
+  const dailyRows = useMemo(() => dailyLatestSessions().slice(-7), []);
   const trendData = useMemo(
-    () => trendSeries(7).map((p) => ({ day: S.daysShort[new Date(p.day).getDay()], score: p.score })),
-    []
+    () =>
+      dailyRows.map((s, i) => ({
+        day: S.daysShort[new Date(s.timestamp).getDay()],
+        score: s.overallScore,
+        latest: i === dailyRows.length - 1,
+      })),
+    [dailyRows]
   );
+  const latestScore = trendData.length ? trendData[trendData.length - 1].score : 0;
 
   if (!session) {
     return (
@@ -316,11 +379,16 @@ export default function Result() {
         })}
       </div>
 
-      {/* Trend */}
+      {/* Trend — tap for the full history */}
       <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-xl font-extrabold text-ink m-0">{S.result.trend}</h2>
-          <div className="flex flex-wrap items-center gap-3">
+          {trendData.length >= 1 && (
+            <span className="text-base font-extrabold rounded-full px-3 py-1" style={{ background: '#F1ECE3', color: bandColor(latestScore) }}>
+              {S.result.latestScore(latestScore)}
+            </span>
+          )}
+          <div className="flex flex-wrap items-center gap-3 w-full mt-1">
             <span className="flex items-center gap-1.5 text-base font-semibold text-muted-2">
               <span className="w-3 h-3 rounded-full bg-risk-low" />
               {S.result.normalLegend}
@@ -339,34 +407,41 @@ export default function Result() {
         <p className="text-base font-semibold text-muted-2 m-0 mt-1">{S.result.trendHint}</p>
         {trendData.length >= 2 ? (
           <>
-            <div className="h-40 mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData} margin={{ top: 10, right: 12, bottom: 0, left: -22 }}>
-                  {/* risk bands make the legend true and the chart readable at a glance */}
-                  <ReferenceArea y1={0} y2={RISK_CUTS.lowMax} fill="#E9F5EC" fillOpacity={1} />
-                  <ReferenceArea y1={RISK_CUTS.lowMax} y2={RISK_CUTS.mediumMax} fill="#FBF3D9" fillOpacity={1} />
-                  <ReferenceArea y1={RISK_CUTS.mediumMax} y2={100} fill="#FBEAEA" fillOpacity={1} />
-                  <XAxis dataKey="day" tick={{ fontSize: 15, fontFamily: 'Noto Sans Thai', fill: '#5A6B7A' }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} ticks={[0, 33, 66, 100]} tick={{ fontSize: 13, fill: '#5A6B7A' }} axisLine={false} tickLine={false} />
-                  <Line
-                    type="monotone"
-                    dataKey="score"
-                    stroke={bandColor(trendData[trendData.length - 1].score)}
-                    strokeWidth={4}
-                    strokeLinecap="round"
-                    dot={(props) => {
-                      const { cx: dx, cy: dy, payload, index } = props as { cx: number; cy: number; payload: { score: number }; index: number };
-                      return (
-                        <circle key={index} cx={dx} cy={dy} r={6} fill={bandColor(payload.score)} stroke="#FFFFFF" strokeWidth={2} />
-                      );
-                    }}
-                    activeDot={{ r: 8 }}
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <button onClick={() => setTrendOpen(true)} className="block w-full bg-transparent border-0 p-0 cursor-pointer" aria-label={S.result.trendDetailTitle}>
+              <div className="h-40 mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData} margin={{ top: 10, right: 12, bottom: 0, left: -22 }}>
+                    {/* risk bands make the legend true and the chart readable at a glance */}
+                    <ReferenceArea y1={0} y2={RISK_CUTS.lowMax} fill="#E9F5EC" fillOpacity={1} />
+                    <ReferenceArea y1={RISK_CUTS.lowMax} y2={RISK_CUTS.mediumMax} fill="#FBF3D9" fillOpacity={1} />
+                    <ReferenceArea y1={RISK_CUTS.mediumMax} y2={100} fill="#FBEAEA" fillOpacity={1} />
+                    <XAxis dataKey="day" tick={{ fontSize: 15, fontFamily: 'Noto Sans Thai', fill: '#5A6B7A' }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} ticks={[0, 33, 66, 100]} tick={{ fontSize: 13, fill: '#5A6B7A' }} axisLine={false} tickLine={false} />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke={bandColor(latestScore)}
+                      strokeWidth={4}
+                      strokeLinecap="round"
+                      dot={(props) => {
+                        const { cx: dx, cy: dy, payload, index } = props as { cx: number; cy: number; payload: { score: number; latest: boolean }; index: number };
+                        // the latest point is drawn larger with a ring so the user
+                        // can see at a glance which reading is the most recent
+                        return payload.latest ? (
+                          <circle key={index} cx={dx} cy={dy} r={9} fill={bandColor(payload.score)} stroke="#FFFFFF" strokeWidth={3} />
+                        ) : (
+                          <circle key={index} cx={dx} cy={dy} r={6} fill={bandColor(payload.score)} stroke="#FFFFFF" strokeWidth={2} />
+                        );
+                      }}
+                      activeDot={{ r: 9 }}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </button>
             <p className={`text-base font-semibold m-0 mt-1.5 ${trendTone.cls}`}>{trendTone.text}</p>
+            <p className="text-base font-semibold text-secondary m-0 mt-1 underline">{S.result.trendTapHint}</p>
           </>
         ) : (
           <p className="text-base font-semibold text-muted-2 m-0 mt-3">{S.result.trendNeedMore}</p>
@@ -414,6 +489,7 @@ export default function Result() {
       <p className="text-sm font-medium text-muted text-center leading-relaxed whitespace-pre-line m-0">{S.result.disclaimer}</p>
 
       {consultOpen && <ConsultSheet onClose={() => setConsultOpen(false)} />}
+      {trendOpen && <TrendDetailSheet rows={dailyRows} onClose={() => setTrendOpen(false)} />}
       {openTest && (
         <TestDetailSheet
           test={openTest}
