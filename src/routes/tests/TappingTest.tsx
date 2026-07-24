@@ -19,7 +19,11 @@ const BLOCK_ORDER: Block[] = ['paced', 'maxDominant', 'maxOther'];
 
 type Phase = 'intro' | 'countdown' | 'running' | 'switch' | 'done' | 'invalid';
 
-/** Progress across the three blocks. */
+/**
+ * Progress across the three blocks — number circles + connectors with the
+ * current block's name on one caption line. The previous three text pills
+ * crammed "2 · เร็วสุด · มือถนัด" into a small box and wrapped to two lines.
+ */
 function BlockChips({ block }: { block: Block }) {
   const labels: Record<Block, string> = {
     paced: S.tapBlock.pacedShort,
@@ -28,17 +32,24 @@ function BlockChips({ block }: { block: Block }) {
   };
   const idx = BLOCK_ORDER.indexOf(block);
   return (
-    <div className="flex items-center gap-1.5 mt-3">
-      {BLOCK_ORDER.map((b, i) => (
-        <span
-          key={b}
-          className={`flex-1 text-center text-base font-bold rounded-full py-2 px-1 ${
-            i === idx ? 'bg-secondary text-white' : i < idx ? 'bg-secondary-soft text-secondary' : 'bg-line-warm text-muted'
-          }`}
-        >
-          {i + 1} · {labels[b]}
-        </span>
-      ))}
+    <div className="mt-3 flex flex-col gap-2" aria-label={`ช่วงที่ ${idx + 1} จาก 3: ${labels[block]}`}>
+      <div className="flex items-center gap-2" aria-hidden="true">
+        {BLOCK_ORDER.map((b, i) => (
+          <div key={b} className={`flex items-center gap-2 ${i < 2 ? 'flex-1' : ''}`}>
+            <span
+              className={`flex-none w-10 h-10 rounded-full flex items-center justify-center text-lg font-num font-extrabold ${
+                i === idx ? 'bg-secondary text-white ring-4 ring-secondary-soft' : i < idx ? 'bg-risk-low text-white' : 'bg-white text-muted border-2 border-field'
+              }`}
+            >
+              {i < idx ? '✓' : i + 1}
+            </span>
+            {i < 2 && <div className={`flex-1 h-1 rounded-full ${i < idx ? 'bg-risk-low' : 'bg-line'}`} />}
+          </div>
+        ))}
+      </div>
+      <span className="text-base font-bold text-ink">
+        ช่วงที่ {idx + 1} จาก 3 · {labels[block]}
+      </span>
     </div>
   );
 }

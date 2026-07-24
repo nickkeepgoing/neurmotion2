@@ -79,13 +79,17 @@ export default function Login() {
 
   return (
     <div className="min-h-dvh bg-bg flex flex-col px-6 pt-6 pb-8 max-w-md mx-auto">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-3xl font-extrabold text-ink">{S.login.title}</h1>
+      <h1 className="text-3xl font-extrabold text-ink">{S.login.title}</h1>
+
+      {/* size control on its own tidy labelled row so it doesn't crowd the title */}
+      <div className="mt-3 flex items-center gap-3 bg-white rounded-[16px] border border-line px-3 py-2">
+        <span className="text-base font-bold text-muted-2 flex-none">{S.home.textSizeLabel}</span>
         <TextSizeToggle />
       </div>
-      <p className="mt-2 text-lg font-medium text-muted-2">{S.login.subtitle}</p>
 
-      <div className="flex flex-col gap-3.5 mt-4.5">
+      {/* section 1 — choose user type */}
+      <h2 className="mt-6 text-xl font-extrabold text-ink">{S.login.subtitle}</h2>
+      <div className="flex flex-col gap-3.5 mt-3">
         <TypeCard
           selected={userType === 'general'}
           onClick={() => setUserType('general')}
@@ -113,11 +117,11 @@ export default function Login() {
         />
       </div>
 
-      {/* general: birth date only — no other personal data required */}
+      {/* section 2 — birth date only (general); no other personal data required */}
       <div className="flex flex-col gap-2 mt-6">
-        <div className="flex items-baseline justify-between">
-          <span className="text-lg font-bold text-ink">{S.login.birthLabel}</span>
-          <span className="text-base font-bold text-secondary bg-secondary-soft rounded-full px-3 py-0.5">{S.login.ageShow(age)}</span>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-xl font-extrabold text-ink">{S.login.birthLabel}</h2>
+          <span className="text-base font-extrabold text-secondary bg-secondary-soft rounded-full px-3 py-1">{S.login.ageShow(age)}</span>
         </div>
         <BirthDatePicker value={birth} onChange={setBirth} />
       </div>

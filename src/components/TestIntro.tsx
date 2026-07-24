@@ -91,10 +91,17 @@ export default function TestIntro({
 
       {step === 1 && (
         <div className="flex flex-col flex-1">
-          <div className="mt-4 flex items-baseline justify-between gap-2">
+          <div className="mt-4 flex items-center justify-between gap-2">
             <h2 className="text-xl font-extrabold text-ink">{S.flow.practiceTitle}</h2>
-            <button onClick={() => setStep(0)} className="min-h-14 px-2 text-base font-bold text-secondary bg-transparent border-0 underline cursor-pointer">
-              {S.flow.watchAgain}
+            <button
+              onClick={() => setStep(0)}
+              className="flex-none min-h-11 pl-2.5 pr-3.5 rounded-full bg-secondary-soft border-0 flex items-center gap-1.5 cursor-pointer active:scale-[.97] transition-transform"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-none">
+                <path d="M4 4v6h6M20 20v-6h-6" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M19 9a8 8 0 0 0-14-2.5M5 15a8 8 0 0 0 14 2.5" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
+              <span className="text-base font-bold text-secondary">{S.flow.watchAgain}</span>
             </button>
           </div>
           <p className="mt-1 text-base font-semibold text-muted-2">{S.flow.practiceHint}</p>
