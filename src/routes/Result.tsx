@@ -127,28 +127,33 @@ function TrendDetailSheet({ rows, onClose }: { rows: Session[]; onClose: () => v
             const isToday = s.timestamp.slice(0, 10) === today || new Date(s.timestamp).toLocaleDateString('en-CA') === today;
             const doneNames = TEST_ORDER.filter((t) => s.results.some((r) => r.test === t)).map((t) => S.tests[t].name);
             return (
-              <div key={s.id} className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-1.5">
+              <div key={s.id} className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-2">
                 <div className="flex items-center gap-3">
+                  {/* left: date, with the day tag on its own line so nothing crams */}
                   <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: st.dot }} />
-                  <span className="text-lg font-bold text-ink">{thaiDate(new Date(s.timestamp))}</span>
-                  {(isToday || i === 0) && (
-                    <span className="text-sm font-extrabold rounded-full px-2.5 py-0.5 bg-secondary-soft text-secondary">
-                      {isToday ? S.result.todayLabel : S.result.latestBadge}
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-lg font-bold text-ink whitespace-nowrap">{thaiDate(new Date(s.timestamp))}</span>
+                    {(isToday || i === 0) && (
+                      <span className="self-start text-sm font-extrabold rounded-full px-2.5 py-0.5 bg-secondary-soft text-secondary">
+                        {isToday ? S.result.todayLabel : S.result.latestBadge}
+                      </span>
+                    )}
+                  </div>
+                  {/* right: score over level, stacked and right-aligned */}
+                  <div className="ml-auto flex flex-col items-end gap-0.5">
+                    <span className="font-num text-3xl font-black leading-none" style={{ color: bandColor(s.overallScore) }}>
+                      {s.overallScore}
                     </span>
-                  )}
-                  <span className="ml-auto font-num text-2xl font-black" style={{ color: bandColor(s.overallScore) }}>
-                    {s.overallScore}
-                  </span>
-                  <span className={`text-base font-bold ${st.text}`}>{st.label}</span>
+                    <span className={`text-base font-bold ${st.text}`}>{st.label}</span>
+                  </div>
                 </div>
                 {doneNames.length > 0 && (
-                  <span className="text-base font-medium text-muted pl-[26px]">{doneNames.join(' · ')}</span>
+                  <span className="text-base font-medium text-muted pt-1 border-t border-line">{doneNames.join(' · ')}</span>
                 )}
               </div>
             );
           })}
         </div>
-        <p className="text-base font-medium text-muted text-center leading-relaxed mt-1">{S.result.trendHint}</p>
       </div>
     </div>
   );
@@ -441,7 +446,15 @@ export default function Result() {
               </div>
             </button>
             <p className={`text-base font-semibold m-0 mt-1.5 ${trendTone.cls}`}>{trendTone.text}</p>
-            <p className="text-base font-semibold text-secondary m-0 mt-1 underline">{S.result.trendTapHint}</p>
+            <button
+              onClick={() => setTrendOpen(true)}
+              className="mt-3 w-full min-h-14 rounded-[16px] bg-secondary-soft border-0 flex items-center justify-center gap-2 cursor-pointer active:scale-[.98] transition-transform"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="flex-none">
+                <path d="M4 19V9M10 19V5M16 19v-6M4 19h16" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="text-lg font-extrabold text-secondary">{S.result.trendDetailTitle}</span>
+            </button>
           </>
         ) : (
           <p className="text-base font-semibold text-muted-2 m-0 mt-3">{S.result.trendNeedMore}</p>
