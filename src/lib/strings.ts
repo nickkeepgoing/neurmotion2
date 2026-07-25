@@ -309,14 +309,14 @@ export const S = {
     metricGood: 'ปกติ',
     metricWatch: 'เฝ้าดู',
     metricConcern: 'ผิดปกติ',
-    // differential pattern indicator (three tremor syndromes)
-    conditionsTitle: 'แยกตามรูปแบบที่พบ',
-    conditionsIntro: 'ผลของคุณเข้าได้กับรูปแบบใดมากที่สุด (ประเมินเบื้องต้น ไม่ใช่การวินิจฉัย)',
-    conditionsNeedTremor: 'ทำ "แบบทดสอบความนิ่งของมือ" ให้ครบ เพื่อดูการแยกตามรูปแบบโรค',
-    conditionRiskHigh: 'เข้าได้มาก',
-    conditionRiskMedium: 'เข้าได้บ้าง',
-    conditionRiskLow: 'เข้าได้น้อย',
-    conditionsDisclaimer: 'การแยกรูปแบบนี้ประเมินจากลักษณะการเคลื่อนไหวเท่านั้น อาการสั่นมีได้หลายสาเหตุ ต้องให้แพทย์ตรวจยืนยัน',
+    // per-condition risk (three tremor syndromes)
+    conditionsTitle: 'ระดับความเสี่ยงแต่ละภาวะ',
+    conditionsIntro: 'ประเมินความเสี่ยงของแต่ละภาวะที่คัดกรอง (เบื้องต้น ไม่ใช่การวินิจฉัย)',
+    conditionsNeedTremor: 'ทำ "แบบทดสอบความนิ่งของมือ" ให้ครบ เพื่อดูความเสี่ยงแต่ละภาวะ',
+    conditionRiskHigh: 'เสี่ยงสูง',
+    conditionRiskMedium: 'เสี่ยงปานกลาง',
+    conditionRiskLow: 'เสี่ยงต่ำ',
+    conditionsDisclaimer: 'ความเสี่ยงนี้ประเมินจากลักษณะการเคลื่อนไหวเท่านั้น อาการสั่นมีได้หลายสาเหตุ ต้องให้แพทย์ตรวจยืนยัน',
     conditions: {
       parkinsonian: {
         name: 'กลุ่มอาการพาร์กินสัน',
