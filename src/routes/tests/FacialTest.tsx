@@ -36,10 +36,17 @@ export default function FacialTest() {
   const centerRef = useRef<number | null>(null);
   const leftRef = useRef(false);
   const rightRef = useRef(false);
+  // continuous-hold timers so a fast swing past the target doesn't instantly
+  // count — the user must actually reach and hold each side, then return to
+  // centre, before the scan ends
+  const leftHeldRef = useRef<number | null>(null);
+  const rightHeldRef = useRef<number | null>(null);
+  const centeredHeldRef = useRef<number | null>(null);
+  const returnedRef = useRef(false);
   const stopRef = useRef<() => void>(() => {});
   const beginScanRef = useRef<() => void>(() => {});
   const finishedRef = useRef(false);
-  const spokenRef = useRef({ left: false, right: false });
+  const spokenRef = useRef({ left: false, right: false, center: false });
 
   useEffect(() => () => stopRef.current(), []);
 
@@ -50,7 +57,11 @@ export default function FacialTest() {
     centerRef.current = null;
     leftRef.current = false;
     rightRef.current = false;
-    spokenRef.current = { left: false, right: false };
+    leftHeldRef.current = null;
+    rightHeldRef.current = null;
+    centeredHeldRef.current = null;
+    returnedRef.current = false;
+    spokenRef.current = { left: false, right: false, center: false };
     setLeftDone(false);
     setRightDone(false);
     try {
@@ -146,39 +157,59 @@ export default function FacialTest() {
         }
 
         const c = centerRef.current;
-        const left = Math.max(0, c - yaw); // one side
-        const right = Math.max(0, yaw - c); // other side
-        if (left > FACIAL.minTurnDeg) leftRef.current = true;
-        if (right > FACIAL.minTurnDeg) rightRef.current = true;
+        const left = Math.max(0, c - yaw); // subject's own left
+        const right = Math.max(0, yaw - c); // subject's own right
+
+        /* A side counts only once it has been HELD past the target for
+           FACIAL.holdMs. Previously a single frame over the threshold ticked it
+           off, so a quick swing ended the test the instant the head passed
+           through — the user never got to complete the movement. */
+        const track = (over: boolean, held: React.MutableRefObject<number | null>, done: React.MutableRefObject<boolean>) => {
+          if (!over) {
+            held.current = null;
+            return;
+          }
+          if (held.current == null) held.current = now;
+          if (now - held.current >= FACIAL.holdMs) done.current = true;
+        };
+        track(left > FACIAL.minTurnDeg, leftHeldRef, leftRef);
+        track(right > FACIAL.minTurnDeg, rightHeldRef, rightRef);
         setLeftDone(leftRef.current);
         setRightDone(rightRef.current);
 
-        // guide: ask for whichever side isn't done yet
-        if (!leftRef.current) {
+        const bothDone = leftRef.current && rightRef.current;
+
+        // after both sides, require a return to centre so the test ends on a
+        // deliberate, settled pose rather than mid-swing
+        if (bothDone) {
+          const centred = Math.abs(yaw - c) < FACIAL.centerDeg;
+          track(centred, centeredHeldRef, returnedRef);
+          setPrompt(returnedRef.current ? S.headTurn.good : S.headTurn.backToCenter);
+          if (settings.voiceOn && !spokenRef.current.center) {
+            spokenRef.current.center = true;
+            speak(S.headTurn.backToCenter);
+          }
+        } else if (!leftRef.current) {
           setPrompt(S.headTurn.lookLeft);
           if (settings.voiceOn && !spokenRef.current.left) {
             spokenRef.current.left = true;
             speak(S.headTurn.lookLeft);
           }
-        } else if (!rightRef.current) {
+        } else {
           setPrompt(S.headTurn.lookRight);
           if (settings.voiceOn && !spokenRef.current.right) {
             spokenRef.current.right = true;
             speak(S.headTurn.lookRight);
           }
-        } else {
-          setPrompt(S.headTurn.good);
         }
 
-        const bothDone = leftRef.current && rightRef.current;
         const elapsed = (now - framesRef.current[0].t) / 1000;
-        if (bothDone || elapsed >= FACIAL.timeoutS) {
+        if ((bothDone && returnedRef.current) || elapsed >= FACIAL.timeoutS) {
           finishedRef.current = true;
           cleanup();
-          // Running out of time with only one side turned is an INCOMPLETE
+          // Running out of time without completing both sides is an INCOMPLETE
           // attempt — scoring it would report a range of motion the user never
-          // actually failed to produce, and it used to end the test silently
-          // while the second prompt was still on screen.
+          // actually failed to produce.
           if (bothDone) finish();
           else setPhase('invalid');
           return;

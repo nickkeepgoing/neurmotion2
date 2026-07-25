@@ -175,7 +175,16 @@ export const TREMOR = { phaseS: 8, sampleHz: 60 };
  * need several attempts to reach full rotation; running out of time means the
  * attempt is INCOMPLETE, not that the result is bad.
  */
-export const FACIAL = { captureS: 6, timeoutS: 25, minTurnDeg: 20 };
+export const FACIAL = {
+  captureS: 6,
+  timeoutS: 25,
+  minTurnDeg: 20,
+  /** ms the head must stay past minTurnDeg for that side to count — stops a
+   *  fast swing from ticking a side off the instant it passes through */
+  holdMs: 600,
+  /** within this many degrees of the start pose counts as "facing forward" */
+  centerDeg: 8,
+};
 
 /** Voice test: recording duration (s). */
 export const VOICE = { durationS: 5 };
