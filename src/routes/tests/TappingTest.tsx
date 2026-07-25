@@ -202,14 +202,14 @@ export default function TappingTest() {
       <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={blockInstr}>
         <BlockChips block={block} />
         <div className="flex-1 flex flex-col items-center justify-center gap-5 px-2">
-          <div className="w-20 h-20 rounded-full bg-primary-soft flex items-center justify-center text-4xl">
-            {block === 'maxOther' ? '🔄' : '⚡'}
+          <div className="w-24 h-24 rounded-full bg-primary-soft flex items-center justify-center text-5xl">
+            {block === 'maxOther' ? '🔄' : '✍️'}
           </div>
           <p className="text-2xl font-extrabold text-ink text-center leading-relaxed m-0">
-            {block === 'maxOther' ? S.tapBlock.switchToOther : S.tapBlock.switchToMax}
+            {block === 'maxOther' ? S.tapBlock.switchToOtherTitle : S.tapBlock.switchToMaxTitle}
           </p>
-          <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed m-0">
-            {block === 'maxOther' ? S.tapBlock.switchToOtherDesc : S.tapBlock.maxInstr}
+          <p className="text-lg font-semibold text-muted-2 text-center leading-relaxed whitespace-pre-line m-0">
+            {block === 'maxOther' ? S.tapBlock.switchToOtherDesc : S.tapBlock.switchToMaxDesc}
           </p>
         </div>
         <Button className="nm-blink" onClick={() => setPhase('countdown')}>
@@ -236,8 +236,11 @@ export default function TappingTest() {
               <span className="text-base font-semibold text-muted ml-1.5">{S.rhythm}</span>
             </div>
           ) : (
-            <div className="flex items-center justify-center mt-4">
+            <div className="flex items-center justify-center gap-2 mt-4">
               <span className="text-lg font-extrabold text-primary-dark">{S.tapBlock.maxHint}</span>
+              <span className="text-lg font-bold text-secondary bg-secondary-soft rounded-full px-3 py-0.5">
+                {block === 'maxOther' ? S.tapBlock.useOther : S.tapBlock.useDominant}
+              </span>
             </div>
           )}
 

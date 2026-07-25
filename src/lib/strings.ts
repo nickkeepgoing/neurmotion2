@@ -200,18 +200,22 @@ export const S = {
 
   // Tapping runs in three blocks: paced, then max-speed on each hand
   tapBlock: {
-    paced: 'ช่วงที่ 1 — เคาะตามจังหวะ',
-    maxDominant: 'ช่วงที่ 2 — เคาะให้เร็วที่สุด (มือถนัด)',
-    maxOther: 'ช่วงที่ 3 — เคาะให้เร็วที่สุด (อีกมือ)',
-    pacedShort: 'ตามจังหวะ',
-    maxDominantShort: 'เร็วสุด · มือถนัด',
-    maxOtherShort: 'เร็วสุด · อีกมือ',
+    // short labels shown on the progress stepper — plain, not jargon
+    pacedShort: 'เคาะตามจังหวะ',
+    maxDominantShort: 'ใช้มือที่ถนัด',
+    maxOtherShort: 'สลับไปอีกมือ',
+    // instructions shown as the screen subtitle while tapping
     pacedInstr: 'แตะปุ่มตามเสียงจังหวะ ให้สม่ำเสมอที่สุด',
-    maxInstr: 'แตะให้เร็วและแรงที่สุดเท่าที่ทำได้ ไม่ต้องตามจังหวะ',
-    switchToMax: 'ต่อไป เคาะให้เร็วที่สุด',
-    switchToOther: 'เปลี่ยนมือ! ใช้อีกมือหนึ่ง',
-    switchToOtherDesc: 'ทดสอบอีกมือเพื่อเปรียบเทียบซ้าย-ขวา ซึ่งช่วยให้ผลแม่นยำขึ้น',
+    maxInstr: 'แตะให้เร็วที่สุดเท่าที่ทำได้ ไม่ต้องตามจังหวะ',
+    // switch screens — spell out WHICH hand, with an everyday example, since
+    // "มือถนัด" (dominant hand) is not obvious to everyone
+    switchToMaxTitle: 'ต่อไป: ใช้ "มือที่ถนัด"',
+    switchToMaxDesc: 'มือที่ถนัด คือมือที่คุณใช้เขียนหนังสือหรือจับช้อน\nแตะปุ่มด้วยนิ้วชี้ให้เร็วที่สุดเท่าที่ทำได้',
+    switchToOtherTitle: 'ตอนนี้เปลี่ยนไปใช้ "อีกมือหนึ่ง"',
+    switchToOtherDesc: 'ใช้มือที่ยังไม่ได้ทำ (มือที่ไม่ถนัด) แตะให้เร็วที่สุด\nเราเทียบสองมือเพื่อดูว่าเท่ากันไหม',
     maxHint: 'เร็วที่สุด!',
+    useDominant: 'ใช้มือที่ถนัด',
+    useOther: 'ใช้อีกมือหนึ่ง',
   },
 
   // Rest / postural tremor two-phase test
