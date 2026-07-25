@@ -367,18 +367,19 @@ export default function Result() {
               const cs = CONDITION_STYLE[c.level];
               const info = S.result.conditions[c.id];
               return (
-                <div key={c.id} className="rounded-2xl border px-4 py-3 flex flex-col gap-1.5" style={{ borderColor: cs.border, background: cs.bg }}>
+                <div key={c.id} className="rounded-2xl border px-4 py-3.5 flex flex-col gap-1.5" style={{ borderColor: cs.border, background: cs.bg }}>
+                  {/* risk chip on its own top row: long Thai condition names are a
+                      single unbreakable token, so keeping the chip inline made
+                      the name overlap it. Full-width name below avoids that. */}
                   <div className="flex items-center gap-2.5">
                     <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: cs.dot }} />
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-lg font-extrabold text-ink leading-tight">{info.name}</span>
-                      <span className="text-base font-semibold text-muted leading-tight">{info.sub}</span>
-                    </div>
-                    <span className="ml-auto text-base font-extrabold rounded-full px-3 py-1 whitespace-nowrap" style={{ color: cs.text, background: cs.chip }}>
+                    <span className="text-base font-extrabold rounded-full px-3.5 py-1 whitespace-nowrap" style={{ color: cs.text, background: cs.chip }}>
                       {cs.label}
                     </span>
                   </div>
-                  <span className="text-base font-medium text-muted-2 leading-relaxed pl-6">{info.desc}</span>
+                  <span className="text-lg font-extrabold text-ink leading-snug [overflow-wrap:anywhere]">{info.name}</span>
+                  <span className="text-base font-semibold text-muted leading-snug -mt-0.5">{info.sub}</span>
+                  <span className="text-base font-medium text-muted-2 leading-relaxed">{info.desc}</span>
                 </div>
               );
             })}
