@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import RiskGauge from '../components/ui/RiskGauge';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
+import { assessConditions } from '../lib/conditions';
 import { highRiskStreak, metricScores, redFlagTests, riskLevel, testStatus } from '../lib/scoring';
 import { dailyLatestSessions, latestSession, loadSessions } from '../lib/storage';
 import { S, thaiDate } from '../lib/strings';
@@ -35,6 +36,13 @@ const RISK_HEAD: Record<RiskLevel, { label: string; desc: string; color: string 
 };
 
 const TEST_ORDER: TestId[] = ['spiral', 'tapping', 'tremor', 'facial', 'voice'];
+
+/** Per-level styling for the three-condition differential cards. */
+const CONDITION_STYLE: Record<RiskLevel, { dot: string; text: string; chip: string; bg: string; border: string; label: string }> = {
+  high: { dot: '#D64545', text: '#B23A3A', chip: '#FBEAEA', bg: '#FFF7F5', border: '#F2D2CC', label: S.result.conditionRiskHigh },
+  medium: { dot: '#A87C00', text: '#7F6200', chip: '#FBF3D9', bg: '#FFFDF6', border: '#EBDCA6', label: S.result.conditionRiskMedium },
+  low: { dot: '#2E9E5B', text: '#256B43', chip: '#E9F5EC', bg: '#FFFFFF', border: '#E8EAED', label: S.result.conditionRiskLow },
+};
 
 function metricLevel(score: number): RiskLevel {
   return score <= 33 ? 'low' : score <= 66 ? 'medium' : 'high';
@@ -248,6 +256,7 @@ export default function Result() {
   const level = session.riskLevel;
   const head = RISK_HEAD[level];
   const redFlags = redFlagTests(session.results);
+  const conditions = assessConditions(session.results, settings.age);
 
   /**
    * Honest trend wording. The old version fired "แนวโน้มดีขึ้นตลอดสัปดาห์
@@ -346,6 +355,40 @@ export default function Result() {
             {S.result.redFlag(redFlags.map((t) => S.tests[t].name).join(' · '))}
           </p>
         )}
+      </div>
+
+      {/* Differential — which of the three tremor syndromes the pattern fits */}
+      <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] p-5 flex flex-col gap-2">
+        <h2 className="text-xl font-extrabold text-ink m-0">{S.result.conditionsTitle}</h2>
+        <p className="text-base font-medium text-muted-2 leading-relaxed m-0">{S.result.conditionsIntro}</p>
+        {conditions.enoughData ? (
+          <div className="flex flex-col gap-2.5 mt-1">
+            {conditions.scores.map((c) => {
+              const cs = CONDITION_STYLE[c.level];
+              const info = S.result.conditions[c.id];
+              return (
+                <div key={c.id} className="rounded-2xl border px-4 py-3 flex flex-col gap-1.5" style={{ borderColor: cs.border, background: cs.bg }}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: cs.dot }} />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-lg font-extrabold text-ink leading-tight">{info.name}</span>
+                      <span className="text-base font-semibold text-muted leading-tight">{info.sub}</span>
+                    </div>
+                    <span className="ml-auto text-base font-extrabold rounded-full px-3 py-1 whitespace-nowrap" style={{ color: cs.text, background: cs.chip }}>
+                      {cs.label}
+                    </span>
+                  </div>
+                  <span className="text-base font-medium text-muted-2 leading-relaxed pl-6">{info.desc}</span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-base font-semibold text-muted-2 bg-secondary-soft rounded-2xl px-4 py-3 leading-relaxed m-0 mt-1">
+            {S.result.conditionsNeedTremor}
+          </p>
+        )}
+        <p className="text-base font-medium text-muted text-center leading-relaxed mt-1">{S.result.conditionsDisclaimer}</p>
       </div>
 
       {/* Per-test breakdown — tap a row for full detail */}

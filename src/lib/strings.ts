@@ -309,6 +309,31 @@ export const S = {
     metricGood: 'ปกติ',
     metricWatch: 'เฝ้าดู',
     metricConcern: 'ผิดปกติ',
+    // differential pattern indicator (three tremor syndromes)
+    conditionsTitle: 'แยกตามรูปแบบที่พบ',
+    conditionsIntro: 'ผลของคุณเข้าได้กับรูปแบบใดมากที่สุด (ประเมินเบื้องต้น ไม่ใช่การวินิจฉัย)',
+    conditionsNeedTremor: 'ทำ "แบบทดสอบความนิ่งของมือ" ให้ครบ เพื่อดูการแยกตามรูปแบบโรค',
+    conditionRiskHigh: 'เข้าได้มาก',
+    conditionRiskMedium: 'เข้าได้บ้าง',
+    conditionRiskLow: 'เข้าได้น้อย',
+    conditionsDisclaimer: 'การแยกรูปแบบนี้ประเมินจากลักษณะการเคลื่อนไหวเท่านั้น อาการสั่นมีได้หลายสาเหตุ ต้องให้แพทย์ตรวจยืนยัน',
+    conditions: {
+      parkinsonian: {
+        name: 'กลุ่มอาการพาร์กินสัน',
+        sub: 'Parkinsonian Syndrome',
+        desc: 'มือสั่นขณะพัก เคลื่อนไหวช้าลง มักเริ่มจากข้างเดียว',
+      },
+      essential: {
+        name: 'อาการสั่นไม่ทราบสาเหตุ',
+        sub: 'Essential Tremor',
+        desc: 'มือสั่นตอนขยับหรือเกร็งค้าง มักเป็นทั้งสองข้างพอ ๆ กัน',
+      },
+      physiological: {
+        name: 'อาการสั่นตามธรรมชาติที่มากขึ้น',
+        sub: 'Enhanced Physiological Tremor',
+        desc: 'สั่นเล็ก ๆ ถี่ ๆ มักจากความเครียด กาแฟ หรือพักผ่อนน้อย',
+      },
+    } as Record<string, { name: string; sub: string; desc: string }>,
     detailSheetSub: 'ผลแต่ละตัวชี้วัด',
     // shown when one domain is severely abnormal even though the average is not
     redFlag: (names: string) => `แม้คะแนนรวมจะยังไม่สูง แต่พบความผิดปกติชัดเจนที่ "${names}" จึงยังไม่ถือว่าปกติ`,
