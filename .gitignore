@@ -3,3 +3,7 @@ dist/
 dev-dist/
 *.local
 .DS_Store
+
+# scratch / generated output (kept local, not in git)
+tmp/
+output/
