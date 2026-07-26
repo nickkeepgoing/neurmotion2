@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import AppBar from './AppBar';
 import { useSettings } from '../context/SettingsContext';
 import { speak, stopSpeaking } from '../lib/speech';
 import { S } from '../lib/strings';
@@ -24,7 +24,6 @@ export default function TestShell({
   demo?: ReactNode;
   children: ReactNode;
 }) {
-  const navigate = useNavigate();
   const { settings } = useSettings();
   const spokenText = instruction ? `${title}. ${instruction}` : '';
 
@@ -37,19 +36,7 @@ export default function TestShell({
 
   return (
     <div className="min-h-dvh bg-bg flex flex-col px-6 pb-8 max-w-md mx-auto">
-      {/* Sticky bar: the back control used to scroll away, and an installed PWA
-          (display: standalone) has no browser back button — so this is the only
-          guaranteed way out on every screen. */}
-      <div className="sticky top-0 z-30 -mx-6 px-6 py-3 bg-[rgba(255,249,242,.94)] backdrop-blur-md flex items-center gap-2.5">
-        <button
-          onClick={() => navigate('/home')}
-          className="flex-none min-h-14 pl-3 pr-4 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center gap-1.5 cursor-pointer"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-base font-bold text-muted-2">{S.back}</span>
-        </button>
+      <AppBar>
         {spokenText && (
           <button
             onClick={() => speak(spokenText)}
@@ -70,7 +57,7 @@ export default function TestShell({
         >
           {stepLabel}
         </span>
-      </div>
+      </AppBar>
 
       <h1 className="mt-4 text-3xl font-extrabold text-ink leading-tight">{title}</h1>
       {instruction && (

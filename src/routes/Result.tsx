@@ -6,6 +6,7 @@ import RiskGauge from '../components/ui/RiskGauge';
 import Sheet from '../components/ui/Sheet';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
+import AppBar from '../components/AppBar';
 import { assessConditions } from '../lib/conditions';
 import { highRiskStreak, metricScores, redFlagTests, riskLevel, testStatus } from '../lib/scoring';
 import { dailyLatestSessions, latestSession, loadSessions } from '../lib/storage';
@@ -260,7 +261,8 @@ export default function Result() {
   const care = level === 'low' ? S.result.careLow : level === 'medium' ? S.result.careMedium : S.result.careHigh;
 
   return (
-    <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pt-6 pb-8 flex flex-col gap-4.5">
+    <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pb-8 flex flex-col gap-4.5">
+      <AppBar bleed="-mx-5.5 px-5.5" />
       {/* Header — the badge must state the ACTUAL risk level. It used to render
           green with a check mark for every level, so a high-risk result was
           crowned with a reassuring green ✓. Each level also gets its own icon

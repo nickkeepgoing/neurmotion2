@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { seedSampleData } from '../lib/storage';
+import AppBar from '../components/AppBar';
 import { S } from '../lib/strings';
 import type { TestId } from '../lib/types';
 import { deleteVideo, saveVideo, videoKeys } from '../lib/videos';
@@ -67,27 +67,16 @@ function Row({ id, icon, has, onChange }: { id: TestId; icon: React.ReactNode; h
 
 /** Hidden admin screen to attach tutorial clips per test (stored locally). */
 export default function Admin() {
-  const navigate = useNavigate();
   const [keys, setKeys] = useState<TestId[]>([]);
   const [seeded, setSeeded] = useState(false);
   const refresh = () => setKeys(videoKeys());
   useEffect(refresh, []);
 
   return (
-    <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pt-6 pb-10 flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate('/home')}
-          aria-label={S.admin.back}
-          className="flex-none w-12 h-12 rounded-full bg-white border-2 border-field flex items-center justify-center cursor-pointer"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
-      </div>
-      <p className="text-base font-medium text-muted-2 leading-relaxed">{S.admin.subtitle}</p>
+    <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pb-10 flex flex-col gap-4">
+      <AppBar />
+      <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
+      <p className="text-base font-medium text-muted-2 leading-relaxed -mt-2">{S.admin.subtitle}</p>
 
       <div className="flex flex-col gap-3 mt-1">
         {TESTS.map((t) => (
