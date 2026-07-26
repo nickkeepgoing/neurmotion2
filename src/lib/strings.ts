@@ -16,7 +16,9 @@ export const S = {
 
   login: {
     title: 'เข้าสู่ระบบ',
-    subtitle: 'เลือกประเภทผู้ใช้งานของคุณ',
+    // kept short on purpose: Thai has no inter-word spaces, so CSS can only
+    // break at the spaces we write — a longer line split "ใช้งาน" in half
+    subtitle: 'เลือกประเภทผู้ใช้ และใส่วันเกิด',
     general: 'คนทั่วไป',
     generalDesc: 'ตรวจคัดกรองเพื่อดูแลสุขภาพ',
     patient: 'ผู้ป่วย',
@@ -25,8 +27,7 @@ export const S = {
     ageShow: (a: number) => `อายุ ${a} ปี`,
     step1: 'คุณเป็นใคร',
     step2: 'วันเกิดของคุณ',
-    sizeHelper: 'อ่านไม่ชัด? ปรับขนาดตัวอักษรได้',
-    birthHelp: 'เลื่อนเลือก วัน / เดือน / ปี พ.ศ.',
+    sizeBtn: 'ขนาดตัวอักษร',
     nidLabel: 'เลขบัตรประชาชน (ไม่บังคับ)',
     nidPlaceholder: 'กรอก 13 หลัก',
     nidNote: 'ระบบผู้ป่วยเต็มรูปแบบ (เชื่อมข้อมูลกับแพทย์) จะเพิ่มในอนาคต',
@@ -67,7 +68,17 @@ export const S = {
   },
 
   home: {
-    hello: (name: string) => `สวัสดีค่ะ คุณ${name}`,
+    greeting: 'สวัสดีค่ะ',
+    // latest result, surfaced on the dashboard instead of only inside /result
+    latestTitle: 'ผลล่าสุด',
+    latestUnit: 'คะแนนความเสี่ยง · ยิ่งต่ำยิ่งดี',
+    latestFrom: (n: number) => `จาก ${n} รายการ`,
+    latestDetail: 'แตะเพื่อดูผลแบบละเอียด',
+    latestBetter: (n: number) => `ดีขึ้น ${n} คะแนน`,
+    latestWorse: (n: number) => `สูงขึ้น ${n} คะแนน`,
+    latestSame: 'เท่าเดิม',
+    latestNoneTitle: 'ยังไม่มีผลการคัดกรอง',
+    latestNoneDesc: 'ทำแบบทดสอบให้ครบ แล้วผลของคุณจะแสดงที่นี่',
     questTitle: 'ภารกิจวันนี้',
     questProgress: (done: number, total: number) => `${done} / ${total} เสร็จแล้ว`,
     questDesc: (remain: number) => `ทำแบบทดสอบอีก ${remain} รายการ เพื่อติดตามสุขภาพวันนี้ให้ครบ`,

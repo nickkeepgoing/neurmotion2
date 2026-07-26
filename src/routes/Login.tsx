@@ -7,6 +7,7 @@ import BirthDatePicker, {
   type BirthDate,
 } from '../components/ui/BirthDatePicker';
 import Button from '../components/ui/Button';
+import Sheet from '../components/ui/Sheet';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
@@ -31,8 +32,8 @@ function TypeCard({
     <button
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex items-center gap-4 w-full min-h-[88px] px-4.5 py-4 rounded-[20px] text-left cursor-pointer border-[3px] transition-colors ${
-        selected ? 'border-primary bg-primary-soft' : 'border-field bg-white hover:border-secondary'
+      className={`flex items-center gap-4 w-full min-h-[88px] px-4.5 py-4 rounded-[20px] text-left cursor-pointer border-2 transition-colors ${
+        selected ? 'border-primary bg-primary-soft' : 'border-line bg-white hover:border-secondary'
       }`}
     >
       <div className={`flex-none w-14 h-14 rounded-full flex items-center justify-center ${iconBg}`}>{icon}</div>
@@ -49,14 +50,19 @@ function TypeCard({
   );
 }
 
-/** Numbered section header — makes the order to follow obvious. */
-function StepHeader({ n, text }: { n: number; text: string }) {
+/**
+ * Quiet section label. This used to be a numbered blue disc + 24px heading;
+ * two of them plus the size toggle, two helper paragraphs and the type cards
+ * made the first screen of the app read as a form to fill in rather than two
+ * choices to make. The number carried no information the order didn't already.
+ */
+function SectionLabel({ text, aside }: { text: string; aside?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mt-7 mb-3">
-      <span className="flex-none w-9 h-9 rounded-full bg-secondary text-white flex items-center justify-center font-num text-xl font-black">
-        {n}
-      </span>
-      <h2 className="text-2xl font-extrabold text-ink m-0">{text}</h2>
+    // nowrap + wrap so the aside drops to its own line at A++ rather than
+    // squeezing the heading until Thai line-breaks mid-word
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-2 mt-7 mb-3">
+      <h2 className="text-2xl font-extrabold text-ink m-0 whitespace-nowrap">{text}</h2>
+      {aside}
     </div>
   );
 }
@@ -69,6 +75,7 @@ export default function Login() {
     () => (settings.birthDate && birthDateFromISO(settings.birthDate)) || { d: 1, m: 0, yBE: 2500 }
   );
   const [nid, setNid] = useState(settings.nationalId ?? '');
+  const [sizeOpen, setSizeOpen] = useState(false);
   const age = ageFromBirthDate(birth);
 
   const start = () => {
@@ -93,17 +100,24 @@ export default function Login() {
     <>
     {/* pb reserve (rem) so the sticky footer never covers the last field */}
     <div className="min-h-dvh bg-bg flex flex-col px-6 pt-7 pb-[11rem] max-w-md mx-auto">
-      <h1 className="text-3xl font-extrabold text-ink">{S.login.title}</h1>
-
-      {/* size control — a light helper, not a heavy card, so it doesn't compete
-          with the title as the first thing on screen */}
-      <p className="mt-1.5 text-base font-semibold text-muted-2">{S.login.sizeHelper}</p>
-      <div className="mt-2">
-        <TextSizeToggle />
+      {/* Title row. The A/A+/A++ block used to sit full-width under the title,
+          making the least important control the heaviest thing on the screen.
+          It collapses to one button here and opens the same sheet pattern the
+          rest of the app uses. */}
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <h1 className="text-3xl font-extrabold text-ink m-0 whitespace-nowrap">{S.login.title}</h1>
+        <button
+          onClick={() => setSizeOpen(true)}
+          className="flex-none min-h-14 pl-3.5 pr-4 rounded-[14px] bg-white border-2 border-field flex items-center gap-2 cursor-pointer whitespace-nowrap"
+        >
+          <span className="font-num text-xl font-black text-ink leading-none">ก</span>
+          <span className="text-base font-bold text-muted-2">{S.login.sizeBtn}</span>
+        </button>
       </div>
+      <p className="mt-1.5 text-lg font-semibold text-muted-2 leading-relaxed">{S.login.subtitle}</p>
 
-      {/* STEP 1 — choose user type */}
-      <StepHeader n={1} text={S.login.step1} />
+      {/* choose user type */}
+      <SectionLabel text={S.login.step1} />
       <div className="flex flex-col gap-3.5">
         <TypeCard
           selected={userType === 'general'}
@@ -132,17 +146,18 @@ export default function Login() {
         />
       </div>
 
-      {/* STEP 2 — birth date only (general); no other personal data required */}
-      <StepHeader n={2} text={S.login.step2} />
-      <p className="text-base font-semibold text-muted-2 mb-2 -mt-1">{S.login.birthHelp}</p>
+      {/* birth date only (general); no other personal data required. The age
+          reads out beside the label instead of as its own chip below — it is
+          feedback on the picker, not a third thing to fill in. */}
+      <SectionLabel
+        text={S.login.step2}
+        aside={
+          <span className="flex-none text-lg font-extrabold text-secondary bg-secondary-soft rounded-full px-3.5 py-1.5 whitespace-nowrap">
+            {S.login.ageShow(age)}
+          </span>
+        }
+      />
       <BirthDatePicker value={birth} onChange={setBirth} />
-      <div className="mt-3 self-start flex items-center gap-2 bg-secondary-soft rounded-full px-4 py-2">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="#1B6CA8" strokeWidth="2" />
-          <path d="M12 7v5l3 2" stroke="#1B6CA8" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-        <span className="text-lg font-extrabold text-secondary">{S.login.ageShow(age)}</span>
-      </div>
 
       {/* patient: national ID (full patient system is future work) */}
       {userType === 'patient' && (
@@ -172,6 +187,12 @@ export default function Login() {
         </button>
       </p>
     </footer>
+
+    {sizeOpen && (
+      <Sheet title={S.home.textSizeLabel} onClose={() => setSizeOpen(false)}>
+        <TextSizeToggle />
+      </Sheet>
+    )}
     </>
   );
 }

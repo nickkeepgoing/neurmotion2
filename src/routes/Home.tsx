@@ -5,10 +5,17 @@ import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import { highRiskStreak } from '../lib/scoring';
-import { completedToday, eraseAllData, loadSessions, startRetestRound } from '../lib/storage';
+import {
+  completedToday,
+  dailyLatestSessions,
+  eraseAllData,
+  latestSession,
+  loadSessions,
+  startRetestRound,
+} from '../lib/storage';
 import { RISK_STREAK_DAYS } from '../lib/thresholds';
-import { S, thaiDateLong } from '../lib/strings';
-import type { TestId } from '../lib/types';
+import { S, thaiDate } from '../lib/strings';
+import type { RiskLevel, TestId } from '../lib/types';
 
 const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'spiral', icon: <SpiralIcon /> },
@@ -17,6 +24,23 @@ const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'facial', icon: <FaceIcon /> },
   { id: 'voice', icon: <VoiceIcon /> },
 ];
+
+/** Risk styling for the latest-result card — colour always paired with a word. */
+const RISK_LABEL: Record<RiskLevel, string> = {
+  low: S.result.riskLow,
+  medium: S.result.riskMedium,
+  high: S.result.riskHigh,
+};
+const RISK_CHIP: Record<RiskLevel, string> = {
+  low: 'text-risk-low-text bg-risk-low-bg',
+  medium: 'text-risk-med-text bg-risk-med-bg',
+  high: 'text-risk-high-text bg-risk-high-bg',
+};
+const RISK_TEXT: Record<RiskLevel, string> = {
+  low: 'text-risk-low-text',
+  medium: 'text-risk-med-text',
+  high: 'text-risk-high-text',
+};
 
 const THAI_MONTHS = [
   'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -69,10 +93,12 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
             const isDone = doneDays.has(key);
             const isToday = key === todayKey;
             return (
+              // only days that mean something get a fill — giving all 31 cells a
+              // beige box turned the month into a wall of chips with no figure
               <div
                 key={d}
                 className={`relative h-12 rounded-[10px] flex items-center justify-center text-base font-bold ${
-                  isDone ? 'bg-risk-low-bg text-risk-low-text' : 'bg-[#FAF6EF] text-muted-2'
+                  isDone ? 'bg-risk-low-bg text-risk-low-text' : 'text-muted-2'
                 } ${isToday ? 'ring-2 ring-primary' : ''}`}
               >
                 {d}
@@ -167,26 +193,40 @@ export default function Home() {
   const weekDone = week.filter((d) => d.state === 'done').length;
   const streak = useMemo(() => highRiskStreak(loadSessions()), []);
 
+  // latest result + change against the previous *day* (comparing against the
+  // previous session would show noise between two rounds on the same morning)
+  const latest = useMemo(() => latestSession(), []);
+  const delta = useMemo(() => {
+    const days = dailyLatestSessions();
+    if (days.length < 2) return null;
+    return days[days.length - 1].overallScore - days[days.length - 2].overallScore;
+  }, []);
+
   const name = settings.displayName || (settings.userType === 'patient' ? 'ผู้ป่วย' : 'ผู้ใช้');
 
   return (
     <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pt-6 pb-10 flex flex-col gap-4.5">
       {/* Greeting + options menu */}
-      <div className="relative flex items-center gap-3.5">
+      <div className="relative flex items-start gap-3.5">
         <div className="flex-none w-14 h-14 rounded-full bg-primary-softer flex items-center justify-center">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="8" r="4" stroke="#E8762C" strokeWidth="2.4" />
             <path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke="#E8762C" strokeWidth="2.4" strokeLinecap="round" />
           </svg>
         </div>
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-2xl font-extrabold text-ink truncate">{S.home.hello(name)}</span>
-          <span className="text-base font-semibold text-muted">{thaiDateLong(new Date())}</span>
+        {/* The name must never be clipped — "สวัสดีค่ะ คุณส…" is worse than two
+            lines. Greeting and name are split so the name gets the full width,
+            and the date is the short form (the weekday pushed it onto a second
+            line on a 390px screen). */}
+        <div className="flex flex-col min-w-0">
+          <span className="text-base font-semibold text-muted leading-snug">{S.home.greeting}</span>
+          <span className="text-2xl font-extrabold text-ink leading-tight break-words">{name}</span>
+          <span className="text-base font-semibold text-muted leading-snug mt-0.5">{thaiDate(new Date())}</span>
         </div>
         {/* icon + visible word: a bare "⋯" glyph means nothing to an elderly user */}
         <button
           onClick={() => setMenuOpen(true)}
-          className="ml-auto flex-none min-h-14 px-3 rounded-[14px] bg-white border-2 border-field flex items-center gap-2 cursor-pointer"
+          className="ml-auto flex-none min-h-14 px-3 rounded-[14px] bg-white border-2 border-field flex items-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="3" stroke="#5A6B7A" strokeWidth="2" />
@@ -221,9 +261,9 @@ export default function Home() {
 
       {/* Daily Quest card */}
       <div className="rounded-3xl p-5 flex flex-col gap-3 bg-[linear-gradient(135deg,#E8762C,#D9681F)] shadow-[0_8px_22px_rgba(232,118,44,.32)]">
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-extrabold text-white">{S.home.questTitle}</span>
-          <span className="text-base font-extrabold text-white bg-white/20 rounded-full px-3.5 py-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <span className="text-xl font-extrabold text-white whitespace-nowrap">{S.home.questTitle}</span>
+          <span className="flex-none text-base font-extrabold text-white bg-white/20 rounded-full px-3.5 py-1.5 whitespace-nowrap">
             {S.home.questProgress(doneCount, total)}
           </span>
         </div>
@@ -253,6 +293,50 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Latest screening result. The dashboard used to show only progress —
+          the user's actual score lived one tap away inside /result — so the
+          headline number now lives here too, with the change since the
+          previous day so the card says something a bar chart can't. */}
+      {latest ? (
+        <button
+          onClick={() => navigate('/result')}
+          className="text-left bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 py-4.5 flex flex-col gap-3 border-0 cursor-pointer active:scale-[.99] transition-transform"
+        >
+          {/* nowrap + flex-wrap: at A++ the chip drops to its own line instead
+              of squeezing the heading until Thai line-breaks mid-word */}
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <h2 className="text-xl font-extrabold text-ink m-0 whitespace-nowrap">{S.home.latestTitle}</h2>
+            <span className={`flex-none text-base font-extrabold rounded-full px-3.5 py-1.5 ${RISK_CHIP[latest.riskLevel]}`}>
+              {RISK_LABEL[latest.riskLevel]}
+            </span>
+          </div>
+          <div className="flex items-end gap-2.5">
+            <span className={`font-num text-num-lg font-black leading-none ${RISK_TEXT[latest.riskLevel]}`}>
+              {latest.overallScore}
+            </span>
+            <span className="text-sm font-semibold text-muted leading-snug pb-1">{S.home.latestUnit}</span>
+          </div>
+          {delta !== null && (
+            <span
+              className={`self-start text-base font-bold rounded-full px-3 py-1 ${
+                delta < 0 ? 'text-risk-low-text bg-risk-low-bg' : delta > 0 ? 'text-risk-high-text bg-risk-high-bg' : 'text-muted bg-line-warm'
+              }`}
+            >
+              {delta < 0 ? S.home.latestBetter(-delta) : delta > 0 ? S.home.latestWorse(delta) : S.home.latestSame}
+            </span>
+          )}
+          <span className="text-base font-semibold text-muted border-t border-line pt-2.5">
+            {thaiDate(new Date(latest.timestamp))} · {S.home.latestFrom(latest.results.length)}
+          </span>
+          <span className="text-base font-bold text-secondary">{S.home.latestDetail} ›</span>
+        </button>
+      ) : (
+        <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 py-4.5 flex flex-col gap-1">
+          <h2 className="text-xl font-extrabold text-ink m-0">{S.home.latestNoneTitle}</h2>
+          <p className="text-base font-semibold text-muted leading-relaxed m-0">{S.home.latestNoneDesc}</p>
+        </div>
+      )}
 
       {/* Test tiles */}
       <h2 className="text-xl font-extrabold text-ink mt-1 mb-0">{S.home.testsTitle}</h2>
@@ -293,15 +377,23 @@ export default function Home() {
 
       {/* Weekly summary + calendar */}
       <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 py-4.5">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-xl font-extrabold text-ink m-0">{S.home.weekTitle}</h2>
-          <div className="flex items-baseline gap-3">
-            <span className="text-base font-bold text-risk-low-text">{S.home.weekDone(weekDone, 7)}</span>
-            <button onClick={() => setCalOpen(true)} className="min-h-14 px-2 text-base font-bold text-secondary bg-transparent border-0 cursor-pointer underline">
-              {S.home.calendar}
-            </button>
-          </div>
+        {/* Title, count and calendar link used to share one baseline row; at
+            390px all three wrapped into a tangle. Title + button on top, the
+            count on its own line underneath. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <h2 className="text-xl font-extrabold text-ink m-0 whitespace-nowrap">{S.home.weekTitle}</h2>
+          <button
+            onClick={() => setCalOpen(true)}
+            className="flex-none min-h-14 pl-3.5 pr-4 rounded-[14px] bg-secondary-soft border-0 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="5" width="18" height="16" rx="3" stroke="#1B6CA8" strokeWidth="2" />
+              <path d="M3 10h18M8 3v4M16 3v4" stroke="#1B6CA8" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span className="text-base font-bold text-secondary">{S.home.calendar}</span>
+          </button>
         </div>
+        <p className="text-base font-bold text-risk-low-text mt-1 mb-0">{S.home.weekDone(weekDone, 7)}</p>
         <div className="flex gap-2 mt-3.5">
           {week.map((d, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
