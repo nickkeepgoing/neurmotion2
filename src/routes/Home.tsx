@@ -202,7 +202,10 @@ export default function Home() {
     return days[days.length - 1].overallScore - days[days.length - 2].overallScore;
   }, []);
 
-  const name = settings.displayName || (settings.userType === 'patient' ? 'ผู้ป่วย' : 'ผู้ใช้');
+  // Only a real name goes on screen. Signing in as a general user never asks
+  // for one, and filling the gap with "ผู้ใช้" / "ผู้ป่วย" greeted people by
+  // their account type — colder than not naming them at all.
+  const name = settings.displayName?.trim();
 
   return (
     <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pt-6 pb-10 flex flex-col gap-4.5">
@@ -219,8 +222,14 @@ export default function Home() {
             and the date is the short form (the weekday pushed it onto a second
             line on a 390px screen). */}
         <div className="flex flex-col min-w-0">
-          <span className="text-base font-semibold text-muted leading-snug">{S.home.greeting}</span>
-          <span className="text-2xl font-extrabold text-ink leading-tight break-words">{name}</span>
+          {name ? (
+            <>
+              <span className="text-base font-semibold text-muted leading-snug">{S.home.greeting}</span>
+              <span className="text-2xl font-extrabold text-ink leading-tight break-words">{name}</span>
+            </>
+          ) : (
+            <span className="text-2xl font-extrabold text-ink leading-tight">{S.home.greeting}</span>
+          )}
           <span className="text-base font-semibold text-muted leading-snug mt-0.5">{thaiDate(new Date())}</span>
         </div>
         {/* icon + visible word: a bare "⋯" glyph means nothing to an elderly user */}

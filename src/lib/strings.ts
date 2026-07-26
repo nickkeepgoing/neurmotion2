@@ -413,6 +413,16 @@ export const S = {
   } as Record<string, string>,
 
   daysShort: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
+
+  // live loudness guide during the voice test
+  voiceLevel: {
+    title: 'ความดังเสียง',
+    target: 'ดังเท่านี้',
+    quiet: 'เบาไป — ออกเสียงดังขึ้น',
+    good: 'ดังพอดี',
+    tooLoud: 'ดังเกินไป — เบาลงนิดหนึ่ง',
+    hint: 'ออกเสียงให้แถบสีถึงขีดเขียว แล้วคงไว้จนครบเวลา',
+  },
 };
 
 /** Thai Buddhist-era date, e.g. "13 ก.ค. 2569" */

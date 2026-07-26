@@ -1,21 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
+import LoudnessMeter, { levelPct, loudnessState, type LoudnessState } from '../LoudnessMeter';
 import { S } from '../../lib/strings';
 
 /**
- * Live voice spectrum with a "loud enough" target band — the same visual the
- * real test shows, but nothing is recorded, analysed or scored. Seeing the bars
- * respond is what tells an elderly user their voice is actually being picked up.
+ * Live voice spectrum plus the loudness meter with its target mark — the same
+ * visuals the real test shows, but nothing is recorded, analysed or scored.
+ * Seeing the bars respond is what tells an elderly user their voice is actually
+ * being picked up, and practising against the target here means the first
+ * attempt at the timed run is not the one that fails for being too quiet.
  */
 export default function VoicePractice() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stopRef = useRef<() => void>(() => {});
   const [state, setState] = useState<'starting' | 'live' | 'denied'>('starting');
+  const barRef = useRef<HTMLDivElement>(null);
+  const levelRef = useRef<LoudnessState>('quiet');
+  const [level, setLevel] = useState<LoudnessState>('quiet');
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // same constraints as the real test — with AGC on, a weak voice would
+        // be normalised up here and the practised level would not transfer
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        });
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -37,9 +47,24 @@ export default function VoicePractice() {
         canvas.height = ch * dpr;
         const c2d = canvas.getContext('2d')!;
         const bins = new Uint8Array(analyser.frequencyBinCount);
+        const timeBuf = new Uint8Array(analyser.fftSize);
         const BAR_N = 24;
 
         const draw = () => {
+          analyser.getByteTimeDomainData(timeBuf);
+          let sum = 0;
+          for (let i = 0; i < timeBuf.length; i++) {
+            const v = (timeBuf[i] - 128) / 128;
+            sum += v * v;
+          }
+          const rms = Math.sqrt(sum / timeBuf.length);
+          if (barRef.current) barRef.current.style.width = `${levelPct(rms)}%`;
+          const next = loudnessState(rms);
+          if (next !== levelRef.current) {
+            levelRef.current = next;
+            setLevel(next);
+          }
+
           analyser.getByteFrequencyData(bins);
           c2d.setTransform(dpr, 0, 0, dpr, 0, 0);
           c2d.clearRect(0, 0, cw, ch);
@@ -82,10 +107,11 @@ export default function VoicePractice() {
 
   return (
     <div className="w-full flex flex-col items-center gap-3">
+      <LoudnessMeter barRef={barRef} state={level} />
       <div className="w-full bg-white rounded-[20px] shadow-[0_4px_16px_rgba(35,58,77,.08)] px-4 py-4">
-        <canvas ref={canvasRef} className="w-full h-[110px] block" aria-label={S.flow.practiceVoice} />
+        <canvas ref={canvasRef} className="w-full h-[90px] block" aria-label={S.flow.practiceVoice} />
       </div>
-      <p className="text-base font-semibold text-muted-2 text-center m-0">{S.flow.practiceVoice}</p>
+      <p className="text-base font-semibold text-muted-2 text-center m-0">{S.voiceLevel.hint}</p>
     </div>
   );
 }

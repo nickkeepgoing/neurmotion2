@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Countdown from '../../components/Countdown';
+import LoudnessMeter, { levelPct, loudnessState, type LoudnessState } from '../../components/LoudnessMeter';
 import PermissionDenied from '../../components/PermissionDenied';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
@@ -25,6 +26,9 @@ export default function VoiceTest() {
   const stopRef = useRef<() => void>(() => {});
   const streamRef = useRef<MediaStream | null>(null);
   const spectrumRef = useRef<HTMLCanvasElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const levelStateRef = useRef<LoudnessState>('quiet');
+  const [levelState, setLevelState] = useState<LoudnessState>('quiet');
 
   useEffect(() => () => stopRef.current(), []);
 
@@ -65,6 +69,7 @@ export default function VoiceTest() {
       const startSpectrum = () => {
         const canvas = spectrumRef.current;
         if (!canvas) return;
+        const timeBuf = new Uint8Array(analyser.fftSize);
         const dpr = window.devicePixelRatio || 1;
         const cw = canvas.clientWidth;
         const ch = canvas.clientHeight;
@@ -74,6 +79,23 @@ export default function VoiceTest() {
         const bins = new Uint8Array(analyser.frequencyBinCount);
         const BAR_N = 28; // ~0–2.6 kHz at 48 kHz — where the voice energy lives
         const draw = () => {
+          // RMS of the waveform → live loudness. The bar width is set on the
+          // node directly; only the coarse state (quiet/good/loud) goes through
+          // React, so a re-render happens on category change, not every frame.
+          analyser.getByteTimeDomainData(timeBuf);
+          let sum = 0;
+          for (let i = 0; i < timeBuf.length; i++) {
+            const v = (timeBuf[i] - 128) / 128; // byte domain is centred on 128
+            sum += v * v;
+          }
+          const rms = Math.sqrt(sum / timeBuf.length);
+          if (barRef.current) barRef.current.style.width = `${levelPct(rms)}%`;
+          const next = loudnessState(rms);
+          if (next !== levelStateRef.current) {
+            levelStateRef.current = next;
+            setLevelState(next);
+          }
+
           analyser.getByteFrequencyData(bins);
           c2d.setTransform(dpr, 0, 0, dpr, 0, 0);
           c2d.clearRect(0, 0, cw, ch);
@@ -189,9 +211,13 @@ export default function VoiceTest() {
 
         {phase === 'recording' && (
           <>
+            {/* how loud to be — first, because it is the only thing on this
+                screen the user can act on */}
+            <LoudnessMeter barRef={barRef} state={levelState} />
+
             {/* live voice spectrum */}
             <div className="w-full bg-white rounded-[20px] shadow-[0_4px_16px_rgba(35,58,77,.08)] px-4 py-4">
-              <canvas ref={spectrumRef} className="w-full h-[110px] block" aria-label="คลื่นความถี่เสียงของคุณ" />
+              <canvas ref={spectrumRef} className="w-full h-[90px] block" aria-label="คลื่นความถี่เสียงของคุณ" />
             </div>
             <div className="flex items-center gap-5">
               <span className="font-num text-6xl font-black text-primary leading-none">{secondsLeft}</span>

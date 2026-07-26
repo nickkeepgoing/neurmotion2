@@ -188,3 +188,32 @@ export const FACIAL = {
 
 /** Voice test: recording duration (s). */
 export const VOICE = { durationS: 5 };
+
+/**
+ * Live loudness guide for the voice test, as RMS amplitude of the mic signal
+ * (0–1). Without a visible target people phonate too quietly, the recording
+ * fails the voicing gate, and they have to redo the whole test.
+ *
+ * These are SIGNAL levels, not calibrated sound-pressure levels — browsers
+ * expose no absolute SPL and every phone has a different mic gain, so this
+ * meter tells the user "louder / that's enough", nothing more. It must never
+ * be presented as a measurement of their voice volume, which is why loudness
+ * is not scored (true hypophonia measurement needs a calibrated setup).
+ *
+ * getUserMedia is opened with autoGainControl:false so the levels stay
+ * comparable within a device; AGC would silently normalise a weak voice up.
+ */
+export const VOICE_LEVEL = {
+  /** entering the target band — loud enough for stable jitter/shimmer */
+  goodRms: 0.05,
+  /** approaching clipping, which corrupts the amplitude metrics */
+  loudRms: 0.3,
+  /**
+   * The bar is drawn on a decibel scale. Loudness is perceived
+   * logarithmically, and on a linear RMS scale these thresholds crowd the left
+   * edge — the target mark sat at 11 % of the bar, so a perfectly good "ahh"
+   * still looked nearly empty. In dB the mark lands mid-bar.
+   */
+  floorDb: -50,
+  ceilDb: -6,
+};
