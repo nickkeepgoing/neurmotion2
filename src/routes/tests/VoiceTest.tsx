@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Countdown from '../../components/Countdown';
-import LoudnessMeter, { levelPct, loudnessState, type LoudnessState } from '../../components/LoudnessMeter';
+import LoudnessMeter, { createLevelTracker, rmsFromAnalyser, type LoudnessState } from '../../components/LoudnessMeter';
 import PermissionDenied from '../../components/PermissionDenied';
 import TestDone from '../../components/TestDone';
 import TestIntro from '../../components/TestIntro';
@@ -70,6 +70,7 @@ export default function VoiceTest() {
         const canvas = spectrumRef.current;
         if (!canvas) return;
         const timeBuf = new Uint8Array(analyser.fftSize);
+        const tracker = createLevelTracker();
         const dpr = window.devicePixelRatio || 1;
         const cw = canvas.clientWidth;
         const ch = canvas.clientHeight;
@@ -79,18 +80,11 @@ export default function VoiceTest() {
         const bins = new Uint8Array(analyser.frequencyBinCount);
         const BAR_N = 28; // ~0–2.6 kHz at 48 kHz — where the voice energy lives
         const draw = () => {
-          // RMS of the waveform → live loudness. The bar width is set on the
-          // node directly; only the coarse state (quiet/good/loud) goes through
-          // React, so a re-render happens on category change, not every frame.
-          analyser.getByteTimeDomainData(timeBuf);
-          let sum = 0;
-          for (let i = 0; i < timeBuf.length; i++) {
-            const v = (timeBuf[i] - 128) / 128; // byte domain is centred on 128
-            sum += v * v;
-          }
-          const rms = Math.sqrt(sum / timeBuf.length);
-          if (barRef.current) barRef.current.style.width = `${levelPct(rms)}%`;
-          const next = loudnessState(rms);
+          // Live loudness. The bar width is set on the node directly; only the
+          // coarse state (quiet/good/loud) goes through React, so a re-render
+          // happens on a category change, not every frame.
+          const { pct, state: next } = tracker.push(rmsFromAnalyser(analyser, timeBuf));
+          if (barRef.current) barRef.current.style.width = `${pct}%`;
           if (next !== levelStateRef.current) {
             levelStateRef.current = next;
             setLevelState(next);

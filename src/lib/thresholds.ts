@@ -216,4 +216,20 @@ export const VOICE_LEVEL = {
    */
   floorDb: -50,
   ceilDb: -6,
+
+  /**
+   * Envelope smoothing for the drawn level, applied per animation frame.
+   * Raw frame-to-frame RMS is extremely jumpy — speech is not a steady tone —
+   * so the bar rendered without it looked broken rather than responsive.
+   * Fast attack keeps it feeling immediate; slow release stops the flicker.
+   */
+  attack: 0.4,
+  release: 0.12,
+
+  /**
+   * Hysteresis. Sitting exactly on a threshold otherwise flips the status
+   * label many times a second. The level must fall to this fraction of a
+   * threshold before the state drops back down.
+   */
+  dropFrac: 0.75,
 };

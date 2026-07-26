@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import LoudnessMeter, { levelPct, loudnessState, type LoudnessState } from '../LoudnessMeter';
+import LoudnessMeter, { createLevelTracker, rmsFromAnalyser, type LoudnessState } from '../LoudnessMeter';
 import { S } from '../../lib/strings';
 
 /**
@@ -48,18 +48,12 @@ export default function VoicePractice() {
         const c2d = canvas.getContext('2d')!;
         const bins = new Uint8Array(analyser.frequencyBinCount);
         const timeBuf = new Uint8Array(analyser.fftSize);
+        const tracker = createLevelTracker();
         const BAR_N = 24;
 
         const draw = () => {
-          analyser.getByteTimeDomainData(timeBuf);
-          let sum = 0;
-          for (let i = 0; i < timeBuf.length; i++) {
-            const v = (timeBuf[i] - 128) / 128;
-            sum += v * v;
-          }
-          const rms = Math.sqrt(sum / timeBuf.length);
-          if (barRef.current) barRef.current.style.width = `${levelPct(rms)}%`;
-          const next = loudnessState(rms);
+          const { pct, state: next } = tracker.push(rmsFromAnalyser(analyser, timeBuf));
+          if (barRef.current) barRef.current.style.width = `${pct}%`;
           if (next !== levelRef.current) {
             levelRef.current = next;
             setLevel(next);

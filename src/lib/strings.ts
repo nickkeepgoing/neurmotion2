@@ -418,9 +418,11 @@ export const S = {
   voiceLevel: {
     title: 'ความดังเสียง',
     target: 'ดังเท่านี้',
-    quiet: 'เบาไป — ออกเสียงดังขึ้น',
+    // one short word each: the status sits in a fixed box and swapping a long
+    // label for a short one is what made the meter judder
+    quiet: 'เบาไป',
     good: 'ดังพอดี',
-    tooLoud: 'ดังเกินไป — เบาลงนิดหนึ่ง',
+    tooLoud: 'ดังเกินไป',
     hint: 'ออกเสียงให้แถบสีถึงขีดเขียว แล้วคงไว้จนครบเวลา',
   },
 };
