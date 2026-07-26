@@ -36,23 +36,26 @@ export default function TestShell({
   }, []);
 
   return (
-    <div className="min-h-dvh bg-bg flex flex-col px-6 pt-6 pb-8 max-w-md mx-auto">
-      <div className="flex items-center gap-3">
+    <div className="min-h-dvh bg-bg flex flex-col px-6 pb-8 max-w-md mx-auto">
+      {/* Sticky bar: the back control used to scroll away, and an installed PWA
+          (display: standalone) has no browser back button — so this is the only
+          guaranteed way out on every screen. */}
+      <div className="sticky top-0 z-30 -mx-6 px-6 py-3 bg-[rgba(255,249,242,.94)] backdrop-blur-md flex items-center gap-2.5">
         <button
           onClick={() => navigate('/home')}
-          aria-label="ย้อนกลับ"
-          className="flex-none w-14 h-14 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center justify-center cursor-pointer"
+          className="flex-none min-h-14 pl-3 pr-4 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center gap-1.5 cursor-pointer"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
+          <span className="text-base font-bold text-muted-2">{S.back}</span>
         </button>
         {spokenText && (
           <button
             onClick={() => speak(spokenText)}
             aria-label={S.replayVoice}
             title={S.replayVoice}
-            className="flex-none w-14 h-14 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center justify-center cursor-pointer"
+            className="flex-none min-w-14 min-h-14 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center justify-center cursor-pointer"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M4 9v6h4l5 4V5L8 9H4z" stroke="#1B6CA8" strokeWidth="2" strokeLinejoin="round" fill="#E3EEF6" />
@@ -61,7 +64,7 @@ export default function TestShell({
           </button>
         )}
         <span
-          className={`ml-auto text-base font-bold rounded-full px-3.5 py-1.5 ${
+          className={`ml-auto flex-none text-base font-bold rounded-full px-3.5 py-1.5 ${
             advanced ? 'text-secondary bg-secondary-soft' : 'text-muted bg-line-warm'
           }`}
         >

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Line, LineChart, ReferenceArea, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import Button from '../components/ui/Button';
 import RiskGauge from '../components/ui/RiskGauge';
+import Sheet from '../components/ui/Sheet';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import { assessConditions } from '../lib/conditions';
@@ -66,13 +67,18 @@ function TestDetailSheet({
   const head = STATUS_STYLE[lvl];
   const rows = metricScores(test, metrics, age).filter((m) => S.metricLabels[m.name]);
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-3 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1 mb-1" />
-        <div className="flex items-center gap-3">
+    <Sheet
+      title={S.tests[test].name}
+      onClose={onClose}
+      footer={
+        <Button variant="outline" size="md" onClick={onClose}>
+          {S.result.close}
+        </Button>
+      }
+    >
+        <div className="flex items-center gap-2.5">
           <span className="flex-none w-3.5 h-3.5 rounded-full" style={{ background: head.dot }} />
-          <h2 className="text-2xl font-extrabold text-ink m-0">{S.tests[test].name}</h2>
-          <span className={`ml-auto text-lg font-extrabold ${head.text}`}>{head.label}</span>
+          <span className={`text-lg font-extrabold ${head.text}`}>{head.label}</span>
         </div>
         <p className="text-base font-semibold text-muted m-0">
           {S.result.detailSheetSub} · {S.result.metricLegend}
@@ -100,11 +106,7 @@ function TestDetailSheet({
         </div>
 
         <p className="text-base font-medium text-muted text-center leading-relaxed mt-2">{S.result.testDisclaimer}</p>
-        <Button variant="outline" size="md" onClick={onClose}>
-          {S.result.close}
-        </Button>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
@@ -113,22 +115,7 @@ function TrendDetailSheet({ rows, onClose }: { rows: Session[]; onClose: () => v
   const today = new Date().toLocaleDateString('en-CA');
   const ordered = [...rows].reverse();
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-4 pb-8 flex flex-col gap-3 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="w-12 h-1.5 rounded-full bg-line self-center mb-1" />
-        <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-extrabold text-ink m-0">{S.result.trendDetailTitle}</h2>
-          <button
-            onClick={onClose}
-            aria-label={S.result.close}
-            className="ml-auto min-w-14 min-h-14 rounded-full bg-[#F4F6F8] border-2 border-field flex items-center justify-center cursor-pointer"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M6 6l12 12M18 6L6 18" stroke="#5A6B7A" strokeWidth="2.6" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-
+    <Sheet title={S.result.trendDetailTitle} onClose={onClose}>
         <div className="flex flex-col gap-2.5 mt-1">
           {ordered.map((s, i) => {
             const st = STATUS_STYLE[s.riskLevel];
@@ -162,21 +149,22 @@ function TrendDetailSheet({ rows, onClose }: { rows: Session[]; onClose: () => v
             );
           })}
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
 /** Bottom sheet with real ways to reach a doctor (demo-safe: hotline + map). */
 function ConsultSheet({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
-      <div
-        className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-3.5"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1 mb-1" />
-        <h2 className="text-2xl font-extrabold text-ink m-0">{S.result.consult}</h2>
+    <Sheet
+      title={S.result.consult}
+      onClose={onClose}
+      footer={
+        <Button variant="outline" size="md" onClick={onClose}>
+          {S.result.close}
+        </Button>
+      }
+    >
         <p className="text-base font-medium text-muted-2 leading-relaxed m-0">{S.result.consultDesc}</p>
 
         <a
@@ -212,12 +200,7 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
             <span className="text-base font-semibold text-muted">{S.result.findHospitalSub}</span>
           </span>
         </a>
-
-        <Button variant="outline" size="md" onClick={onClose}>
-          {S.result.close}
-        </Button>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 

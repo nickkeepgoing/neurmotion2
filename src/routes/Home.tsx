@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sheet from '../components/ui/Sheet';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
@@ -42,23 +43,7 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-6 pb-8 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
-        <div className="w-12 h-1.5 rounded-full bg-line self-center -mt-1" />
-        {/* an explicit close control — tapping the scrim isn't discoverable for
-            someone who stops rather than guesses */}
-        <div className="flex items-center">
-          <h2 className="text-2xl font-extrabold text-ink m-0">{S.home.calendarTitle}</h2>
-          <button
-            onClick={onClose}
-            aria-label={S.result.close}
-            className="ml-auto min-w-14 min-h-14 rounded-full bg-[#F4F6F8] border-2 border-field flex items-center justify-center cursor-pointer"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M6 6l12 12M18 6L6 18" stroke="#5A6B7A" strokeWidth="2.6" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
+    <Sheet title={S.home.calendarTitle} onClose={onClose}>
         <div className="flex items-center justify-between">
           <button onClick={() => shift(-1)} aria-label="เดือนก่อนหน้า" className="min-w-14 min-h-14 rounded-full border-2 border-field bg-white flex items-center justify-center cursor-pointer">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A6B7A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -97,29 +82,30 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
           })}
         </div>
         <p className="text-sm font-semibold text-muted text-center m-0">{S.home.calendarHint}</p>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
-/** "..." menu: text-size + voice-guidance settings, tucked away per design. */
-function OptionsMenu({ onClose }: { onClose: () => void }) {
+/**
+ * Settings sheet. This used to be a 288px popover pinned under a "⋯" icon —
+ * small, easy to miss, and it could be clipped. A full sheet gives the
+ * accessibility controls room and matches every other panel in the app.
+ */
+function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, update } = useSettings();
   const navigate = useNavigate();
   return (
-    <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div className="absolute right-0 top-14 z-50 w-72 bg-white rounded-[20px] shadow-[0_10px_30px_rgba(35,58,77,.18)] border border-line p-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <span className="text-base font-bold text-ink">{S.home.textSizeLabel}</span>
+    <Sheet title={S.home.settingsTitle} onClose={onClose}>
+        <div className="flex flex-col gap-2 pt-1">
+          <span className="text-lg font-bold text-ink">{S.home.textSizeLabel}</span>
           <TextSizeToggle />
         </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-base font-bold text-ink">{S.home.voiceLabel}</span>
+        <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
+          <span className="text-lg font-bold text-ink">{S.home.voiceLabel}</span>
           <button
             onClick={() => update({ voiceOn: !settings.voiceOn })}
             aria-pressed={settings.voiceOn}
-            className={`min-h-14 px-5 rounded-full font-extrabold text-base cursor-pointer border-2 transition-colors ${
+            className={`min-h-14 px-6 rounded-full font-extrabold text-lg cursor-pointer border-2 transition-colors ${
               settings.voiceOn ? 'bg-secondary border-secondary text-white' : 'bg-white border-field text-muted-2'
             }`}
           >
@@ -135,7 +121,7 @@ function OptionsMenu({ onClose }: { onClose: () => void }) {
               window.location.href = '/';
             }
           }}
-          className="text-left min-h-14 text-base font-bold text-risk-high-text bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
+          className="text-left min-h-14 text-lg font-bold text-risk-high-text bg-transparent border-0 border-t border-line pt-4 cursor-pointer"
         >
           {S.home.eraseLabel}
         </button>
@@ -143,13 +129,12 @@ function OptionsMenu({ onClose }: { onClose: () => void }) {
         {import.meta.env.DEV && (
           <button
             onClick={() => navigate('/admin')}
-            className="text-left min-h-14 text-base font-bold text-secondary bg-transparent border-0 border-t border-line pt-3 cursor-pointer"
+            className="text-left min-h-14 text-lg font-bold text-secondary bg-transparent border-0 border-t border-line pt-4 cursor-pointer"
           >
             {S.admin.openAdmin}
           </button>
         )}
-      </div>
-    </>
+    </Sheet>
   );
 }
 
@@ -198,19 +183,24 @@ export default function Home() {
           <span className="text-2xl font-extrabold text-ink truncate">{S.home.hello(name)}</span>
           <span className="text-base font-semibold text-muted">{thaiDateLong(new Date())}</span>
         </div>
+        {/* icon + visible word: a bare "⋯" glyph means nothing to an elderly user */}
         <button
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={S.home.menuLabel}
-          className="ml-auto flex-none w-12 h-12 rounded-[12px] bg-white border-2 border-field flex items-center justify-center cursor-pointer"
+          onClick={() => setMenuOpen(true)}
+          className="ml-auto flex-none min-h-14 px-3 rounded-[14px] bg-white border-2 border-field flex items-center gap-2 cursor-pointer"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <circle cx="5" cy="12" r="2" fill="#5A6B7A" />
-            <circle cx="12" cy="12" r="2" fill="#5A6B7A" />
-            <circle cx="19" cy="12" r="2" fill="#5A6B7A" />
+            <circle cx="12" cy="12" r="3" stroke="#5A6B7A" strokeWidth="2" />
+            <path
+              d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.8-1.6L13.2 2h-2.4l-.5 2.4a7 7 0 0 0-2.8 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.8 1.6l.5 2.4h2.4l.5-2.4a7 7 0 0 0 2.8-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z"
+              stroke="#5A6B7A"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
           </svg>
+          <span className="text-base font-bold text-muted-2">{S.home.settingsTitle}</span>
         </button>
-        {menuOpen && <OptionsMenu onClose={() => setMenuOpen(false)} />}
       </div>
+      {menuOpen && <SettingsSheet onClose={() => setMenuOpen(false)} />}
 
       {/* Doctor alert: high-risk for several consecutive days */}
       {streak >= RISK_STREAK_DAYS && (

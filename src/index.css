@@ -81,6 +81,23 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* tabular numerals so live counters (taps, seconds, scores) don't jitter
+   as digits change width */
+.font-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* respect the OS "reduce motion" setting — the app has a lot of pulsing */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* processing spinner shown after each test completes */
 @keyframes nm-spin {
   to { transform: rotate(360deg); }

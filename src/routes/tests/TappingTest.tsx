@@ -226,13 +226,21 @@ export default function TappingTest() {
         <>
           {/* Rhythm dots — paced block only */}
           {isPaced ? (
+            /* Active vs inactive used to be #E8762C vs #F0C39E — 1.84:1, and
+               colour was the only cue. Now the active dot also grows and fills,
+               so the beat is readable in greyscale and for colour-blind users. */
             <div className="flex items-center justify-center gap-3.5 mt-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`w-3 h-3 rounded-full transition-colors ${phase === 'running' && beat % 4 === i ? 'bg-primary' : 'bg-[#F0C39E]'}`}
-                />
-              ))}
+              {[0, 1, 2, 3].map((i) => {
+                const on = phase === 'running' && beat % 4 === i;
+                return (
+                  <div
+                    key={i}
+                    className={`rounded-full transition-all ${
+                      on ? 'w-6 h-6 bg-primary-action' : 'w-4 h-4 bg-white border-2 border-field'
+                    }`}
+                  />
+                );
+              })}
               <span className="text-base font-semibold text-muted ml-1.5">{S.rhythm}</span>
             </div>
           ) : (
@@ -256,7 +264,7 @@ export default function TappingTest() {
                 disabled={phase !== 'running'}
                 aria-label="แตะ"
                 className={`relative w-[190px] h-[190px] rounded-full border-0 cursor-pointer flex flex-col items-center justify-center gap-1 select-none active:scale-95 transition-transform touch-none-important
-                  bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]
+                  bg-[radial-gradient(circle_at_38%_32%,#CF6A1C,#BC5411_55%,#A34509)] shadow-[0_12px_30px_rgba(188,84,17,.38),inset_0_-6px_12px_rgba(0,0,0,.14)]
                   ${phase === 'running' && isPaced ? (beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b') : ''}`}
               >
                 <span className="text-4xl font-extrabold text-white">แตะ</span>

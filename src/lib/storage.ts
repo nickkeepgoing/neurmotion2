@@ -5,7 +5,7 @@
  * PDPA note: only computed metric numbers are stored — never raw
  * video/audio/sensor streams.
  */
-import { computeOverallScore, overallRiskLevel, shouldSeeDoctor } from './scoring';
+import { computeOverallScore, overallRiskLevel, riskLevel, shouldSeeDoctor } from './scoring';
 import type { RiskLevel, Session, Settings, TestId, TestResult } from './types';
 
 const KEY_SETTINGS = 'nm.settings';
@@ -172,6 +172,71 @@ export function trendSeries(maxDays = 7): { day: string; score: number; level: R
 /** True once the user has been high-risk for enough consecutive days. */
 export function doctorAlert(): boolean {
   return shouldSeeDoctor(loadSessions());
+}
+
+/**
+ * Seed a week of plausible sessions so the trend chart and history are never
+ * empty when someone opens the app for the first time (e.g. a judge on stage).
+ * Demo aid only — reachable from the admin screen, never from the patient flow.
+ */
+export function seedSampleData(): void {
+  const mk = (daysAgo: number, score: number): Session => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(9, 30, 0, 0);
+    const ts = d.toISOString();
+    // metric values chosen to land near the session's overall score
+    const k = score / 100;
+    return {
+      id: `demo-${daysAgo}`,
+      userType: 'general',
+      timestamp: ts,
+      overallScore: score,
+      riskLevel: riskLevel(score),
+      results: [
+        {
+          test: 'spiral',
+          metrics: {
+            rmsErrorNorm: 0.05 + k * 0.22,
+            tremorBandPower: 0.03 + k * 0.16,
+            spacingCV: 0.08 + k * 0.25,
+            speedCV: 0.35 + k * 0.6,
+            coverage: 1,
+          },
+          subScore: score,
+          timestamp: ts,
+        },
+        {
+          test: 'tapping',
+          metrics: {
+            rate: 5 - k * 2.8,
+            itiSD: 30 + k * 95,
+            decrementSlope: k * 4.6,
+            timingError: 50 + k * 120,
+            asymmetry: 0.08 + k * 0.3,
+            count: 60,
+          },
+          subScore: score,
+          timestamp: ts,
+        },
+        {
+          test: 'tremor',
+          metrics: {
+            restBandPower: 0.04 + k * 0.2,
+            restRms: 0.02 + k * 0.25,
+            posturalBandPower: 0.05 + k * 0.12,
+            posturalRms: 0.03 + k * 0.14,
+            samples: 900,
+          },
+          subScore: score,
+          timestamp: ts,
+        },
+      ],
+    };
+  };
+  // a gently improving week with one worse day, ending mid-range
+  const scores = [52, 46, 58, 41, 35, 44, 38];
+  saveSessions(scores.map((s, i) => mk(scores.length - 1 - i, s)));
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
+import { seedSampleData } from '../lib/storage';
 import { S } from '../lib/strings';
 import type { TestId } from '../lib/types';
 import { deleteVideo, saveVideo, videoKeys } from '../lib/videos';
@@ -68,6 +69,7 @@ function Row({ id, icon, has, onChange }: { id: TestId; icon: React.ReactNode; h
 export default function Admin() {
   const navigate = useNavigate();
   const [keys, setKeys] = useState<TestId[]>([]);
+  const [seeded, setSeeded] = useState(false);
   const refresh = () => setKeys(videoKeys());
   useEffect(refresh, []);
 
@@ -91,6 +93,21 @@ export default function Admin() {
         {TESTS.map((t) => (
           <Row key={t.id} id={t.id} icon={t.icon} has={keys.includes(t.id)} onChange={refresh} />
         ))}
+      </div>
+
+      {/* demo aid: keeps the trend chart and history from being empty on stage */}
+      <div className="mt-4 bg-white rounded-2xl border border-line px-4 py-4 flex flex-col gap-2">
+        <span className="text-lg font-extrabold text-ink">{S.admin.seedTitle}</span>
+        <span className="text-base font-medium text-muted-2 leading-relaxed">{S.admin.seedDesc}</span>
+        <button
+          onClick={() => {
+            seedSampleData();
+            setSeeded(true);
+          }}
+          className="mt-1 min-h-14 rounded-[14px] bg-secondary text-white text-lg font-extrabold border-0 cursor-pointer"
+        >
+          {seeded ? S.admin.seedDone : S.admin.seedBtn}
+        </button>
       </div>
     </div>
   );

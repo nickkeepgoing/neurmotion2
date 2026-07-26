@@ -51,7 +51,7 @@ export default function TapPractice() {
           onPointerDown={() => setCount((c) => c + 1)}
           aria-label="ลองแตะ"
           className={`relative w-[160px] h-[160px] rounded-full border-0 cursor-pointer flex flex-col items-center justify-center select-none active:scale-95 transition-transform touch-none-important
-            bg-[radial-gradient(circle_at_38%_32%,#F2924E,#E8762C_60%,#D9681F)] shadow-[0_12px_30px_rgba(232,118,44,.4),inset_0_-6px_12px_rgba(0,0,0,.12)]
+            bg-[radial-gradient(circle_at_38%_32%,#CF6A1C,#BC5411_55%,#A34509)] shadow-[0_12px_30px_rgba(188,84,17,.38),inset_0_-6px_12px_rgba(0,0,0,.14)]
             ${beat % 2 === 0 ? 'nm-btn-pop-a' : 'nm-btn-pop-b'}`}
         >
           <span className="text-2xl font-extrabold text-white">แตะ</span>

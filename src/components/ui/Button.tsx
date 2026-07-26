@@ -5,8 +5,9 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'lg' | 'md';
 };
 
+// focus-visible ring: there was no visible keyboard focus state anywhere
 const base =
-  'w-full rounded-[20px] font-extrabold tracking-wide transition-transform active:scale-[.97] disabled:opacity-40 disabled:active:scale-100 flex items-center justify-center gap-3 cursor-pointer';
+  'w-full rounded-[20px] font-extrabold tracking-wide transition-transform active:scale-[.97] disabled:opacity-40 disabled:active:scale-100 flex items-center justify-center gap-3 cursor-pointer focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-ink';
 
 const variants = {
   primary: 'bg-primary-action text-white shadow-[0_6px_18px_rgba(188,84,17,.32)] hover:bg-primary-dark border-0',
