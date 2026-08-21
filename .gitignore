@@ -7,3 +7,6 @@ dev-dist/
 # scratch / generated output (kept local, not in git)
 tmp/
 output/
+
+# stray nested clone that was committed as an orphan gitlink (no .gitmodules)
+/neuromotion/
