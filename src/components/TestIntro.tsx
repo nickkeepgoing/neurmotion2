@@ -69,7 +69,7 @@ export default function TestIntro({
                 controls
                 autoPlay
                 playsInline
-                className="w-full max-h-[46vh] rounded-[20px] bg-black"
+                className="w-full max-h-[46vh] rounded-tile bg-black"
               />
             ) : (
               <>

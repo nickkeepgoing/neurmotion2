@@ -9,6 +9,10 @@ import { S } from '../lib/strings';
  * it stays pinned instead of scrolling away, and why the chevron carries the
  * visible word "กลับ" rather than being an icon a 72-year-old has to decode.
  *
+ * At the largest text size the back button, the voice button and the step chip
+ * together exceed a 390px row, and the chip used to run off the right edge —
+ * leaving the screen visibly lopsided. The bar wraps instead of overflowing.
+ *
  * `bleed` cancels the parent's horizontal padding so the bar's translucent
  * background spans the full width; pass the pair that matches the parent
  * (e.g. "-mx-6 px-6").
@@ -25,7 +29,7 @@ export default function AppBar({
 }) {
   const navigate = useNavigate();
   return (
-    <div className={`sticky top-0 z-30 ${bleed} py-3 bg-[rgba(255,249,242,.94)] backdrop-blur-md flex items-center gap-2.5`}>
+    <div className={`sticky top-0 z-30 ${bleed} py-3 bg-[rgba(255,249,242,.94)] backdrop-blur-xl flex flex-wrap items-center gap-x-2.5 gap-y-2`}>
       <button
         onClick={() => navigate(to)}
         className="flex-none min-h-14 pl-3 pr-4 rounded-full bg-white border-2 border-[#E5E0D8] flex items-center gap-1.5 cursor-pointer"

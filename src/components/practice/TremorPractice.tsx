@@ -68,7 +68,7 @@ export default function TremorPractice() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative w-[200px] h-[200px]" aria-label={S.flow.practiceTremor}>
-        <div className="absolute inset-0 rounded-full border-[3px] border-line bg-white shadow-[0_6px_22px_rgba(35,58,77,.08)]" />
+        <div className="absolute inset-0 rounded-full border-[3px] border-line bg-white shadow-raised" />
         <div className="absolute inset-[36px] rounded-full border-2 border-dashed border-line" />
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[56px] h-[56px] rounded-full border-[3px] border-risk-low bg-risk-low-bg/60" />
         <div className="absolute left-1/2 top-3 bottom-3 w-px bg-line -translate-x-1/2" />

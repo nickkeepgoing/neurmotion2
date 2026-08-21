@@ -51,7 +51,10 @@ export default function TestShell({
           </button>
         )}
         <span
-          className={`ml-auto flex-none text-base font-bold rounded-full px-3.5 py-1.5 ${
+          // no ml-auto: pushed to the far right it stranded itself alone on a
+          // second row at the largest text size, leaving the bar visibly
+          // lopsided. As a plain group member it just follows the voice button.
+          className={`flex-none text-base font-bold rounded-full px-3.5 py-1.5 ${
             advanced ? 'text-secondary bg-secondary-soft' : 'text-muted bg-line-warm'
           }`}
         >

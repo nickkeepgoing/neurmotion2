@@ -216,7 +216,7 @@ export default function SpiralTest() {
       instruction={phase === 'tracing' ? S.keepGoing : S.tests.spiral.instruction}
     >
       <div className="flex-1 flex items-center justify-center my-3.5">
-        <div className="relative bg-white rounded-[28px] shadow-[0_6px_22px_rgba(35,58,77,.08)] p-0 flex items-center justify-center">
+        <div className="relative bg-white rounded-[28px] shadow-raised p-0 flex items-center justify-center">
           <canvas
             ref={canvasRef}
             style={{ width: CANVAS, height: CANVAS }}

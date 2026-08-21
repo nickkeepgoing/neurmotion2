@@ -106,7 +106,7 @@ export default function AvatarCapture({
         <p className="text-lg font-semibold text-muted-2 leading-relaxed text-center m-0">{S.profile.photoDenied}</p>
       ) : (
         <div className="flex flex-col items-center gap-4">
-          <div className="relative w-[240px] h-[240px] rounded-full overflow-hidden bg-line-warm border-4 border-white shadow-[0_4px_16px_rgba(35,58,77,.12)]">
+          <div className="relative w-[240px] h-[240px] rounded-full overflow-hidden bg-line-warm border-4 border-white shadow-raised">
             {shot ? (
               <img src={shot} alt="" className="w-full h-full object-cover" />
             ) : (

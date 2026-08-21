@@ -55,7 +55,7 @@ export default function Sheet({
       aria-label={title}
     >
       <div
-        className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col gap-3 max-h-[88dvh] shadow-[0_-8px_32px_rgba(35,58,77,.18)]"
+        className="w-full max-w-md bg-white rounded-t-[28px] px-6 pt-4 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col gap-3 max-h-[88dvh] shadow-bar"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-12 h-1.5 rounded-full bg-line self-center flex-none" />

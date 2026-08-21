@@ -101,7 +101,7 @@ export default function LoudnessMeter({
   const goodEnd = levelPct(VOICE_LEVEL.loudRms);
 
   return (
-    <div className="w-full bg-white rounded-[20px] shadow-[0_4px_16px_rgba(35,58,77,.08)] px-4 py-4 flex flex-col gap-3">
+    <div className="w-full bg-white rounded-tile shadow-card px-4 py-4 flex flex-col gap-3">
       <span className="text-lg font-extrabold text-ink">{S.voiceLevel.title}</span>
 
       <div>
@@ -135,7 +135,7 @@ export default function LoudnessMeter({
       </div>
 
       {/* full-width and centred: only the word inside changes, never the box */}
-      <div className={`w-full rounded-[14px] py-2.5 text-center text-xl font-extrabold ${STATE_STYLE[state]}`}>
+      <div className={`w-full rounded-ctl py-2.5 text-center text-xl font-extrabold ${STATE_STYLE[state]}`}>
         {S.voiceLevel[state]}
       </div>
 

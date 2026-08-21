@@ -39,7 +39,7 @@ function Field({
         placeholder={placeholder}
         type={type}
         inputMode={inputMode}
-        className="h-16 rounded-[18px] border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none"
+        className="h-16 rounded-tile border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none"
       />
     </label>
   );

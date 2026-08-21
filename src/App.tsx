@@ -6,6 +6,7 @@ import Home from './routes/Home';
 import Login from './routes/Login';
 import Register from './routes/Register';
 import Result from './routes/Result';
+import Settings from './routes/Settings';
 import Splash from './routes/Splash';
 import FacialTest from './routes/tests/FacialTest';
 import SpiralTest from './routes/tests/SpiralTest';
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/test/facial" element={<FacialTest />} />
             <Route path="/test/voice" element={<VoiceTest />} />
             <Route path="/result" element={<Result />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

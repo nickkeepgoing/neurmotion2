@@ -32,7 +32,7 @@ function TypeCard({
     <button
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex items-center gap-4 w-full min-h-[88px] px-4.5 py-4 rounded-[20px] text-left cursor-pointer border-2 transition-colors ${
+      className={`flex items-center gap-4 w-full min-h-[88px] px-4.5 py-4 rounded-tile text-left cursor-pointer border-2 transition-colors ${
         selected ? 'border-primary bg-primary-soft' : 'border-line bg-white hover:border-secondary'
       }`}
     >
@@ -108,7 +108,7 @@ export default function Login() {
         <h1 className="text-3xl font-extrabold text-ink m-0 whitespace-nowrap">{S.login.title}</h1>
         <button
           onClick={() => setSizeOpen(true)}
-          className="flex-none min-h-14 pl-3.5 pr-4 rounded-[14px] bg-white border-2 border-field flex items-center gap-2 cursor-pointer whitespace-nowrap"
+          className="flex-none min-h-14 pl-3.5 pr-4 rounded-ctl bg-white border-2 border-field flex items-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <span className="font-num text-xl font-black text-ink leading-none">ก</span>
           <span className="text-base font-bold text-muted-2">{S.login.sizeBtn}</span>
@@ -168,7 +168,7 @@ export default function Login() {
             onChange={(e) => setNid(e.target.value.replace(/\D/g, '').slice(0, 13))}
             placeholder={S.login.nidPlaceholder}
             inputMode="numeric"
-            className="min-h-16 rounded-[18px] border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none tracking-wider"
+            className="min-h-16 rounded-tile border-2 border-field bg-white px-5 text-xl font-semibold text-ink placeholder:text-muted focus:border-secondary focus:outline-none tracking-wider"
           />
           <span className="text-base font-medium text-muted leading-relaxed">{S.login.nidNote}</span>
         </label>
@@ -176,7 +176,7 @@ export default function Login() {
     </div>
 
     {/* sticky footer keeps the one primary action always visible and prominent */}
-    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-[0_-6px_18px_rgba(35,58,77,.07)] flex flex-col gap-2">
+    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-bar flex flex-col gap-2">
       <Button className="nm-blink" onClick={start}>
         {S.start}
       </Button>

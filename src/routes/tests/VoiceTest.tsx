@@ -210,7 +210,7 @@ export default function VoiceTest() {
             <LoudnessMeter barRef={barRef} state={levelState} />
 
             {/* live voice spectrum */}
-            <div className="w-full bg-white rounded-[20px] shadow-[0_4px_16px_rgba(35,58,77,.08)] px-4 py-4">
+            <div className="w-full bg-white rounded-tile shadow-card px-4 py-4">
               <canvas ref={spectrumRef} className="w-full h-[90px] block" aria-label="คลื่นความถี่เสียงของคุณ" />
             </div>
             <div className="flex items-center gap-5">

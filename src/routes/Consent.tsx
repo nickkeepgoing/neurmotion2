@@ -21,7 +21,7 @@ function ConsentBox({
 }) {
   return (
     <label
-      className={`flex items-start gap-4 p-4.5 rounded-[20px] border-[3px] cursor-pointer transition-colors ${
+      className={`flex items-start gap-4 p-4.5 rounded-tile border-[3px] cursor-pointer transition-colors ${
         checked ? 'border-secondary bg-secondary-soft' : 'border-field bg-white'
       }`}
     >
@@ -69,7 +69,7 @@ export default function Consent() {
     {/* pb reserve is in rem so it grows with the text scale and never hides the
         sticky footer's content */}
     <div className="min-h-dvh bg-bg flex flex-col px-6 pt-8 pb-[13rem] max-w-md mx-auto">
-      <div className="w-16 h-16 rounded-[18px] bg-secondary-soft flex items-center justify-center">
+      <div className="w-16 h-16 rounded-tile bg-secondary-soft flex items-center justify-center">
         <ShieldIcon size={34} />
       </div>
       <h1 className="mt-4 text-3xl font-extrabold text-ink leading-tight">{S.consent.title}</h1>
@@ -93,7 +93,7 @@ export default function Consent() {
     {/* Sticky footer: at A++ the accept button used to sit 333px below the
         fold, so the user who most needs the large text could not reach the
         only way forward. */}
-    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-[0_-6px_18px_rgba(35,58,77,.07)] flex flex-col gap-2">
+    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-bar flex flex-col gap-2">
       <p className={`text-base font-semibold text-center m-0 ${storeOk ? 'text-risk-low-text' : 'text-muted-2'}`}>
         {storeOk ? S.consent.readyToStart : S.consent.mustAccept}
       </p>

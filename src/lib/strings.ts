@@ -414,6 +414,18 @@ export const S = {
 
   daysShort: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
 
+  settingsA11y: 'การอ่านและเสียง',
+  settingsData: 'ข้อมูลของฉัน',
+  disclaimerShort: 'NeuroMotion AI เป็นเครื่องมือคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัยโรค',
+
+  // bottom tab bar
+  nav: {
+    label: 'เมนูหลัก',
+    home: 'หน้าหลัก',
+    result: 'ผลของฉัน',
+    settings: 'ตั้งค่า',
+  },
+
   // profile picture + sign in/out
   profile: {
     title: 'บัญชีของฉัน',

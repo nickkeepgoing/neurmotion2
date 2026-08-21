@@ -102,7 +102,7 @@ export default function VoicePractice() {
   return (
     <div className="w-full flex flex-col items-center gap-3">
       <LoudnessMeter barRef={barRef} state={level} />
-      <div className="w-full bg-white rounded-[20px] shadow-[0_4px_16px_rgba(35,58,77,.08)] px-4 py-4">
+      <div className="w-full bg-white rounded-tile shadow-card px-4 py-4">
         <canvas ref={canvasRef} className="w-full h-[90px] block" aria-label={S.flow.practiceVoice} />
       </div>
       <p className="text-base font-semibold text-muted-2 text-center m-0">{S.voiceLevel.hint}</p>

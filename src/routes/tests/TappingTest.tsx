@@ -281,11 +281,11 @@ export default function TappingTest() {
           {/* Live counters */}
           {phase === 'running' && (
             <div className="flex gap-3 mb-2">
-              <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
+              <div className="flex-1 bg-white rounded-tile px-4 py-3.5 shadow-card flex flex-col items-center gap-0.5">
                 <span className="font-num text-num-md font-black text-primary leading-none">{count}</span>
                 <span className="text-base font-bold text-muted">{S.taps}</span>
               </div>
-              <div className="flex-1 bg-white rounded-[18px] px-4 py-3.5 shadow-[0_3px_12px_rgba(35,58,77,.06)] flex flex-col items-center gap-0.5">
+              <div className="flex-1 bg-white rounded-tile px-4 py-3.5 shadow-card flex flex-col items-center gap-0.5">
                 <span className="font-num text-num-md font-black text-secondary leading-none">{secondsLeft}</span>
                 <span className="text-base font-bold text-muted">{S.secondsLeft}</span>
               </div>

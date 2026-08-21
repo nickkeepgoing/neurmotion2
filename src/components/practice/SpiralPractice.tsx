@@ -76,7 +76,7 @@ export default function SpiralPractice() {
       <canvas
         ref={canvasRef}
         style={{ width: SIZE, height: SIZE }}
-        className="touch-none-important rounded-[24px] bg-white shadow-[0_6px_22px_rgba(35,58,77,.08)]"
+        className="touch-none-important rounded-[24px] bg-white shadow-raised"
         onPointerDown={(e) => {
           drawingRef.current = true;
           ptsRef.current = [pos(e)];

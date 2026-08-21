@@ -39,7 +39,7 @@ function daysInMonth(m: number, yBE: number): number {
 // without it the intrinsic width of the widest option pushed the row past the
 // viewport once the text scaled up (A++).
 const selectCls =
-  'min-h-16 w-full min-w-0 rounded-[18px] border-2 border-field bg-white px-1.5 text-xl font-semibold text-ink focus:border-secondary focus:outline-none cursor-pointer appearance-none text-center';
+  'min-h-16 w-full min-w-0 rounded-tile border-2 border-field bg-white px-1.5 text-xl font-semibold text-ink focus:border-secondary focus:outline-none cursor-pointer appearance-none text-center';
 
 export default function BirthDatePicker({ value, onChange }: { value: BirthDate; onChange: (b: BirthDate) => void }) {
   const nowBE = new Date().getFullYear() + 543;

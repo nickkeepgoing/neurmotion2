@@ -7,6 +7,7 @@ import Sheet from '../components/ui/Sheet';
 import { CheckCircle } from '../components/icons';
 import { useSettings } from '../context/SettingsContext';
 import AppBar from '../components/AppBar';
+import TabBar from '../components/TabBar';
 import { assessConditions } from '../lib/conditions';
 import { highRiskStreak, metricScores, redFlagTests, riskLevel, testStatus } from '../lib/scoring';
 import { dailyLatestSessions, latestSession, loadSessions } from '../lib/storage';
@@ -170,7 +171,7 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
 
         <a
           href="tel:1330"
-          className="flex items-center gap-4 rounded-[20px] bg-secondary text-white px-5 min-h-[5.25rem] py-3 no-underline shadow-[0_6px_18px_rgba(27,108,168,.3)] active:scale-[.97] transition-transform"
+          className="flex items-center gap-4 rounded-tile bg-secondary text-white px-5 min-h-[5.25rem] py-3 no-underline shadow-[0_6px_18px_rgba(27,108,168,.3)] active:scale-[.97] transition-transform"
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="flex-none">
             <path
@@ -190,7 +191,7 @@ function ConsultSheet({ onClose }: { onClose: () => void }) {
           href="https://www.google.com/maps/search/โรงพยาบาล+ใกล้ฉัน"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-4 rounded-[20px] bg-white border-2 border-field text-ink px-5 min-h-[5.25rem] py-3 no-underline active:scale-[.97] transition-transform"
+          className="flex items-center gap-4 rounded-tile bg-white border-2 border-field text-ink px-5 min-h-[5.25rem] py-3 no-underline active:scale-[.97] transition-transform"
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="flex-none">
             <path d="M12 21s-7-5.5-7-11a7 7 0 1 1 14 0c0 5.5-7 11-7 11z" stroke="#1B6CA8" strokeWidth="2" strokeLinejoin="round" />
@@ -230,9 +231,10 @@ export default function Result() {
 
   if (!session) {
     return (
-      <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pt-10 pb-8 flex flex-col items-center justify-center gap-6">
+      <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pt-10 pb-32 flex flex-col items-center justify-center gap-6">
         <p className="text-xl font-semibold text-muted-2 text-center leading-relaxed">{S.result.noData}</p>
         <Button onClick={() => navigate('/home')}>{S.backHome}</Button>
+        <TabBar />
       </div>
     );
   }
@@ -261,7 +263,7 @@ export default function Result() {
   const care = level === 'low' ? S.result.careLow : level === 'medium' ? S.result.careMedium : S.result.careHigh;
 
   return (
-    <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pb-8 flex flex-col gap-4.5">
+    <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pb-32 flex flex-col gap-4.5">
       <AppBar bleed="-mx-5.5 px-5.5" />
       {/* Header — the badge must state the ACTUAL risk level. It used to render
           green with a check mark for every level, so a high-risk result was
@@ -303,7 +305,7 @@ export default function Result() {
 
       {/* Doctor alert: high-risk streak */}
       {streak >= RISK_STREAK_DAYS && (
-        <div className="flex items-start gap-3 rounded-[20px] px-4.5 py-4 bg-risk-high-bg border-2 border-[#F2D2CC]">
+        <div className="flex items-start gap-3 rounded-tile px-4.5 py-4 bg-risk-high-bg border-2 border-[#F2D2CC]">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="flex-none mt-0.5">
             <path d="M12 3l9 16H3l9-16z" stroke="#B23A3A" strokeWidth="2" strokeLinejoin="round" fill="#FBEAEA" />
             <path d="M12 9v4M12 16.5v.1" stroke="#B23A3A" strokeWidth="2.2" strokeLinecap="round" />
@@ -316,7 +318,7 @@ export default function Result() {
       )}
 
       {/* Risk gauge */}
-      <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] px-5 pt-5 pb-5 flex flex-col items-center gap-1">
+      <div className="bg-white rounded-3xl shadow-card px-5 pt-5 pb-5 flex flex-col items-center gap-1">
         <RiskGauge score={session.overallScore} level={level} />
         <div className="flex items-center gap-2.5 mt-1.5">
           {level === 'low' ? (
@@ -343,7 +345,7 @@ export default function Result() {
       </div>
 
       {/* Differential — which of the three tremor syndromes the pattern fits */}
-      <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] p-5 flex flex-col gap-2">
+      <div className="bg-white rounded-3xl shadow-card p-5 flex flex-col gap-2">
         <h2 className="text-xl font-extrabold text-ink m-0">{S.result.conditionsTitle}</h2>
         <p className="text-base font-medium text-muted-2 leading-relaxed m-0">{S.result.conditionsIntro}</p>
         {conditions.enoughData ? (
@@ -397,7 +399,7 @@ export default function Result() {
             <button
               key={t}
               onClick={() => setOpenTest(t)}
-              className="text-left bg-white rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(35,58,77,.05)] flex items-center gap-3 cursor-pointer active:scale-[.99] transition-transform border-0 w-full"
+              className="text-left bg-white rounded-2xl px-4 py-3.5 shadow-card flex items-center gap-3 cursor-pointer active:scale-[.99] transition-transform border-0 w-full"
             >
               <span className="flex-none w-3 h-3 rounded-full" style={{ background: st.dot }} />
               <div className="flex flex-col min-w-0">
@@ -414,7 +416,7 @@ export default function Result() {
       </div>
 
       {/* Trend — tap for the full history */}
-      <div className="bg-white rounded-3xl shadow-[0_4px_16px_rgba(35,58,77,.07)] p-5">
+      <div className="bg-white rounded-3xl shadow-card p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-xl font-extrabold text-ink m-0">{S.result.trend}</h2>
           {trendData.length >= 1 && (
@@ -491,7 +493,7 @@ export default function Result() {
       </div>
 
       {/* Care card */}
-      <div className={`flex items-start gap-3 rounded-[20px] px-4.5 py-4 ${level === 'high' ? 'bg-secondary-soft' : 'bg-primary-soft'}`}>
+      <div className={`flex items-start gap-3 rounded-tile px-4.5 py-4 ${level === 'high' ? 'bg-secondary-soft' : 'bg-primary-soft'}`}>
         {level === 'high' ? (
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="flex-none mt-0.5">
             <path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z" stroke="#1B6CA8" strokeWidth="2" strokeLinejoin="round" fill="#D6E7F3" />
@@ -541,6 +543,7 @@ export default function Result() {
           onClose={() => setOpenTest(null)}
         />
       )}
+      <TabBar />
     </div>
   );
 }

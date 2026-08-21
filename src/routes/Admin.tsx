@@ -33,7 +33,7 @@ function Row({ id, icon, has, onChange }: { id: TestId; icon: React.ReactNode; h
 
   return (
     <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex items-center gap-3.5">
-      <div className="w-12 h-12 rounded-[14px] bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
+      <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
       <div className="flex flex-col min-w-0">
         <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
         <span className={`text-sm font-bold ${has ? 'text-risk-low-text' : 'text-muted'}`}>
@@ -93,7 +93,7 @@ export default function Admin() {
             seedSampleData();
             setSeeded(true);
           }}
-          className="mt-1 min-h-14 rounded-[14px] bg-secondary text-white text-lg font-extrabold border-0 cursor-pointer"
+          className="mt-1 min-h-14 rounded-ctl bg-secondary text-white text-lg font-extrabold border-0 cursor-pointer"
         >
           {seeded ? S.admin.seedDone : S.admin.seedBtn}
         </button>

@@ -23,7 +23,7 @@ const SPIRAL_D = spiralD();
  */
 export default function TestDemo({ test }: { test: TestId }) {
   return (
-    <div className="mt-3 flex items-center gap-4 bg-white rounded-[18px] px-4 py-3 shadow-[0_2px_10px_rgba(35,58,77,.06)] border border-line-warm">
+    <div className="mt-3 flex items-center gap-4 bg-white rounded-tile px-4 py-3 shadow-card border border-line-warm">
       <div className="flex-none w-[92px] h-[92px] flex items-center justify-center overflow-hidden" aria-hidden="true">
         {test === 'spiral' && (
           <svg viewBox="0 0 100 100" width="92" height="92">
