@@ -33,4 +33,13 @@ export type Settings = {
   lastName?: string;
   phone?: string;
   email?: string;
+  /**
+   * Optional profile picture, as a small downscaled JPEG data URL.
+   *
+   * This is a user-chosen avatar, not test data: it is never uploaded, never
+   * analysed, and never attached to a result. It is still a photo of a face,
+   * so it counts as personal data — it is cleared by logout and by
+   * "delete all my data", and can be removed on its own at any time.
+   */
+  avatar?: string;
 };

@@ -251,3 +251,29 @@ export function eraseAllData(): void {
   localStorage.removeItem(KEY_SESSIONS);
   sessionStorage.removeItem(KEY_ROUND);
 }
+
+/**
+ * Sign out: drop everything that identifies a person, keep their saved results.
+ *
+ * Consent is cleared deliberately. Consent under PDPA is given by a person, not
+ * by a device, so whoever signs in next has to give their own — they land on
+ * the consent screen, not straight into someone else's session.
+ *
+ * Text size and voice guidance survive on purpose. They are accessibility
+ * settings rather than personal data, and making an elderly user re-find the
+ * large-text option just to sign back in would be its own accessibility bug.
+ *
+ * NOTE: saved results are NOT per-person — there are no real accounts in this
+ * demo, so results stay on the device and whoever signs in next would see them.
+ * The confirm copy says so, and `eraseAllData` is the button that clears them.
+ * Namespacing sessions per profile is the real fix when a backend arrives.
+ */
+export function logout(): void {
+  const s = loadSettings();
+  saveSettings({
+    ...DEFAULT_SETTINGS,
+    textScale: s.textScale,
+    voiceOn: s.voiceOn,
+  });
+  sessionStorage.removeItem(KEY_ROUND);
+}

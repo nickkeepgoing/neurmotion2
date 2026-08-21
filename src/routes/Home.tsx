@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AvatarCapture from '../components/AvatarCapture';
 import Sheet from '../components/ui/Sheet';
 import TextSizeToggle from '../components/ui/TextSizeToggle';
 import { ChartIcon, CheckCircle, FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
@@ -11,6 +12,7 @@ import {
   eraseAllData,
   latestSession,
   loadSessions,
+  logout,
   startRetestRound,
 } from '../lib/storage';
 import { RISK_STREAK_DAYS } from '../lib/thresholds';
@@ -24,6 +26,25 @@ const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'facial', icon: <FaceIcon /> },
   { id: 'voice', icon: <VoiceIcon /> },
 ];
+
+/** Profile picture, falling back to the generic person mark when unset. */
+function Avatar({ src, size }: { src?: string; size: number }) {
+  return (
+    <div
+      className="flex-none rounded-full bg-primary-softer overflow-hidden flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      {src ? (
+        <img src={src} alt="" className="w-full h-full object-cover" />
+      ) : (
+        <svg width={size * 0.54} height={size * 0.54} viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="#E8762C" strokeWidth="2.4" />
+          <path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke="#E8762C" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+      )}
+    </div>
+  );
+}
 
 /** Risk styling for the latest-result card — colour always paired with a word. */
 const RISK_LABEL: Record<RiskLevel, string> = {
@@ -120,9 +141,47 @@ function CalendarSheet({ onClose }: { onClose: () => void }) {
 function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { settings, update } = useSettings();
   const navigate = useNavigate();
+  const [shooting, setShooting] = useState(false);
+  const name = settings.displayName?.trim();
+
   return (
+    <>
     <Sheet title={S.home.settingsTitle} onClose={onClose}>
-        <div className="flex flex-col gap-2 pt-1">
+        {/* account: who is signed in, their picture, and the way out */}
+        <div className="flex items-center gap-3.5 pt-1">
+          <Avatar src={settings.avatar} size={64} />
+          <div className="flex flex-col min-w-0 gap-0.5">
+            <span className="text-lg font-extrabold text-ink break-words">{name || S.profile.title}</span>
+            <span className="text-base font-semibold text-muted">
+              {settings.userType === 'patient' ? S.login.patient : S.login.general}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          <button
+            onClick={() => setShooting(true)}
+            className="min-h-14 px-4 rounded-[14px] bg-secondary-soft text-secondary text-base font-extrabold border-0 cursor-pointer"
+          >
+            {settings.avatar ? S.profile.photoChange : S.profile.photoAdd}
+          </button>
+          {settings.avatar && (
+            <button
+              onClick={() => update({ avatar: undefined })}
+              className="min-h-14 px-4 rounded-[14px] bg-white text-risk-high-text text-base font-bold border-2 border-field cursor-pointer"
+            >
+              {S.profile.photoRemove}
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => navigate('/login')}
+          className="text-left min-h-14 flex flex-col justify-center border-0 border-t border-line pt-4 bg-transparent cursor-pointer"
+        >
+          <span className="text-lg font-bold text-ink">{S.profile.editProfile}</span>
+          <span className="text-base font-semibold text-muted">{S.profile.editProfileSub}</span>
+        </button>
+
+        <div className="flex flex-col gap-2 border-t border-line pt-4">
           <span className="text-lg font-bold text-ink">{S.home.textSizeLabel}</span>
           <TextSizeToggle />
         </div>
@@ -138,6 +197,21 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
             {settings.voiceOn ? S.home.on : S.home.off}
           </button>
         </div>
+        {/* Sign out keeps saved results; the erase button below is what removes
+            them. The confirm copy spells that out so the difference is not a
+            guess. */}
+        <button
+          onClick={() => {
+            if (confirm(S.profile.signOutConfirm)) {
+              logout();
+              window.location.href = '/login';
+            }
+          }}
+          className="text-left min-h-14 text-lg font-bold text-secondary bg-transparent border-0 border-t border-line pt-4 cursor-pointer"
+        >
+          {S.profile.signOut}
+        </button>
+
         {/* PDPA: makes the consent screen's "withdraw at any time" promise real.
             (Also the clean reset between demo users.) */}
         <button
@@ -161,6 +235,17 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
           </button>
         )}
     </Sheet>
+
+    {shooting && (
+      <AvatarCapture
+        onClose={() => setShooting(false)}
+        onSave={(dataUrl) => {
+          update({ avatar: dataUrl });
+          setShooting(false);
+        }}
+      />
+    )}
+    </>
   );
 }
 
@@ -211,12 +296,7 @@ export default function Home() {
     <div className="min-h-dvh bg-bg max-w-md mx-auto px-5.5 pt-6 pb-10 flex flex-col gap-4.5">
       {/* Greeting + options menu */}
       <div className="relative flex items-start gap-3.5">
-        <div className="flex-none w-14 h-14 rounded-full bg-primary-softer flex items-center justify-center">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="4" stroke="#E8762C" strokeWidth="2.4" />
-            <path d="M4 20c0-3.3 3.6-5.5 8-5.5s8 2.2 8 5.5" stroke="#E8762C" strokeWidth="2.4" strokeLinecap="round" />
-          </svg>
-        </div>
+        <Avatar src={settings.avatar} size={56} />
         {/* The name must never be clipped — "สวัสดีค่ะ คุณส…" is worse than two
             lines. Greeting and name are split so the name gets the full width,
             and the date is the short form (the weekday pushed it onto a second
@@ -285,7 +365,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={() => (nextTest ? navigate(`/test/${nextTest.id}`) : navigate('/result'))}
-            className="h-12 px-5.5 rounded-[14px] bg-white text-primary-dark text-lg font-extrabold cursor-pointer border-0 active:scale-95 transition-transform nm-blink"
+            className="min-h-14 px-5.5 rounded-[14px] bg-white text-primary-dark text-lg font-extrabold cursor-pointer border-0 active:scale-95 transition-transform nm-blink"
           >
             {nextTest ? S.home.continueBtn : S.home.viewResult}
           </button>
@@ -295,7 +375,7 @@ export default function Home() {
                 startRetestRound(); // fresh round → chaining walks all 5 again
                 navigate('/test/spiral');
               }}
-              className="h-12 px-5 rounded-[14px] bg-transparent text-white text-lg font-bold cursor-pointer border-2 border-white/70 active:scale-95 transition-transform"
+              className="min-h-14 px-5 rounded-[14px] bg-transparent text-white text-lg font-bold cursor-pointer border-2 border-white/70 active:scale-95 transition-transform"
             >
               {S.home.retestAll}
             </button>

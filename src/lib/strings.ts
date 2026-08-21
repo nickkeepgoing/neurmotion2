@@ -414,6 +414,26 @@ export const S = {
 
   daysShort: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
 
+  // profile picture + sign in/out
+  profile: {
+    title: 'บัญชีของฉัน',
+    photoTitle: 'ถ่ายรูปโปรไฟล์',
+    photoAdd: 'เพิ่มรูปโปรไฟล์',
+    photoChange: 'เปลี่ยนรูป',
+    photoRemove: 'ลบรูป',
+    photoTake: 'ถ่ายรูป',
+    photoRetake: 'ถ่ายใหม่',
+    photoUse: 'ใช้รูปนี้',
+    photoStarting: 'กำลังเปิดกล้อง…',
+    photoDenied: 'ยังไม่ได้อนุญาตให้ใช้กล้อง\nคุณข้ามส่วนนี้ได้ รูปโปรไฟล์ไม่บังคับ',
+    photoPrivacy: 'รูปนี้เก็บไว้ในเครื่องของคุณเท่านั้น ไม่ส่งออกไปไหน และไม่ใช้ในการประมวลผล',
+    editProfile: 'แก้ไขข้อมูลผู้ใช้',
+    editProfileSub: 'เปลี่ยนประเภทผู้ใช้ หรือวันเกิด',
+    signOut: 'ออกจากระบบ',
+    signOutConfirm:
+      'ออกจากระบบ?\n\nผลการทดสอบที่บันทึกไว้จะยังอยู่ในเครื่องนี้ ถ้าต้องการลบด้วย ให้เลือก "ลบข้อมูลของฉันทั้งหมด"',
+  },
+
   // live loudness guide during the voice test
   voiceLevel: {
     title: 'ความดังเสียง',
