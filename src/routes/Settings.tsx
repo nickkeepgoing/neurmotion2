@@ -149,6 +149,8 @@ export default function Settings() {
             }}
           />
           {/* Admin is an internal tool — not shown to patients */}
+          {/* Clinician view: a roadmap prototype on synthetic data, not a patient feature */}
+          <Row label={S.clinic.title} sub={S.clinic.demoBanner} onClick={() => navigate('/clinic')} />
           {import.meta.env.DEV && <Row label={S.admin.openAdmin} onClick={() => navigate('/admin')} />}
         </Group>
 

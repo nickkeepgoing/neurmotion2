@@ -6,6 +6,7 @@ import Home from './routes/Home';
 import Login from './routes/Login';
 import Register from './routes/Register';
 import Result from './routes/Result';
+import Clinic from './routes/Clinic';
 import Settings from './routes/Settings';
 import Splash from './routes/Splash';
 import FacialTest from './routes/tests/FacialTest';
@@ -30,6 +31,9 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/consent" element={<Consent />} />
+          {/* Staff screen on synthetic data only — it holds nothing a patient
+              consented to, so it must not sit behind the patient consent gate. */}
+          <Route path="/clinic" element={<Clinic />} />
           <Route element={<RequireConsent />}>
             <Route path="/home" element={<Home />} />
             <Route path="/test/spiral" element={<SpiralTest />} />
