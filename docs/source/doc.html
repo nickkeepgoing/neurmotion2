@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>NeuroMotion AI — คู่มือการใช้งานพร้อมภาพประกอบ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#BC5411; --primary-light:#E8762C; --primary-soft:#FDEFE2;
+    --secondary:#1B6CA8; --secondary-soft:#E3EEF6;
+    --ink:#233A4D; --muted:#64727E; --line:#E8EAED; --soft:#F7F9FB; --bg:#FFF9F2;
+    --low:#256B43; --low-bg:#E9F5EC;
+    --med:#9C7A10; --med-bg:#FBF3D9;
+    --high:#B23A3A; --high-bg:#FBEAEA;
+  }
+  @page{size:A4; margin:15mm 14mm 14mm}
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  body{margin:0;font-family:'Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif;color:var(--ink);font-size:10pt;line-height:1.68}
+  .num{font-family:'Nunito',sans-serif;font-variant-numeric:tabular-nums}
+
+  h1{font-size:18pt;font-weight:800;margin:0 0 4px;line-height:1.3;break-after:avoid}
+  .h1sub{color:var(--muted);font-size:10.5pt;margin:0 0 14px;padding-bottom:10px;border-bottom:3px solid var(--primary)}
+  h2{font-size:13pt;font-weight:800;color:var(--primary);margin:20px 0 8px;break-after:avoid}
+  h3{font-size:11pt;font-weight:800;color:var(--secondary);margin:14px 0 6px;break-after:avoid}
+  p{margin:0 0 8px}
+  ul,ol{margin:0 0 9px;padding-left:19px}
+  li{margin-bottom:4px}
+  .lead{font-size:10.5pt;color:#3B5063;margin-bottom:12px}
+
+  .page{page-break-after:always;break-after:page}
+  .avoid{break-inside:avoid;page-break-inside:avoid}
+
+  /* ---------- cover ---------- */
+  .cover{height:255mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .logo{width:70px;height:70px;border-radius:19px;margin-bottom:18px;background:linear-gradient(135deg,#E8762C,#BC5411);
+    color:#fff;display:flex;align-items:center;justify-content:center;font:900 34px 'Nunito',sans-serif;
+    box-shadow:0 8px 24px rgba(188,84,17,.3)}
+  .cover h1{font-size:36pt;color:var(--primary);margin:0 0 4px;letter-spacing:-.5px}
+  .cover .tag{font-size:13pt;margin-bottom:16px}
+  .cover .ver{display:inline-block;background:var(--secondary-soft);color:var(--secondary);font-size:10.5pt;
+    font-weight:800;padding:7px 20px;border-radius:99px;margin-bottom:22px}
+  .coverstrip{display:flex;gap:11px;justify-content:center;align-items:flex-end}
+  .coverstrip img{width:118px;border-radius:11px;border:1px solid var(--line);box-shadow:0 8px 22px rgba(35,58,77,.15)}
+  .coverstrip img.mid{width:140px;box-shadow:0 12px 30px rgba(35,58,77,.22)}
+  .cover .meta{margin-top:24px;font-size:9pt;color:var(--muted);line-height:1.85}
+
+  /* ---------- toc ---------- */
+  .toc{list-style:none;padding:0;margin:0}
+  .toc li{padding:8px 2px;border-bottom:1px solid var(--line);display:flex;font-size:10.5pt;font-weight:600}
+  .toc li span:last-child{margin-left:auto;color:var(--muted);font-weight:700}
+
+  /* ---------- callouts ---------- */
+  .note{border-left:5px solid;border-radius:8px;padding:10px 14px;margin:11px 0;break-inside:avoid}
+  .note .t{font-weight:800;margin-bottom:2px;font-size:10pt}
+  .note p{margin:0;font-size:9.5pt;line-height:1.65}
+  .note.warn{border-color:#E0B93A;background:var(--med-bg)} .note.warn .t{color:var(--med)}
+  .note.info{border-color:var(--secondary);background:var(--secondary-soft)} .note.info .t{color:var(--secondary)}
+  .note.crit{border-color:#D64545;background:var(--high-bg)} .note.crit .t{color:var(--high)}
+
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;margin:9px 0 12px;font-size:9.3pt;break-inside:avoid}
+  th{background:var(--ink);color:#fff;text-align:left;padding:7px 10px;font-weight:700;font-size:9pt}
+  td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.55}
+  tr:nth-child(even) td{background:var(--soft)}
+  .t-low{color:var(--low);font-weight:800}
+  .t-med{color:var(--med);font-weight:800}
+  .t-high{color:var(--high);font-weight:800}
+
+  /* ---------- FILMSTRIP: the core visual device ---------- */
+  .strip{display:flex;gap:9px;margin:12px 0 6px;break-inside:avoid;align-items:flex-start}
+  .strip .fr{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
+  .strip img{width:100%;height:auto;aspect-ratio:780/1688;object-fit:cover;object-position:top;border-radius:9px;border:1px solid var(--line);box-shadow:0 3px 12px rgba(35,58,77,.13);display:block}
+  .badge{display:flex;align-items:center;gap:6px;margin-top:7px;width:100%}
+  .badge .n{flex:none;width:19px;height:19px;border-radius:99px;background:var(--primary);color:#fff;
+    font:800 10px/19px 'Nunito',sans-serif;text-align:center}
+  .badge .lb{font-size:8.4pt;font-weight:700;line-height:1.35;color:var(--ink)}
+  .cap{font-size:8.2pt;color:var(--muted);line-height:1.45;margin-top:3px;width:100%;padding-left:25px}
+
+  /* single figure */
+  figure{margin:11px 0 13px;text-align:center;break-inside:avoid}
+  figure img{height:auto;border-radius:11px;border:1px solid var(--line);box-shadow:0 5px 16px rgba(35,58,77,.12)}
+  figcaption{font-size:8.6pt;color:var(--muted);margin-top:6px;font-style:italic}
+  .w-phone{width:172px} .w-tall{width:150px} .w-full{width:100%}
+
+  /* two-up with text beside */
+  .split{display:flex;gap:16px;align-items:flex-start;margin:12px 0;break-inside:avoid}
+  /* align-items:flex-start — the default (stretch) pulled a short screenshot
+     up to the height of a tall neighbour and visibly distorted it */
+  .split .imgs{flex:none;display:flex;gap:9px;align-items:flex-start}
+  .split .imgs img{width:132px;height:auto;aspect-ratio:780/1688;object-fit:cover;object-position:top;border-radius:9px;border:1px solid var(--line);box-shadow:0 3px 12px rgba(35,58,77,.13)}
+  .split .txt{flex:1;min-width:0}
+  .split .txt h3{margin-top:0}
+
+  .pill{display:inline-block;background:var(--secondary-soft);color:var(--secondary);font-size:8.4pt;font-weight:800;padding:1px 8px;border-radius:99px}
+  .kv{display:flex;gap:7px;margin-bottom:5px;font-size:9.6pt}
+  .kv b{flex:none;min-width:48px;color:var(--primary)}
+  .disclaimer{border:2px solid #E9C6C6;background:var(--high-bg);border-radius:10px;padding:13px 16px;margin-top:16px}
+  .disclaimer .t{color:var(--high);font-weight:800;margin-bottom:3px}
+  .disclaimer p{margin:0;font-size:9.5pt;line-height:1.65}
+  .testhdr{display:flex;align-items:center;gap:11px;margin:0 0 10px}
+  .testhdr .idx{flex:none;width:34px;height:34px;border-radius:10px;background:var(--primary-soft);color:var(--primary);
+    font:900 16px/34px 'Nunito',sans-serif;text-align:center}
+  .testhdr h2{margin:0}
+  .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .meta-row span{background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:3px 10px;font-size:8.8pt;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<section class="cover page">
+  <div class="logo">N</div>
+  <h1>NeuroMotion AI</h1>
+  <div class="tag">ระบบคัดกรองความเสี่ยงโรคทางระบบประสาทเบื้องต้น</div>
+  <div class="ver">คู่มือการใช้งานพร้อมภาพประกอบ · เวอร์ชัน 2</div>
+  <div class="coverstrip">
+    <img src="shots/08-result.png" alt="">
+    <img class="mid" src="shots/05-home.png" alt="">
+    <img src="shots/25-spiral-5-tracing-live.png" alt="">
+  </div>
+  <div class="meta">
+    Progressive Web App · React 18 + TypeScript · ประมวลผลบนเครื่องผู้ใช้ทั้งหมด<br>
+    สอดคล้องกับ พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)
+  </div>
+</section>
+
+<!-- ================= TOC ================= -->
+<section class="page">
+  <h1>สารบัญ</h1>
+  <div class="h1sub">เอกสารนี้แสดงภาพหน้าจอจริงทุกขั้นตอนของการใช้งาน</div>
+  <ul class="toc">
+    <li><span>1. ภาพรวมของระบบ</span><span>3</span></li>
+    <li><span>2. เริ่มต้นใช้งาน — ตั้งแต่เปิดแอปครั้งแรก</span><span>4</span></li>
+    <li><span>3. หน้าจอหลักทั้งหมด</span><span>5</span></li>
+    <li><span>4. แบบทดสอบที่ 1 — วาดก้นหอย</span><span>6</span></li>
+    <li><span>5. แบบทดสอบที่ 2 — เคาะนิ้ว</span><span>7</span></li>
+    <li><span>6. แบบทดสอบที่ 3 — ความนิ่งของมือ</span><span>8</span></li>
+    <li><span>7. แบบทดสอบที่ 4 — หันศีรษะ</span><span>9</span></li>
+    <li><span>8. แบบทดสอบที่ 5 — เสียงพูด</span><span>10</span></li>
+    <li><span>9. หลักการคำนวณคะแนนความเสี่ยง</span><span>11</span></li>
+    <li><span>10. ความเป็นส่วนตัวและ PDPA</span><span>13</span></li>
+    <li><span>11. การออกแบบเพื่อผู้สูงอายุ</span><span>14</span></li>
+    <li><span>12. Dashboard สำหรับผู้ดูแลระบบ (แนวคิด)</span><span>15</span></li>
+    <li><span>13. ข้อจำกัดของระบบ</span><span>17</span></li>
+  </ul>
+
+  <div class="note info" style="margin-top:20px">
+    <div class="t">เกี่ยวกับภาพประกอบในเอกสารนี้</div>
+    <p>ภาพหน้าจอทั้งหมดเป็นภาพจากแอปพลิเคชันจริงที่ทำงานอยู่ ไม่ใช่ภาพจำลอง ถ่ายที่ขนาดหน้าจอโทรศัพท์จริง (390 พิกเซล) ยกเว้นส่วนที่แสดงภาพจากกล้อง ซึ่งถูกปิดทับด้วยกรอบสีเทาเพื่อความเป็นส่วนตัว เนื่องจากเป็นภาพใบหน้าของผู้ใช้งาน</p>
+  </div>
+</section>
+
+<!-- ================= 1. OVERVIEW ================= -->
+<section class="page">
+  <h1>1. ภาพรวมของระบบ</h1>
+  <div class="h1sub">แอปทำอะไร และทำงานอย่างไร</div>
+
+  <p class="lead">NeuroMotion AI คือเว็บแอปพลิเคชัน (PWA) สำหรับคัดกรองความเสี่ยงเบื้องต้นของโรคทางระบบประสาท โดยเน้นกลุ่มอาการที่เกี่ยวกับการสั่นและการเคลื่อนไหว ผู้ใช้ทำแบบทดสอบสั้น ๆ 5 รายการผ่านโทรศัพท์มือถือ ระบบคำนวณค่าชี้วัดจากการเคลื่อนไหวจริง แล้วสรุปเป็นระดับความเสี่ยงพร้อมกราฟแนวโน้มย้อนหลัง</p>
+
+  <div class="note crit">
+    <div class="t">ข้อความสำคัญที่ต้องระบุเสมอ</div>
+    <p>ผลลัพธ์ทั้งหมดเป็น “การคัดกรองเบื้องต้น” ไม่ใช่ “การวินิจฉัยโรค” ระบบนี้ไม่ทดแทนการตรวจโดยแพทย์ และค่าเกณฑ์ทั้งหมดยังไม่ผ่านการตรวจสอบความแม่นยำทางคลินิก (clinical validation)</p>
+  </div>
+
+  <h2>1.1 ภาพรวมการใช้งานทั้งหมดใน 5 ภาพ</h2>
+  <div class="strip">
+    <div class="fr"><img src="shots/01-login.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">เข้าสู่ระบบ</span></div>
+      <div class="cap">เลือกประเภทผู้ใช้ + วันเกิด</div></div>
+    <div class="fr"><img src="shots/04a-consent-top.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ให้ความยินยอม</span></div>
+      <div class="cap">PDPA — ติ๊ก 2 ช่องแยกกัน</div></div>
+    <div class="fr"><img src="shots/05-home.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">หน้าหลัก</span></div>
+      <div class="cap">ภารกิจวันนี้ + รายการทดสอบ</div></div>
+    <div class="fr"><img src="shots/25-spiral-5-tracing-live.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ทำแบบทดสอบ</span></div>
+      <div class="cap">ทำครบ 5 รายการต่อเนื่อง</div></div>
+    <div class="fr"><img src="shots/08-result.png" alt="">
+      <div class="badge"><span class="n">5</span><span class="lb">ดูผล</span></div>
+      <div class="cap">คะแนน ระดับเสี่ยง แนวโน้ม</div></div>
+  </div>
+
+  <h2>1.2 เทคโนโลยีที่ใช้</h2>
+  <table>
+    <tr><th style="width:24%">ส่วนประกอบ</th><th style="width:32%">เทคโนโลยี</th><th>หน้าที่</th></tr>
+    <tr><td>ส่วนติดต่อผู้ใช้</td><td>React 18 + TypeScript + Vite</td><td>โครงสร้างแอปและการแสดงผล</td></tr>
+    <tr><td>การออกแบบ</td><td>Tailwind CSS v4 (design tokens)</td><td>สี ตัวอักษร ระยะห่าง เป็นระบบเดียวกัน</td></tr>
+    <tr><td>กราฟ</td><td>Recharts</td><td>กราฟแนวโน้มคะแนนความเสี่ยง</td></tr>
+    <tr><td>วาดก้นหอย / เคาะนิ้ว</td><td>HTML5 Canvas + Pointer Events</td><td>รับการสัมผัสและวาดเส้นแบบเรียลไทม์</td></tr>
+    <tr><td>ตรวจใบหน้า</td><td>@mediapipe/tasks-vision</td><td>ตรวจจับจุดสังเกตบนใบหน้าในเครื่อง</td></tr>
+    <tr><td>ตรวจเสียง</td><td>Web Audio API</td><td>บันทึกและวิเคราะห์คลื่นเสียง</td></tr>
+    <tr><td>ตรวจการสั่น</td><td>DeviceMotion API</td><td>อ่านค่าความเร่งจากเซ็นเซอร์</td></tr>
+    <tr><td>วิเคราะห์ความถี่</td><td>FFT (เขียนเอง, radix-2)</td><td>หาพลังงานย่านความถี่ 4–7 Hz</td></tr>
+    <tr><td>จัดเก็บข้อมูล</td><td>localStorage / IndexedDB</td><td>เก็บผลไว้ในเครื่องผู้ใช้เท่านั้น</td></tr>
+  </table>
+
+  <div class="note info">
+    <div class="t">จุดสำคัญด้านสถาปัตยกรรม</div>
+    <p>ทุกการประมวลผล รวมถึงภาพจากกล้องและเสียงจากไมโครโฟน เกิดขึ้นบนเครื่องของผู้ใช้ทั้งหมด ระบบไม่ส่งภาพหรือเสียงดิบออกไปยังเซิร์ฟเวอร์ใด ๆ ทำให้ไม่ต้องมีระบบหลังบ้านสำหรับการใช้งานพื้นฐาน และลดความเสี่ยงด้านข้อมูลส่วนบุคคลอย่างมาก</p>
+  </div>
+</section>
+
+<!-- ================= 2. ONBOARDING ================= -->
+<section class="page">
+  <h1>2. เริ่มต้นใช้งาน</h1>
+  <div class="h1sub">ตั้งแต่เปิดแอปครั้งแรกจนถึงหน้าหลัก — ทำครั้งเดียว</div>
+
+  <div class="strip">
+    <div class="fr"><img src="shots/00-splash.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">หน้าเปิดแอป</span></div>
+      <div class="cap">เปิดจากลิงก์ ไม่ต้องติดตั้งจาก App Store</div></div>
+    <div class="fr"><img src="shots/01-login.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">เข้าสู่ระบบ</span></div>
+      <div class="cap">เลือก “คนทั่วไป” หรือ “ผู้ป่วย” แล้วเลื่อนเลือกวันเกิด</div></div>
+    <div class="fr"><img src="shots/02-login-textsize.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">ปรับขนาดตัวอักษร</span></div>
+      <div class="cap">เลือกได้ 3 ระดับ ขยายทั้งแอปพร้อมกัน</div></div>
+    <div class="fr"><img src="shots/04a-consent-top.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ความยินยอม PDPA</span></div>
+      <div class="cap">ช่องติ๊ก 2 ช่อง ไม่ติ๊กไว้ล่วงหน้า</div></div>
+  </div>
+
+  <h2>2.1 ข้อมูลที่ระบบขอ</h2>
+  <p>ระบบขอข้อมูลเท่าที่จำเป็นต่อการให้คะแนนเท่านั้น</p>
+  <table>
+    <tr><th style="width:26%">ข้อมูล</th><th style="width:18%">บังคับ?</th><th>ใช้ทำอะไร</th></tr>
+    <tr><td>ประเภทผู้ใช้</td><td>บังคับ</td><td>ปรับข้อความและเส้นทางการใช้งาน</td></tr>
+    <tr><td>วันเกิด (เพื่อคำนวณอายุ)</td><td>บังคับ</td><td>ปรับเกณฑ์การให้คะแนนตามช่วงวัย (ดูหัวข้อ 9.2)</td></tr>
+    <tr><td>ชื่อ</td><td>ไม่บังคับ</td><td>ใช้ทักทายบนหน้าหลักเท่านั้น</td></tr>
+    <tr><td>เลขบัตรประชาชน</td><td>ไม่บังคับ</td><td>เฉพาะผู้ป่วย สำหรับเชื่อมข้อมูลกับแพทย์ในอนาคต</td></tr>
+    <tr><td>รูปโปรไฟล์</td><td>ไม่บังคับ</td><td>แสดงบนหน้าหลัก เก็บในเครื่องเท่านั้น</td></tr>
+  </table>
+
+  <h2>2.2 การสมัครบัญชี (ไม่บังคับ)</h2>
+  <div class="split">
+    <div class="imgs"><img src="shots/03a-register-top.png" alt=""></div>
+    <div class="txt">
+      <p>ผู้ใช้สามารถใช้งานได้ทันทีโดยไม่ต้องสมัครบัญชี การสมัครเป็นทางเลือกสำหรับผู้ที่ต้องการให้ระบบจำชื่อและข้อมูลติดต่อไว้</p>
+      <p><b>ข้อมูลทั้งหมดจากการสมัครถูกเก็บไว้ในเครื่องของผู้ใช้เท่านั้น</b> ไม่มีการส่งไปยังเซิร์ฟเวอร์ และไม่มีการสร้างบัญชีบนระบบกลางใด ๆ</p>
+      <div class="note info" style="margin-top:8px">
+        <div class="t">ทำไมไม่บังคับสมัคร</div>
+        <p>การบังคับสมัครบัญชีเป็นอุปสรรคสำคัญสำหรับผู้สูงอายุ และขัดกับหลัก “เก็บข้อมูลเท่าที่จำเป็น” ตาม PDPA</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. MAIN SCREENS ================= -->
+<section class="page">
+  <h1>3. หน้าจอหลักทั้งหมด</h1>
+  <div class="h1sub">แอปแบ่งเป็น 3 แท็บที่แถบด้านล่าง สลับได้ตลอดเวลา</div>
+
+  <div class="strip">
+    <div class="fr"><img src="shots/05-home.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">แท็บ “หน้าหลัก”</span></div>
+      <div class="cap">ภารกิจวันนี้ · ผลล่าสุด · รายการแบบทดสอบ</div></div>
+    <div class="fr"><img src="shots/08-result.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">แท็บ “ผลของฉัน”</span></div>
+      <div class="cap">คะแนนรวม · ระดับเสี่ยง · กราฟแนวโน้ม</div></div>
+    <div class="fr"><img src="shots/11a-settings-top.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">แท็บ “ตั้งค่า”</span></div>
+      <div class="cap">บัญชี · การอ่าน · การลบข้อมูล</div></div>
+    <div class="fr"><img src="shots/07-calendar.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ปฏิทินการทดสอบ</span></div>
+      <div class="cap">วันที่ทำแล้วขึ้นสีเขียว</div></div>
+  </div>
+
+  <h2>3.1 หน้าหลัก — เลื่อนดูได้ทั้งหมด 3 ส่วน</h2>
+  <div class="strip">
+    <div class="fr"><img src="shots/05a-home-top.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ส่วนบน</span></div>
+      <div class="cap">คำทักทาย · ภารกิจวันนี้ · ผลล่าสุดพร้อมการเปลี่ยนแปลง</div></div>
+    <div class="fr"><img src="shots/05b-home-tests.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">รายการแบบทดสอบ</span></div>
+      <div class="cap">ทั้ง 5 รายการพร้อมสถานะ แตะเพื่อทำซ้ำได้</div></div>
+    <div class="fr"><img src="shots/05c-home-week.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">สัปดาห์นี้</span></div>
+      <div class="cap">แถบ 7 วันย้อนหลัง และปุ่มเปิดปฏิทินเต็มเดือน</div></div>
+    <div class="fr"><img src="shots/07-calendar.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ปฏิทินเต็มเดือน</span></div>
+      <div class="cap">วันที่ทำแบบทดสอบแล้วขึ้นสีเขียว</div></div>
+  </div>
+
+  <h2>3.2 หน้าผลลัพธ์ — เลื่อนดูได้ทั้งหมด 5 ส่วน</h2>
+  <div class="strip">
+    <div class="fr"><img src="shots/08a-result-top.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">คะแนนรวม</span></div>
+      <div class="cap">เกจแสดงระดับความเสี่ยงพร้อมคำอธิบาย</div></div>
+    <div class="fr"><img src="shots/08b-result-conditions.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">แยกตามกลุ่มอาการ</span></div>
+      <div class="cap">ทั้ง 3 กลุ่ม แต่ละกลุ่มมีระดับเสี่ยงของตัวเอง</div></div>
+    <div class="fr"><img src="shots/08c-result-tests.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">ผลรายแบบทดสอบ</span></div>
+      <div class="cap">แตะแต่ละรายการเพื่อดูค่าที่วัดได้</div></div>
+    <div class="fr"><img src="shots/08d-result-trend.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">กราฟแนวโน้ม</span></div>
+      <div class="cap">คะแนนย้อนหลังพร้อมแถบสีบอกระดับ</div></div>
+    <div class="fr"><img src="shots/08e-result-care.png" alt="">
+      <div class="badge"><span class="n">5</span><span class="lb">คำแนะนำ</span></div>
+      <div class="cap">ปุ่มปรึกษาแพทย์ และข้อความกำกับ</div></div>
+  </div>
+
+  <div class="split">
+    <div class="imgs"><img src="shots/10-result-consult.png" alt=""></div>
+    <div class="txt">
+      <h3 style="margin-top:0">ช่องทางปรึกษาแพทย์</h3>
+      <p>เมื่อผลอยู่ในระดับที่ควรใส่ใจ ระบบเสนอช่องทางปรึกษาแพทย์ — สายด่วน สปสช. 1330 ซึ่งให้คำปรึกษาสุขภาพตลอด 24 ชั่วโมง และการค้นหาโรงพยาบาลใกล้บ้าน</p>
+      <div class="note warn" style="margin-top:8px">
+        <div class="t">ทุกหน้ามีข้อความกำกับ</div>
+        <p>ทุกหน้าที่แสดงผลจะมีข้อความระบุว่าเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัยโรค</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. SPIRAL ================= -->
+<section class="page">
+  <div class="testhdr"><div class="idx">1</div><h2 style="font-size:16pt">แบบทดสอบที่ 1 — วาดก้นหอย</h2></div>
+  <div class="h1sub" style="margin-top:-4px">Spiral Tracing · ประมาณ 60 วินาที · น้ำหนัก 30% ของคะแนนรวม</div>
+
+  <div class="meta-row">
+    <span>วัด: การสั่นขณะเคลื่อนไหว</span><span>วัด: การควบคุมกล้ามเนื้อมัดเล็ก</span><span>ไม่ต้องใช้กล้อง/ไมค์</span>
+  </div>
+
+  <h3>ขั้นตอนทั้งหมดที่ผู้ใช้เห็น</h3>
+  <div class="strip">
+    <div class="fr"><img src="shots/20-spiral-1-watch.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ดูวิธีทำ</span></div>
+      <div class="cap">ภาพสาธิตแสดงการลากจากกลางออกนอก</div></div>
+    <div class="fr"><img src="shots/22-spiral-2-practice-drawn.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ทดลองใช้</span></div>
+      <div class="cap">ลองลากดูก่อน ยังไม่เก็บคะแนน</div></div>
+    <div class="fr"><img src="shots/23-spiral-3-countdown.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">นับถอยหลัง</span></div>
+      <div class="cap">3–2–1 พร้อมภาพตัวอย่าง</div></div>
+    <div class="fr"><img src="shots/24-spiral-4-tracing-empty.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">เริ่มทดสอบ</span></div>
+      <div class="cap">แสดงเส้นแม่แบบให้ลากตาม</div></div>
+  </div>
+  <div class="strip">
+    <div class="fr" style="max-width:23.5%"><img src="shots/25-spiral-5-tracing-live.png" alt="">
+      <div class="badge"><span class="n">5</span><span class="lb">กำลังลาก</span></div>
+      <div class="cap">เส้นสีส้มคือเส้นที่ผู้ใช้ลาก พร้อมแถบความคืบหน้า</div></div>
+    <div class="fr" style="max-width:23.5%"><img src="shots/26-spiral-6-done.png" alt="">
+      <div class="badge"><span class="n">6</span><span class="lb">เสร็จสิ้น</span></div>
+      <div class="cap">บันทึกผลแล้ว พาไปแบบทดสอบถัดไปอัตโนมัติ</div></div>
+    <div class="fr" style="flex:2;align-self:stretch">
+      <div style="width:100%">
+        <h3 style="margin-top:0">หลักการทำงาน</h3>
+        <p style="font-size:9.4pt">ระบบสร้างเส้นก้นหอยตามสมการ Archimedean <b>r = b·θ</b> แล้วเทียบตำแหน่งนิ้วของผู้ใช้กับเส้นแม่แบบตลอดเส้นทาง โดยแปลงพิกัดเป็นระบบเชิงขั้วรอบจุดศูนย์กลาง</p>
+        <h3>ค่าที่วัด</h3>
+        <table style="margin-top:4px">
+          <tr><th>ค่าที่วัด</th><th style="width:20%">น้ำหนัก</th></tr>
+          <tr><td>ความคลาดเคลื่อนจากเส้น (RMS)</td><td class="num">35%</td></tr>
+          <tr><td>พลังงานการสั่นย่าน 4–7 Hz</td><td class="num">30%</td></tr>
+          <tr><td>ความลื่นไหลของความเร็ว</td><td class="num">20%</td></tr>
+          <tr><td>ความสม่ำเสมอของระยะห่างระหว่างวง</td><td class="num">15%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="note info">
+    <div class="t">ทำไมย่าน 4–7 Hz</div>
+    <p>เป็นย่านความถี่ของการสั่นแบบพาร์กินสันตามงานวิจัยที่อ้างอิง ระบบสร้างสัญญาณความคลาดเคลื่อนเทียบกับเวลา แล้วทำ FFT พร้อมหน้าต่าง Hann และการกำจัดแนวโน้มเชิงเส้น (detrend) เพื่อไม่ให้การลากช้า ๆ ถูกนับเป็นการสั่น</p>
+  </div>
+</section>
+
+<!-- ================= 5. TAPPING ================= -->
+<section class="page">
+  <div class="testhdr"><div class="idx">2</div><h2 style="font-size:16pt">แบบทดสอบที่ 2 — เคาะนิ้ว</h2></div>
+  <div class="h1sub" style="margin-top:-4px">Finger Tapping · ประมาณ 60 วินาที · น้ำหนัก 25% ของคะแนนรวม</div>
+
+  <div class="meta-row">
+    <span>วัด: ความเร็วและจังหวะ</span><span>วัด: การเคลื่อนไหวช้าลง (bradykinesia)</span><span>วัด: ความไม่สมมาตรสองมือ</span>
+  </div>
+
+  <h3>ขั้นตอนทั้งหมดที่ผู้ใช้เห็น</h3>
+  <div class="strip">
+    <div class="fr"><img src="shots/30-tapping-1-watch.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ดูวิธีทำ</span></div>
+      <div class="cap">ภาพสาธิตการแตะตามจังหวะ</div></div>
+    <div class="fr"><img src="shots/31-tapping-2-practice.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ทดลองใช้</span></div>
+      <div class="cap">ลองแตะตามเสียง ยังไม่เก็บคะแนน</div></div>
+    <div class="fr"><img src="shots/33-tapping-3-countdown.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">นับถอยหลัง</span></div>
+      <div class="cap">3–2–1 ก่อนเริ่มจริง</div></div>
+    <div class="fr"><img src="shots/34-tapping-4-running.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ช่วงที่ 1/3</span></div>
+      <div class="cap">แตะตามจังหวะ จุดสีส้มกะพริบพร้อมเสียง</div></div>
+  </div>
+  <div class="strip">
+    <div class="fr" style="max-width:23.5%"><img src="shots/35-tapping-5-midway.png" alt="">
+      <div class="badge"><span class="n">5</span><span class="lb">กำลังนับ</span></div>
+      <div class="cap">แสดงจำนวนครั้งและเวลาที่เหลือแบบเรียลไทม์</div></div>
+    <div class="fr" style="max-width:23.5%"><img src="shots/36-tapping-6-after.png" alt="">
+      <div class="badge"><span class="n">6</span><span class="lb">ช่วงถัดไป</span></div>
+      <div class="cap">เปลี่ยนเป็นแตะเร็วสุด มือถนัด แล้วมืออีกข้าง</div></div>
+    <div class="fr" style="flex:2;align-self:stretch">
+      <div style="width:100%">
+        <h3 style="margin-top:0">โครงสร้าง 3 ช่วง</h3>
+        <p style="font-size:9.4pt">อ้างอิงจากแบบประเมิน <b>MDS-UPDRS ข้อ 3.4</b> ซึ่งเป็นมาตรฐานที่แพทย์ใช้ประเมินโรคพาร์กินสัน</p>
+        <table style="margin-top:4px">
+          <tr><th style="width:22%">ช่วง</th><th>สิ่งที่ต้องทำ</th></tr>
+          <tr><td>1 / 3</td><td>แตะตามจังหวะเสียงให้สม่ำเสมอ</td></tr>
+          <tr><td>2 / 3</td><td>แตะให้เร็วที่สุด — มือข้างถนัด</td></tr>
+          <tr><td>3 / 3</td><td>แตะให้เร็วที่สุด — มืออีกข้าง</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>ค่าที่วัด</th><th style="width:16%">น้ำหนัก</th><th style="width:44%">ความหมายทางคลินิก</th></tr>
+    <tr><td>อัตราการเคาะ (ครั้ง/วินาที)</td><td class="num">25%</td><td>ความเร็วโดยรวมของการเคลื่อนไหว</td></tr>
+    <tr><td>ความแปรปรวนของจังหวะ</td><td class="num">20%</td><td>ความสม่ำเสมอในการควบคุมการเคลื่อนไหว</td></tr>
+    <tr><td>การเคาะช้าลงเรื่อย ๆ (decrement)</td><td class="num">20%</td><td>สัญญาณของ bradykinesia</td></tr>
+    <tr><td>ความไม่สมมาตรระหว่างสองมือ</td><td class="num">20%</td><td>พาร์กินสันระยะแรกมักเริ่มข้างเดียว</td></tr>
+    <tr><td>ความคลาดเคลื่อนจากจังหวะ</td><td class="num">15%</td><td>ความสามารถในการทำตามจังหวะภายนอก</td></tr>
+  </table>
+
+  <div class="note info">
+    <div class="t">ทำไมต้องแตะให้เร็วที่สุดทั้งสองมือ</div>
+    <p>โรคพาร์กินสันในระยะแรกมักเริ่มที่ร่างกายข้างเดียวก่อน การเปรียบเทียบมือสองข้างจึงเป็นสัญญาณสำคัญ หากวัดมือเดียวจะมองไม่เห็นความไม่สมมาตรนี้เลย</p>
+  </div>
+</section>
+
+<!-- ================= 6. TREMOR ================= -->
+<section class="page">
+  <div class="testhdr"><div class="idx">3</div><h2 style="font-size:16pt">แบบทดสอบที่ 3 — ความนิ่งของมือ</h2></div>
+  <div class="h1sub" style="margin-top:-4px">Rest &amp; Postural Tremor · ประมาณ 30 วินาที · น้ำหนัก 20% ของคะแนนรวม</div>
+
+  <div class="meta-row"><span>ใช้เซ็นเซอร์ตรวจการเคลื่อนไหว</span><span>วัด 2 ท่า</span><span>ท่าละ 8 วินาที</span></div>
+
+  <h3>ขั้นตอนทั้งหมดที่ผู้ใช้เห็น</h3>
+  <div class="strip">
+    <div class="fr"><img src="shots/40-tremor-1-watch.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ดูวิธีทำ</span></div>
+      <div class="cap">อธิบายทั้ง 2 ท่า</div></div>
+    <div class="fr"><img src="shots/41-tremor-2-practice.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ทดลองใช้</span></div>
+      <div class="cap">ลองถือให้นิ่ง ดูลูกกลมตอบสนอง</div></div>
+    <div class="fr"><img src="shots/42-tremor-3-countdown.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">นับถอยหลัง</span></div>
+      <div class="cap">3–2–1 ก่อนท่าที่ 1</div></div>
+    <div class="fr"><img src="shots/43-tremor-4-postural.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">ท่าที่ 1</span></div>
+      <div class="cap">ยกโทรศัพท์ขึ้นในอากาศ แขนไม่พิง</div></div>
+  </div>
+  <div class="strip">
+    <div class="fr"><img src="shots/44-tremor-5-switch.png" alt="">
+      <div class="badge"><span class="n">5</span><span class="lb">เปลี่ยนท่า</span></div>
+      <div class="cap">พักและอธิบายท่าถัดไป</div></div>
+    <div class="fr"><img src="shots/45-tremor-6-rest.png" alt="">
+      <div class="badge"><span class="n">6</span><span class="lb">ท่าที่ 2</span></div>
+      <div class="cap">วางแขนบนโต๊ะหรือตัก ให้ผ่อนคลาย</div></div>
+    <div class="fr"><img src="shots/46-tremor-7-done.png" alt="">
+      <div class="badge"><span class="n">7</span><span class="lb">เสร็จสิ้น</span></div>
+      <div class="cap">บันทึกผลทั้ง 2 ท่า</div></div>
+    <div class="fr" style="flex:1.4">
+      <div style="width:100%">
+        <h3 style="margin-top:0">ทำไมต้องวัด 2 ท่า</h3>
+        <p style="font-size:9.2pt">การแยกสองท่าคือ<b>หัวใจของการแยกโรค</b>:</p>
+        <ul style="font-size:9.2pt;padding-left:16px">
+          <li><b>สั่นขณะพัก</b> (วางแขน) → บ่งชี้กลุ่มอาการพาร์กินสัน</li>
+          <li><b>สั่นขณะยกค้าง</b> → บ่งชี้ Essential Tremor</li>
+        </ul>
+        <p style="font-size:9.2pt">ลูกกลมสีเขียวกลางวงคือระดับความนิ่งแบบเรียลไทม์ ช่วยให้ผู้ใช้รู้ว่าถือนิ่งพอหรือยัง</p>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>ค่าที่วัด</th><th style="width:16%">น้ำหนัก</th><th style="width:42%">หมายเหตุ</th></tr>
+    <tr><td>พลังงานการสั่น 4–7 Hz ขณะพัก</td><td class="num">40%</td><td>ค่าที่มีน้ำหนักสูงสุดของแบบทดสอบนี้</td></tr>
+    <tr><td>พลังงานการสั่น 4–7 Hz ขณะยกค้าง</td><td class="num">25%</td><td>ใช้แยก Essential Tremor</td></tr>
+    <tr><td>ความแรงการสั่นขณะพัก</td><td class="num">20%</td><td>วัดขนาดของการสั่นโดยรวม</td></tr>
+    <tr><td>ความแรงการสั่นขณะยกค้าง</td><td class="num">15%</td><td>—</td></tr>
+  </table>
+
+  <div class="note warn">
+    <div class="t">อุปกรณ์ที่ไม่มีเซ็นเซอร์</div>
+    <p>หากอุปกรณ์หรือเบราว์เซอร์ไม่รองรับเซ็นเซอร์ตรวจการเคลื่อนไหว ระบบจะแจ้งและให้ข้ามแบบทดสอบนี้ได้ โดยคะแนนรวมจะคำนวณจากแบบทดสอบที่ทำจริงเท่านั้น · บน iOS ต้องกดอนุญาตให้เข้าถึงเซ็นเซอร์ก่อน</p>
+  </div>
+</section>
+
+<!-- ================= 7. FACIAL ================= -->
+<section class="page">
+  <div class="testhdr"><div class="idx">4</div><h2 style="font-size:16pt">แบบทดสอบที่ 4 — หันศีรษะ</h2></div>
+  <div class="h1sub" style="margin-top:-4px">Head Turn · ประมาณ 30 วินาที · น้ำหนัก 15% ของคะแนนรวม</div>
+
+  <div class="meta-row"><span>ใช้กล้องหน้า</span><span>ประมวลผลในเครื่อง</span><span>ไม่บันทึกภาพ</span></div>
+
+  <h3>ขั้นตอนทั้งหมดที่ผู้ใช้เห็น</h3>
+  <div class="strip">
+    <div class="fr"><img src="shots/50-facial-1-watch.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ดูวิธีทำ</span></div>
+      <div class="cap">สาธิตการหันซ้าย–ขวา</div></div>
+    <div class="fr"><img src="shots/51-facial-2-practice.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ทดลองใช้</span></div>
+      <div class="cap">ลองหันดูก่อน ตรวจว่ากล้องเห็นใบหน้า</div></div>
+    <div class="fr"><img src="shots/52-facial-3-loading.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">เตรียมระบบ</span></div>
+      <div class="cap">โหลดระบบวิเคราะห์ใบหน้า</div></div>
+    <div class="fr"><img src="shots/53-facial-4-scanning.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">กำลังทดสอบ</span></div>
+      <div class="cap">หันซ้ายจนสุด → ขวาจนสุด → กลับมาตรง</div></div>
+  </div>
+
+  <div class="note info">
+    <div class="t">ภาพจากกล้องในเอกสารนี้ถูกปิดทับ</div>
+    <p>กรอบสีเทาในภาพที่ 2–4 คือตำแหน่งที่แสดงภาพจากกล้องของผู้ใช้ ถูกปิดทับในเอกสารนี้เพื่อความเป็นส่วนตัว ส่วนอื่นของหน้าจอ เช่น ป้ายบอกทิศทางการหัน และข้อความแจ้งเรื่องความเป็นส่วนตัว แสดงตามจริงทุกประการ</p>
+  </div>
+
+  <h3>หลักการทำงานและค่าที่วัด</h3>
+  <div class="split">
+    <div class="imgs"><img src="shots/53-facial-4-scanning.png" alt=""></div>
+    <div class="txt">
+      <p>ใช้ <b>MediaPipe Face Landmarker</b> ตรวจจับจุดสังเกตบนใบหน้าเพื่อคำนวณมุมการหัน (yaw) แบบเรียลไทม์ ป้ายทั้งสองด้านจะติ๊กเมื่อหันไปถึงมุมที่กำหนดและค้างไว้ครบเวลา</p>
+      <table style="margin-top:6px">
+        <tr><th>ค่าที่วัด</th><th style="width:22%">น้ำหนัก</th></tr>
+        <tr><td>ช่วงการหันศีรษะรวม (องศา)</td><td class="num">45%</td></tr>
+        <tr><td>ความสมมาตรซ้าย–ขวา</td><td class="num">35%</td></tr>
+        <tr><td>ความลื่นไหลของการหัน</td><td class="num">20%</td></tr>
+      </table>
+      <div class="note warn" style="margin-top:8px">
+        <div class="t">ต้องหันครบทั้งสามจังหวะ</div>
+        <p>ระบบจะยังไม่จบการทดสอบจนกว่าจะหันซ้ายสุด ขวาสุด และกลับมาหันตรง เพื่อไม่ให้ตัดจบก่อนที่ผู้ใช้จะทำครบ</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="note crit">
+    <div class="t">ความเป็นส่วนตัวของภาพใบหน้า</div>
+    <p>ภาพจากกล้องถูกวิเคราะห์บนเครื่องของผู้ใช้ทั้งหมดด้วยไลบรารีที่ทำงานในเบราว์เซอร์ <b>ไม่มีการอัปโหลดภาพหรือวิดีโอออกจากเครื่อง และไม่มีการบันทึกภาพไว้</b> ระบบเก็บเฉพาะตัวเลขผลคำนวณ เช่น มุมการหันสูงสุด เท่านั้น</p>
+  </div>
+</section>
+
+<!-- ================= 8. VOICE ================= -->
+<section class="page">
+  <div class="testhdr"><div class="idx">5</div><h2 style="font-size:16pt">แบบทดสอบที่ 5 — เสียงพูด</h2></div>
+  <div class="h1sub" style="margin-top:-4px">Sustained Vowel · ประมาณ 15 วินาที · น้ำหนัก 10% ของคะแนนรวม</div>
+
+  <div class="meta-row"><span>ใช้ไมโครโฟน</span><span>บันทึก 5 วินาที</span><span>ลบไฟล์เสียงทิ้งทันที</span></div>
+
+  <h3>ขั้นตอนทั้งหมดที่ผู้ใช้เห็น</h3>
+  <div class="strip">
+    <div class="fr"><img src="shots/60-voice-1-watch.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ดูวิธีทำ</span></div>
+      <div class="cap">สาธิตการออกเสียง “อาาา”</div></div>
+    <div class="fr"><img src="shots/61-voice-2-practice.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ทดลองใช้</span></div>
+      <div class="cap">ลองออกเสียง ดูแถบความดังตอบสนอง</div></div>
+    <div class="fr"><img src="shots/62-voice-3-countdown.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">นับถอยหลัง</span></div>
+      <div class="cap">3–2–1 ก่อนเริ่มบันทึก</div></div>
+    <div class="fr"><img src="shots/63-voice-4-recording.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">กำลังบันทึก</span></div>
+      <div class="cap">แถบความดัง + คลื่นความถี่ + เวลาถอยหลัง</div></div>
+  </div>
+
+  <h3>แถบวัดความดังพร้อมขีดเป้าหมาย</h3>
+  <div class="split">
+    <div class="imgs"><img src="shots/63-voice-4-recording.png" alt=""></div>
+    <div class="txt">
+      <p>แถบวัดความดังมี <b>ขีดเป้าหมายสีเขียว</b> บอกว่าต้องออกเสียงดังถึงระดับใด พร้อมข้อความบอกสถานะ 3 แบบ คือ “เบาไป” / “ดังพอดี” / “ดังเกินไป”</p>
+      <p>สิ่งนี้จำเป็นเพราะถ้าเสียงเบาเกินไป ระบบจะตรวจไม่พบเสียงจริงและต้องให้ทำใหม่ทั้งหมด — ซึ่งผู้ใช้จะรู้ก็ต่อเมื่อครบ 5 วินาทีไปแล้ว การมีแถบนี้ทั้งในขั้นทดลองและขั้นทดสอบจริงทำให้ผู้ใช้ปรับระดับเสียงได้ตั้งแต่ก่อนเริ่ม</p>
+      <table style="margin-top:6px">
+        <tr><th>ค่าที่วัด</th><th style="width:20%">น้ำหนัก</th></tr>
+        <tr><td>Jitter — ความสั่นของระดับเสียง</td><td class="num">40%</td></tr>
+        <tr><td>Shimmer — ความสั่นของความดัง</td><td class="num">35%</td></tr>
+        <tr><td>ความคงที่ของเสียง (F0 CV)</td><td class="num">25%</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <div class="t">ข้อจำกัดที่ต้องระบุ</div>
+    <p>แถบวัดความดังใช้เพื่อช่วยให้ผู้ใช้ออกเสียงดังพอสำหรับการวิเคราะห์เท่านั้น <b>ไม่ได้นำมาคิดคะแนน</b> เพราะเบราว์เซอร์ไม่สามารถวัดระดับความดังจริง (SPL) ได้ และไมโครโฟนแต่ละเครื่องมีอัตราขยายต่างกัน การวัดภาวะเสียงเบา (hypophonia) อย่างแท้จริงต้องใช้อุปกรณ์ที่ผ่านการสอบเทียบ</p>
+  </div>
+
+  <div class="note crit">
+    <div class="t">ความเป็นส่วนตัวของเสียง</div>
+    <p>เสียงถูกวิเคราะห์ในเครื่องแล้วลบทิ้งทันทีหลังคำนวณเสร็จ ไม่มีการเก็บไฟล์เสียงหรืออัปโหลดออกจากเครื่อง ระบบเก็บเฉพาะตัวเลข เช่น ค่า Jitter และ Shimmer</p>
+  </div>
+</section>
+
+<!-- ================= 9. SCORING ================= -->
+<section class="page">
+  <h1>9. หลักการคำนวณคะแนนความเสี่ยง</h1>
+  <div class="h1sub">จากค่าดิบสู่ระดับความเสี่ยง</div>
+
+  <h2>9.1 ขั้นตอนการคำนวณ</h2>
+  <ol>
+    <li>แปลงค่าดิบแต่ละตัวเป็นคะแนน 0–100 โดยเทียบกับช่วงอ้างอิง “ปกติ (good)” ถึง “ผิดปกติ (bad)”</li>
+    <li>รวมคะแนนของแต่ละแบบทดสอบด้วยค่าเฉลี่ยถ่วงน้ำหนักตามน้ำหนักของค่าที่วัด</li>
+    <li>รวมคะแนนทั้ง 5 แบบทดสอบด้วยน้ำหนัก <b>30 / 25 / 20 / 15 / 10</b> เปอร์เซ็นต์ (นับเฉพาะรายการที่ทำจริง)</li>
+    <li>ตรวจเงื่อนไขพิเศษ (red flag) แล้วสรุปเป็นระดับความเสี่ยง</li>
+  </ol>
+
+  <table>
+    <tr><th style="width:30%">ระดับ</th><th style="width:18%">ช่วงคะแนน</th><th>ความหมาย</th></tr>
+    <tr><td class="t-low">ความเสี่ยงต่ำ</td><td class="num">0 – 33</td><td>ผลอยู่ในเกณฑ์ปกติสำหรับช่วงอายุ</td></tr>
+    <tr><td class="t-med">ความเสี่ยงปานกลาง</td><td class="num">34 – 66</td><td>มีบางรายการที่ควรเฝ้าดูและทำซ้ำอย่างสม่ำเสมอ</td></tr>
+    <tr><td class="t-high">พบสัญญาณที่ควรใส่ใจ</td><td class="num">67 – 100</td><td>ควรปรึกษาแพทย์เพื่อตรวจอย่างละเอียด</td></tr>
+  </table>
+
+  <h2>9.2 การปรับตามอายุ</h2>
+  <p>ความสามารถในการเคลื่อนไหวลดลงตามวัยตามธรรมชาติ หากใช้เกณฑ์เดียวกับคนหนุ่มสาว ระบบจะแจ้งเตือนผู้สูงอายุมากเกินจริง ระบบจึงขยับเกณฑ์ “ปกติ” ให้ผ่อนปรนขึ้นตามอายุ โดยอ้างอิงที่อายุ 60 ปี และผ่อนปรนสูงสุดถึงประมาณ 90 ปี</p>
+  <div class="note info">
+    <div class="t">ตัวอย่างที่ทดสอบแล้ว</div>
+    <p>ผลการเคาะนิ้วที่เท่ากันทุกประการ จะได้คะแนนความเสี่ยงประมาณ <b>30</b> เมื่ออายุ 55 ปี · <b>23</b> เมื่ออายุ 70 ปี · <b>10</b> เมื่ออายุ 85 ปี</p>
+  </div>
+
+  <h2>9.3 เงื่อนไขพิเศษ: Red Flag</h2>
+  <p>คะแนนรวมเป็นค่าเฉลี่ยถ่วงน้ำหนัก ซึ่งมีจุดอ่อนคือ “หักลบกันเอง” ได้ หากผู้ใช้มีอาการสั่นขณะพักอย่างชัดเจนเพียงรายการเดียวแต่อีก 4 รายการปกติ ค่าเฉลี่ยจะกลบสัญญาณนั้นจนรายงานว่าความเสี่ยงต่ำ</p>
+  <p>ระบบจึงกำหนดว่า หากแบบทดสอบใดได้คะแนนตั้งแต่ <b>80</b> ขึ้นไป จะไม่รายงานผลรวมว่า “ความเสี่ยงต่ำ” เด็ดขาด</p>
+  <div class="note info">
+    <div class="t">ตัวอย่างที่ทดสอบแล้ว</div>
+    <p>ผู้ใช้ที่มีอาการสั่นเดี่ยว ๆ คะแนน 92 แต่คะแนนรวมเพียง 25 ระบบรายงานเป็น “ความเสี่ยงปานกลาง” แทนที่จะเป็น “ความเสี่ยงต่ำ”</p>
+  </div>
+
+  <h2>9.4 การป้องกันผลลวง</h2>
+  <p>หากข้อมูลที่เก็บได้ไม่เพียงพอ ระบบจะไม่บันทึกผลและให้ทำใหม่ แทนที่จะให้คะแนนที่ดูดีแต่ไม่มีความหมาย เช่น การไม่แตะเลยจะให้ค่าความแปรปรวนเป็นศูนย์ ซึ่งหากไม่ป้องกันจะกลายเป็นคะแนน “สมบูรณ์แบบ”</p>
+  <table>
+    <tr><th style="width:30%">แบบทดสอบ</th><th>เงื่อนไขขั้นต่ำ</th></tr>
+    <tr><td>วาดก้นหอย</td><td>ต้องลากครอบคลุมเส้นอย่างน้อย 70%</td></tr>
+    <tr><td>เคาะนิ้ว</td><td>ต้องเคาะอย่างน้อย 6 ครั้ง</td></tr>
+    <tr><td>ความนิ่งของมือ</td><td>ต้องมีข้อมูลเซ็นเซอร์อย่างน้อย 20 ตัวอย่างในแต่ละท่า</td></tr>
+    <tr><td>หันศีรษะ</td><td>ต้องตรวจพบใบหน้าอย่างน้อย 30 เฟรม</td></tr>
+    <tr><td>เสียงพูด</td><td>ต้องมีเสียงจริงอย่างน้อย 25% ของช่วงบันทึก</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>9.5 การแยกรูปแบบกลุ่มอาการ</h2>
+  <p>นอกจากคะแนนรวม ระบบยังประเมินว่าลักษณะการเคลื่อนไหวที่ตรวจพบ “คล้าย” กลุ่มอาการใดมากที่สุดใน 3 กลุ่ม และแสดงระดับความเสี่ยงแยกของแต่ละกลุ่มบนหน้าผลลัพธ์</p>
+  <div class="split">
+    <div class="imgs"><img src="shots/08b-result-conditions.png" alt=""></div>
+    <div class="txt">
+      <table style="margin-top:0">
+        <tr><th style="width:38%">กลุ่มอาการ</th><th>ลักษณะเด่นที่ใช้แยก</th></tr>
+        <tr><td><b>Parkinsonian Syndrome</b><br><span style="font-size:8.4pt;color:#64727E">กลุ่มอาการพาร์กินสัน</span></td>
+            <td>สั่นขณะพัก + เคลื่อนไหวช้าลง + ไม่สมมาตรซ้ายขวา + ช่วงการเคลื่อนไหวลดลง</td></tr>
+        <tr><td><b>Essential Tremor</b><br><span style="font-size:8.4pt;color:#64727E">การสั่นแบบไม่ทราบสาเหตุ</span></td>
+            <td>สั่นขณะยกค้างหรือเคลื่อนไหว เป็นทั้งสองข้างใกล้เคียงกัน ไม่มีการเคลื่อนไหวช้าลง มักมีเสียงสั่นร่วมด้วย</td></tr>
+        <tr><td><b>Enhanced Physiological Tremor</b><br><span style="font-size:8.4pt;color:#64727E">การสั่นตามสรีรวิทยาที่เด่นขึ้น</span></td>
+            <td>สั่นละเอียดขณะยกค้าง ความแรงต่ำ ค่าอื่นปกติทั้งหมด (มักเกิดจากความเครียด กาแฟ หรือความอ่อนล้า)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="note crit">
+    <div class="t">ค่าน้ำหนักเป็นการประมาณเชิงวิศวกรรม</div>
+    <p>ค่าน้ำหนักและเกณฑ์ทั้งหมดมาจากลักษณะทางคลินิกตามตำรา <b>ยังไม่ได้ผ่านการสอบเทียบกับข้อมูลผู้ป่วยจริง</b> จึงใช้เพื่อบอก “แนวโน้มเชิงเปรียบเทียบ” เท่านั้น ค่าทั้งหมดถูกเก็บรวมไว้ในไฟล์เดียว (thresholds.ts) เพื่อให้ปรับแก้ได้ง่ายเมื่อมีข้อมูลจริง</p>
+  </div>
+
+  <h2>9.6 การแจ้งเตือนเมื่อเสี่ยงสูงต่อเนื่อง</h2>
+  <p>หากผลอยู่ในระดับเสี่ยงสูงติดต่อกัน <b>5 วัน</b> ระบบจะแสดงแถบแจ้งเตือนบนหน้าหลักแนะนำให้พบแพทย์ การนับใช้วันตามปฏิทินจริง จึงไม่ถูกนับซ้ำจากการทำแบบทดสอบหลายรอบในวันเดียวกัน</p>
+</section>
+
+<!-- ================= 10. PDPA ================= -->
+<section class="page">
+  <h1>10. ความเป็นส่วนตัวและ PDPA</h1>
+  <div class="h1sub">ข้อมูลสุขภาพและชีวมิติเป็นข้อมูลส่วนบุคคลอ่อนไหว</div>
+
+  <div class="split">
+    <div class="imgs">
+      <img src="shots/04a-consent-top.png" alt="" style="width:124px">
+      <img src="shots/11a-settings-top.png" alt="" style="width:124px">
+    </div>
+    <div class="txt">
+      <h3 style="margin-top:0">การขอความยินยอม</h3>
+      <p>หน้าความยินยอมมีช่องติ๊ก 2 ช่องแยกจากกัน และ<b>ไม่ติ๊กไว้ล่วงหน้าทั้งคู่</b></p>
+      <ul>
+        <li><b>ช่องที่ 1 (จำเป็น)</b> — จัดเก็บผลการคัดกรองเพื่อแสดงแนวโน้มสุขภาพ</li>
+        <li><b>ช่องที่ 2 (ไม่บังคับ)</b> — ใช้ข้อมูลแบบไม่ระบุตัวตนเพื่อพัฒนาความแม่นยำ</li>
+      </ul>
+      <h3>การถอนความยินยอม</h3>
+      <p>ปุ่ม “ลบข้อมูลของฉันทั้งหมด” ในแท็บตั้งค่า ลบข้อมูลทุกอย่างออกจากเครื่องทันที ทำให้คำสัญญาบนหน้าความยินยอมเป็นจริง</p>
+    </div>
+  </div>
+
+  <table>
+    <tr><th style="width:28%">หลักการ</th><th>การนำไปปฏิบัติจริง</th></tr>
+    <tr><td>เก็บเท่าที่จำเป็น</td><td>เก็บเฉพาะ “ตัวเลขผลคำนวณ” ไม่เก็บวิดีโอ ภาพนิ่ง หรือไฟล์เสียงดิบ</td></tr>
+    <tr><td>ประมวลผลในเครื่อง</td><td>ภาพใบหน้าและเสียงถูกวิเคราะห์บนอุปกรณ์แล้วลบทิ้งทันที ไม่มีการอัปโหลด</td></tr>
+    <tr><td>ถอนความยินยอมได้</td><td>ปุ่มลบข้อมูลทั้งหมดอยู่ในแท็บตั้งค่า ใช้ได้ทุกเมื่อ</td></tr>
+    <tr><td>แยกออกจากระบบกับการลบ</td><td>“ออกจากระบบ” ล้างข้อมูลระบุตัวตนแต่คงผลการทดสอบไว้ ส่วนการลบข้อมูลเป็นคนละปุ่มและอธิบายชัดเจน</td></tr>
+    <tr><td>ความยินยอมผูกกับบุคคล</td><td>เมื่อออกจากระบบ ระบบล้างความยินยอมด้วย ผู้ใช้คนถัดไปต้องให้ความยินยอมของตนเองใหม่</td></tr>
+    <tr><td>รูปโปรไฟล์</td><td>เป็นรูปที่ผู้ใช้เลือกเอง เก็บในเครื่องเท่านั้น ไม่ถูกวิเคราะห์ ไม่ผูกกับผลการทดสอบ ลบแยกได้</td></tr>
+  </table>
+
+  <div class="note info">
+    <div class="t">ทำไมไม่ต้องมีเซิร์ฟเวอร์</div>
+    <p>เพราะทุกอย่างประมวลผลและจัดเก็บในเครื่องผู้ใช้ ระบบจึงไม่มีฐานข้อมูลกลางที่จะถูกเจาะ ไม่มีการส่งข้อมูลสุขภาพผ่านเครือข่าย และผู้ใช้ควบคุมข้อมูลของตนเองได้ทั้งหมด นี่คือการออกแบบตามหลัก Privacy by Design</p>
+  </div>
+</section>
+
+<!-- ================= 11. ACCESSIBILITY ================= -->
+<section class="page">
+  <h1>11. การออกแบบเพื่อผู้สูงอายุ</h1>
+  <div class="h1sub">ทุกการตัดสินใจยึดกลุ่มผู้ใช้อายุ 60 ปีขึ้นไปเป็นหลัก</div>
+
+  <div class="strip">
+    <div class="fr"><img src="shots/02-login-textsize.png" alt="">
+      <div class="badge"><span class="n">1</span><span class="lb">ปรับขนาดตัวอักษร 3 ระดับ</span></div>
+      <div class="cap">ขยายทั้งแอปพร้อมกัน ไม่ต้องตั้งค่าที่เครื่อง</div></div>
+    <div class="fr"><img src="shots/34-tapping-4-running.png" alt="">
+      <div class="badge"><span class="n">2</span><span class="lb">ปุ่มขนาดใหญ่</span></div>
+      <div class="cap">ทุกปุ่มอย่างน้อย 56 พิกเซล รองรับมือที่สั่น</div></div>
+    <div class="fr"><img src="shots/08-result.png" alt="">
+      <div class="badge"><span class="n">3</span><span class="lb">สีคู่กับข้อความเสมอ</span></div>
+      <div class="cap">ผู้ที่ตาบอดสีเข้าใจได้เท่ากัน</div></div>
+    <div class="fr"><img src="shots/20-spiral-1-watch.png" alt="">
+      <div class="badge"><span class="n">4</span><span class="lb">สอนก่อนทำจริง</span></div>
+      <div class="cap">ทุกแบบทดสอบมี 3 ขั้น ดู–ลอง–ทำจริง</div></div>
+  </div>
+
+  <table>
+    <tr><th style="width:26%">หลักเกณฑ์</th><th style="width:24%">ค่าที่ใช้จริง</th><th>เหตุผล</th></tr>
+    <tr><td>ขนาดตัวอักษรต่ำสุด</td><td class="num">18 พิกเซล</td><td>สายตาผู้สูงอายุอ่านตัวอักษรเล็กได้ยาก</td></tr>
+    <tr><td>ขนาดปุ่มต่ำสุด</td><td class="num">56 พิกเซล</td><td>รองรับการกดที่ไม่แม่นยำและมือที่สั่น</td></tr>
+    <tr><td>ปรับขนาดตัวอักษร</td><td class="num">3 ระดับ (16/18/20 px)</td><td>ผู้ใช้ปรับเองได้โดยไม่ต้องพึ่งการตั้งค่าเครื่อง</td></tr>
+    <tr><td>สีบอกสถานะ</td><td>มีข้อความกำกับเสมอ</td><td>ผู้ที่มีภาวะตาบอดสีต้องเข้าใจได้เท่ากัน</td></tr>
+    <tr><td>ค่าความต่างของสี</td><td>ผ่านมาตรฐาน WCAG AA</td><td>อ่านได้ชัดในทุกสภาพแสง</td></tr>
+    <tr><td>เสียงแนะนำภาษาไทย</td><td>เปิดเป็นค่าเริ่มต้น</td><td>ช่วยผู้ที่อ่านหนังสือไม่สะดวก</td></tr>
+    <tr><td>ปุ่มย้อนกลับ</td><td>ติดอยู่ด้านบนทุกหน้า</td><td>เมื่อติดตั้งเป็นแอปจะไม่มีปุ่มย้อนกลับของเบราว์เซอร์</td></tr>
+    <tr><td>หนึ่งหน้าจอ หนึ่งงาน</td><td>ปุ่มหลักหนึ่งปุ่มต่อหน้า</td><td>ลดความสับสนในการตัดสินใจ</td></tr>
+  </table>
+
+  <div class="note info">
+    <div class="t">ไอคอนต้องมีคำกำกับเสมอ</div>
+    <p>ระบบไม่ใช้ไอคอนเดี่ยว ๆ เช่น สัญลักษณ์ “⋯” หรือรูปเฟือง โดยไม่มีข้อความ เพราะผู้สูงอายุจำนวนมากไม่คุ้นเคยกับความหมายของไอคอนเหล่านี้ ทุกปุ่มจึงมีทั้งไอคอนและคำอธิบายควบคู่กัน — สังเกตได้จากแถบเมนูด้านล่างและปุ่ม “กลับ” ในทุกภาพ</p>
+  </div>
+</section>
+
+<!-- ================= 12. ADMIN ================= -->
+<section class="page">
+  <h1>12. Dashboard สำหรับผู้ดูแลระบบ</h1>
+  <div class="h1sub">แนวคิดการต่อยอด — ยังไม่ได้พัฒนาในเวอร์ชันปัจจุบัน</div>
+
+  <div class="note warn">
+    <div class="t">สถานะของส่วนนี้</div>
+    <p>หัวข้อนี้เป็น <b>แนวคิดและแบบร่างการออกแบบ</b> ยังไม่ได้พัฒนาเป็นระบบใช้งานจริง นำเสนอเพื่อแสดงทิศทางการต่อยอดของโครงการ ส่วนที่พัฒนาแล้วและใช้งานได้จริงคือแอปฝั่งผู้ใช้ทั้งหมดตามหัวข้อ 1–11</p>
+  </div>
+
+  <h2>12.1 วัตถุประสงค์</h2>
+  <p>แอปฝั่งผู้ใช้ตอบโจทย์ “ผู้ใช้หนึ่งคนติดตามตนเอง” แต่ในการนำไปใช้จริงระดับโรงพยาบาลหรือชุมชน จำเป็นต้องมีมุมมองฝั่งบุคลากรทางการแพทย์ เพื่อดูภาพรวมของประชากรและคัดกรองผู้ที่ควรได้รับการติดตามก่อน</p>
+
+  <figure><img class="w-full" src="07-admin.png" alt="แบบร่าง Admin Dashboard">
+    <figcaption>แบบร่าง Dashboard สำหรับผู้ดูแลระบบ — มุมมองเดสก์ท็อป (แนวคิด ยังไม่ได้พัฒนา)</figcaption></figure>
+
+  <h2>12.2 ส่วนประกอบหลักของหน้าจอ</h2>
+  <table>
+    <tr><th style="width:30%">ส่วนประกอบ</th><th>รายละเอียด</th></tr>
+    <tr><td>ตัวเลขสรุป (KPI)</td><td>จำนวนผู้ใช้ทั้งหมด · การคัดกรองวันนี้/สัปดาห์นี้ · เคสความเสี่ยงสูงที่ต้องติดตาม · คะแนนเสี่ยงเฉลี่ย</td></tr>
+    <tr><td>กราฟแนวโน้ม</td><td>ปริมาณการคัดกรองเทียบกับคะแนนเสี่ยงเฉลี่ยรายสัปดาห์</td></tr>
+    <tr><td>สัดส่วนระดับความเสี่ยง</td><td>แผนภูมิวงกลมแสดงสัดส่วนผู้ใช้ระดับต่ำ / ปานกลาง / สูง</td></tr>
+    <tr><td>อัตราการเข้าร่วมรายแบบทดสอบ</td><td>ดูว่าแบบทดสอบใดมีผู้ทำไม่ครบ ช่วยชี้จุดที่ผู้ใช้ติดขัด</td></tr>
+    <tr><td>ตารางเคสความเสี่ยงสูง</td><td>รายการผู้ที่ต้องติดตาม เรียงตามความเร่งด่วน พร้อมแนวโน้มดีขึ้น/แย่ลง</td></tr>
+    <tr><td>แผงรายละเอียดรายบุคคล</td><td>กราฟย้อนหลัง 30 วัน · ผลรายแบบทดสอบล่าสุด · สถานะการติดตาม</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>12.3 ข้อกำหนดด้านความเป็นส่วนตัว</h2>
+  <p>หน้า Dashboard นี้ต้องออกแบบภายใต้ข้อจำกัดด้าน PDPA ที่<b>เข้มงวดกว่าฝั่งผู้ใช้</b> เนื่องจากเป็นการเข้าถึงข้อมูลของบุคคลอื่น</p>
+  <ul>
+    <li>แสดงเฉพาะรหัสอ้างอิงแบบไม่ระบุตัวตน (เช่น NM-2841) <b>ไม่แสดงชื่อ–นามสกุลหรือเลขบัตรประชาชน</b></li>
+    <li>ต้องได้รับความยินยอมจากผู้ใช้ก่อนที่ข้อมูลจะปรากฏในระบบของบุคลากร</li>
+    <li>ต้องมีระบบยืนยันตัวตนและกำหนดสิทธิ์การเข้าถึงตามบทบาท</li>
+    <li>ต้องบันทึกประวัติการเข้าถึงข้อมูล (audit log) ว่าใครเปิดดูข้อมูลใดเมื่อใด</li>
+    <li>ทุกหน้าจอต้องคงข้อความกำกับว่าผลเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย</li>
+  </ul>
+
+  <h2>12.4 สิ่งที่ต้องพัฒนาเพิ่มเพื่อให้ใช้งานได้จริง</h2>
+  <p>ปัจจุบันแอปเก็บข้อมูลไว้ในเครื่องผู้ใช้เท่านั้น การทำ Dashboard ให้ใช้งานได้จริงจึงต้องเพิ่มส่วนต่อไปนี้</p>
+  <ol>
+    <li><b>ระบบฐานข้อมูลส่วนกลาง</b> (เช่น Supabase หรือ Firebase) — โค้ดปัจจุบันแยกชั้นการจัดเก็บไว้แล้วเพื่อรองรับการเปลี่ยนในอนาคต</li>
+    <li><b>ระบบบัญชีและการยืนยันตัวตน</b>ของบุคลากรทางการแพทย์</li>
+    <li><b>กลไกจับคู่ข้อมูลแบบไม่ระบุตัวตน</b>ที่ปลอดภัย (pseudonymisation)</li>
+    <li><b>ระบบบันทึกประวัติการเข้าถึงข้อมูล</b>ตามข้อกำหนด PDPA</li>
+    <li><b>การตรวจสอบความแม่นยำทางคลินิก</b>ก่อนนำผลไปใช้ประกอบการตัดสินใจใด ๆ</li>
+  </ol>
+
+  <div class="note info">
+    <div class="t">ลำดับความสำคัญที่แนะนำ</div>
+    <p>ข้อ 5 (การตรวจสอบความแม่นยำทางคลินิก) ควรทำ<b>ก่อน</b>ข้ออื่นเสมอ เพราะการให้บุคลากรทางการแพทย์ใช้ผลที่ยังไม่ผ่านการสอบเทียบในการจัดลำดับการดูแลผู้ป่วย อาจนำไปสู่การตัดสินใจที่ผิดพลาดได้</p>
+  </div>
+</section>
+
+<!-- ================= 13. LIMITS ================= -->
+<section>
+  <h1>13. ข้อจำกัดของระบบ</h1>
+  <div class="h1sub">การระบุข้อจำกัดอย่างตรงไปตรงมาเป็นส่วนหนึ่งของความรับผิดชอบ</div>
+
+  <h2>13.1 ข้อจำกัดด้านความแม่นยำ</h2>
+  <ul>
+    <li>ค่าเกณฑ์ทั้งหมดเป็นการประมาณเชิงวิศวกรรมจากงานวิจัยที่อ้างอิง <b>ยังไม่ผ่านการสอบเทียบกับข้อมูลผู้ป่วยจริง</b></li>
+    <li>ระบบยังไม่ได้ทดสอบความไว (sensitivity) และความจำเพาะ (specificity) กับกลุ่มตัวอย่างทางคลินิก</li>
+    <li>ผลลัพธ์เหมาะสำหรับดู “แนวโน้มการเปลี่ยนแปลงของตนเอง” มากกว่าการเปรียบเทียบระหว่างบุคคล</li>
+  </ul>
+
+  <h2>13.2 ข้อจำกัดด้านอุปกรณ์</h2>
+  <ul>
+    <li>เซ็นเซอร์ตรวจการเคลื่อนไหวมีคุณภาพต่างกันในแต่ละรุ่นของโทรศัพท์</li>
+    <li>อุปกรณ์บางรุ่นหรือเบราว์เซอร์บางตัวไม่รองรับเซ็นเซอร์ตรวจการเคลื่อนไหว ระบบจะข้ามแบบทดสอบนั้นให้</li>
+    <li>บน iOS ต้องกดอนุญาตให้เข้าถึงเซ็นเซอร์ก่อนใช้งาน</li>
+    <li>ไมโครโฟนแต่ละเครื่องมีอัตราขยายต่างกัน จึงไม่สามารถวัดความดังเสียงจริงได้</li>
+    <li>จำเป็นต้องใช้การเชื่อมต่อแบบ HTTPS เพื่อเข้าถึงกล้อง ไมโครโฟน และเซ็นเซอร์</li>
+  </ul>
+
+  <h2>13.3 สิ่งที่ยังไม่ได้พัฒนา</h2>
+  <ul>
+    <li>การวัดลายมือที่เล็กลง (micrographia) ซึ่งเป็นอาการสำคัญของพาร์กินสัน</li>
+    <li>การวัดภาวะใบหน้าไร้อารมณ์ (hypomimia)</li>
+    <li>การวัด Jitter และ Shimmer ตามมาตรฐานระดับห้องปฏิบัติการ</li>
+    <li>Dashboard สำหรับบุคลากรทางการแพทย์ (ตามหัวข้อ 12)</li>
+    <li>การเชื่อมต่อฐานข้อมูลส่วนกลางและระบบบัญชีผู้ใช้</li>
+  </ul>
+
+  <h2>13.4 ทิศทางการพัฒนาต่อ</h2>
+  <ol>
+    <li>ศึกษาความแม่นยำทางคลินิกร่วมกับโรงพยาบาล เพื่อสอบเทียบค่าเกณฑ์ทั้งหมด</li>
+    <li>เพิ่มการวัด micrographia และ hypomimia ให้ครบตามอาการหลักของพาร์กินสัน</li>
+    <li>พัฒนาระบบฐานข้อมูลกลางและ Dashboard สำหรับบุคลากรทางการแพทย์</li>
+    <li>ขยายไปสู่แอปพลิเคชัน Android โดยใช้ตรรกะการคำนวณเดิม</li>
+  </ol>
+
+  <div class="disclaimer">
+    <div class="t">ข้อความปฏิเสธความรับผิดชอบ</div>
+    <p>NeuroMotion AI เป็นเครื่องมือคัดกรองความเสี่ยงเบื้องต้นเท่านั้น <b>ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง</b> ผลลัพธ์ไม่ใช่การวินิจฉัยโรค และไม่ควรใช้ทดแทนคำแนะนำจากแพทย์ผู้เชี่ยวชาญ หากมีอาการผิดปกติ ควรปรึกษาแพทย์โดยตรงเสมอ</p>
+  </div>
+</section>
+
+</body>
+</html>

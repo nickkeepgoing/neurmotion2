@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#E8762C; --primary-action:#BC5411;
+    --secondary:#1B6CA8; --secondary-soft:#E3EEF6;
+    --bg-admin:#F4F5F7; --surface:#fff;
+    --ink:#233A4D; --muted:#64727E; --line:#E8EAED;
+    --low:#2E9E5B; --low-t:#256B43; --low-bg:#E9F5EC;
+    --med:#F1C232; --med-t:#9C7A10; --med-bg:#FBF3D9;
+    --high:#D64545; --high-t:#B23A3A; --high-bg:#FBEAEA;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg-admin);font-family:'Noto Sans Thai','Nunito',system-ui,sans-serif;color:var(--ink)}
+  .num{font-family:'Nunito','Noto Sans Thai',sans-serif;font-variant-numeric:tabular-nums}
+  .app{display:flex;min-height:940px}
+
+  /* Sidebar */
+  .side{width:236px;flex:none;background:#fff;border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:6px}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 8px 16px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary-action));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px}
+  .brand b{font-size:14.5px;line-height:1.15;display:block}
+  .brand small{font-size:10px;letter-spacing:.14em;color:var(--muted);font-weight:700}
+  .nav{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);cursor:default}
+  .nav.on{background:var(--secondary-soft);color:var(--secondary);font-weight:800}
+  .nav .pill{margin-left:auto;background:var(--high);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px}
+  .who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:11px 10px;border-top:1px solid var(--line)}
+  .who .av{width:34px;height:34px;border-radius:99px;background:var(--secondary-soft);color:var(--secondary);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+  .who b{font-size:13px;display:block;line-height:1.25}
+  .who small{font-size:11px;color:var(--muted)}
+
+  /* Main */
+  .main{flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+  .top{display:flex;align-items:center;gap:14px}
+  .top h1{font-size:21px;margin:0;font-weight:800}
+  .search{flex:1;max-width:420px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13px;color:#98A2AC}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12.5px;font-weight:700;color:var(--muted)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .kpi .lab{font-size:12px;color:var(--muted);font-weight:700;line-height:1.4;min-height:34px}
+  .kpi .val{font-size:30px;font-weight:900;line-height:1.05;margin:2px 0 4px}
+  .kpi .sub{font-size:11.5px;font-weight:700}
+  .up{color:var(--low-t)} .down{color:var(--low-t)} .warn{color:var(--high-t)}
+  .kpi.alert{background:var(--high-bg);border-color:#F2D2CC}
+
+  .row2{display:grid;grid-template-columns:1.55fr 1fr 1fr;gap:13px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .card h3{font-size:13.5px;margin:0 0 12px;font-weight:800}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .xaxis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:6px}
+
+  .donutwrap{display:flex;align-items:center;gap:14px}
+  .donut{width:112px;height:112px;flex:none;border-radius:99px;position:relative;
+    background:conic-gradient(var(--low) 0 76%, var(--med) 76% 94%, var(--high) 94% 100%)}
+  .donut::after{content:'';position:absolute;inset:19px;background:#fff;border-radius:99px}
+  .donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+  .donut .mid b{font-size:19px;font-weight:900;line-height:1}
+  .donut .mid small{font-size:10px;color:var(--muted);font-weight:700}
+  .lrow{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-bottom:7px}
+  .lrow i{width:10px;height:10px;border-radius:3px;flex:none}
+  .lrow span:last-child{margin-left:auto;color:var(--muted)}
+
+  .bar{margin-bottom:9px}
+  .bar .t{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px}
+  .bar .track{height:8px;background:#EEF1F4;border-radius:99px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--secondary);border-radius:99px}
+
+  /* Table */
+  .tbl{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tbl .hd{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .tbl .hd h3{margin:0;font-size:14px;font-weight:800}
+  .tbl .cnt{background:var(--high-bg);color:var(--high-t);font-size:11.5px;font-weight:800;border-radius:99px;padding:3px 10px}
+  .tabs{margin-left:auto;display:flex;gap:6px}
+  .tab{font-size:11.5px;font-weight:700;color:var(--muted);padding:5px 11px;border-radius:99px;border:1px solid var(--line)}
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11px;color:var(--muted);font-weight:800;padding:9px 16px;background:#FAFBFC;border-bottom:1px solid var(--line)}
+  td{padding:11px 16px;font-size:12.5px;font-weight:600;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  .code{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;border-radius:99px;padding:3px 10px}
+  .b-high{background:var(--high-bg);color:var(--high-t)}
+  .b-med{background:var(--med-bg);color:var(--med-t)}
+  .dot{width:7px;height:7px;border-radius:99px;background:currentColor}
+  .act{background:var(--secondary);color:#fff;font-size:11.5px;font-weight:800;border-radius:8px;padding:6px 12px;display:inline-block}
+  .foot{padding:10px 16px;font-size:11px;color:var(--muted);font-weight:600;background:#FAFBFC}
+
+  /* Drawer */
+  .drawer{width:308px;flex:none;background:#fff;border-left:1px solid var(--line);padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+  .dh{display:flex;align-items:center;gap:11px}
+  .dh .av{width:44px;height:44px;border-radius:99px;background:var(--secondary-soft);color:var(--secondary);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+  .sec{font-size:11.5px;color:var(--muted);font-weight:800;margin-bottom:7px}
+  .trow{display:flex;align-items:center;font-size:12.5px;font-weight:700;padding:7px 0;border-bottom:1px solid var(--line)}
+  .trow span:last-child{margin-left:auto}
+  .st-check{color:var(--high-t)} .st-watch{color:var(--med-t)} .st-ok{color:var(--low-t)}
+  .note{background:var(--med-bg);border:1px solid #EEDFAE;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;color:var(--med-t);line-height:1.5}
+  .cta{background:var(--primary-action);color:#fff;text-align:center;border-radius:11px;padding:12px;font-size:13.5px;font-weight:800}
+  .pdpa{font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.5;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">N</div>
+      <div><b>NeuroMotion&nbsp;AI</b><small>ADMIN</small></div>
+    </div>
+    <div class="nav on">▤ ภาพรวม</div>
+    <div class="nav">👥 ผู้ใช้ / ผู้ป่วย</div>
+    <div class="nav">⚠ แจ้งเตือนความเสี่ยงสูง <span class="pill">7</span></div>
+    <div class="nav">📊 รายงาน / วิเคราะห์</div>
+    <div class="nav">🛡 ความยินยอม &amp; ข้อมูล</div>
+    <div class="nav">⚙ ตั้งค่า</div>
+    <div class="who">
+      <div class="av">พญ</div>
+      <div><b>พญ. อรทัย ว.</b><small>รพ. ศิริราช</small></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <h1>ภาพรวม</h1>
+      <div class="search">ค้นหาผู้ใช้ รหัส หรือรายงาน…</div>
+      <div class="chip">30 วันล่าสุด ▾</div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="lab">ผู้ใช้ลงทะเบียนทั้งหมด</div>
+        <div class="val num">4,382</div>
+        <div class="sub up">▲ 8.2% จากเดือนก่อน</div>
+      </div>
+      <div class="kpi">
+        <div class="lab">การคัดกรองวันนี้ / สัปดาห์นี้</div>
+        <div class="val num">312 <span style="font-size:17px;color:var(--muted)">/ 1,905</span></div>
+        <div class="sub up">▲ 4.6% จากสัปดาห์ก่อน</div>
+      </div>
+      <div class="kpi alert">
+        <div class="lab">เคสความเสี่ยงสูง (ต้องติดตาม)</div>
+        <div class="val num" style="color:var(--high-t)">7</div>
+        <div class="sub warn">+2 เคสใหม่วันนี้</div>
+      </div>
+      <div class="kpi">
+        <div class="lab">คะแนนเสี่ยงเฉลี่ย</div>
+        <div class="val num">0.23</div>
+        <div class="sub down">▼ 0.02 แนวโน้มลดลง (ดี)</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="card">
+        <h3>ปริมาณการคัดกรอง &amp; คะแนนเสี่ยงเฉลี่ย</h3>
+        <div class="legend">
+          <span><i style="background:var(--secondary)"></i>ปริมาณ</span>
+          <span><i style="background:var(--primary)"></i>คะแนนเสี่ยง</span>
+        </div>
+        <svg viewBox="0 0 420 120" style="width:100%;height:120px">
+          <polyline points="10,95 78,88 146,74 214,66 282,52 350,44 410,36" fill="none" stroke="#1B6CA8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="10,44 78,48 146,46 214,55 282,60 350,66 410,71" fill="none" stroke="#E8762C" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round"/>
+        </svg>
+        <div class="xaxis"><span>สัปดาห์ 1</span><span>สัปดาห์ 2</span><span>สัปดาห์ 3</span><span>สัปดาห์ 4</span></div>
+      </div>
+
+      <div class="card">
+        <h3>สัดส่วนระดับความเสี่ยง</h3>
+        <div class="donutwrap">
+          <div class="donut"><div class="mid"><b class="num">4.4k</b><small>ผู้ใช้</small></div></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="lrow"><i style="background:var(--low)"></i>ต่ำ<span>76%</span></div>
+          <div class="lrow"><i style="background:var(--med)"></i>ปานกลาง<span>18%</span></div>
+          <div class="lrow"><i style="background:var(--high)"></i>สูง<span>6%</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>การเข้าร่วมรายแบบทดสอบ</h3>
+        <div class="bar"><div class="t"><span>วาดก้นหอย</span><span>92%</span></div><div class="track"><div class="fill" style="width:92%"></div></div></div>
+        <div class="bar"><div class="t"><span>เคาะนิ้ว</span><span>88%</span></div><div class="track"><div class="fill" style="width:88%"></div></div></div>
+        <div class="bar"><div class="t"><span>ความนิ่งมือ</span><span>81%</span></div><div class="track"><div class="fill" style="width:81%"></div></div></div>
+        <div class="bar"><div class="t"><span>สแกนใบหน้า</span><span>64%</span></div><div class="track"><div class="fill" style="width:64%"></div></div></div>
+        <div class="bar"><div class="t"><span>เสียงพูด</span><span>58%</span></div><div class="track"><div class="fill" style="width:58%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tbl">
+      <div class="hd">
+        <h3>ผู้ใช้ความเสี่ยงสูง — ต้องติดตาม</h3>
+        <span class="cnt">7 เคส</span>
+        <div class="tabs"><span class="tab on">ทั้งหมด</span><span class="tab">ยังไม่ติดตาม</span><span class="tab">ติดตามแล้ว</span></div>
+      </div>
+      <table>
+        <thead><tr>
+          <th>รหัส (ไม่ระบุตัวตน)</th><th>อายุ</th><th>ระดับเสี่ยงล่าสุด</th><th>ทดสอบล่าสุด</th><th>แนวโน้ม</th><th>การติดตาม</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="code">NM-2841</td><td class="num">72</td><td><span class="badge b-high"><i class="dot"></i>สูง</span></td><td>วันนี้ 09:12</td><td class="warn">▲ แย่ลง</td><td><span class="act">ดู / ติดตาม</span></td></tr>
+          <tr><td class="code">NM-1907</td><td class="num">68</td><td><span class="badge b-high"><i class="dot"></i>สูง</span></td><td>วันนี้ 08:40</td><td style="color:var(--muted)">— คงที่</td><td><span class="act">ดู / ติดตาม</span></td></tr>
+          <tr><td class="code">NM-3155</td><td class="num">75</td><td><span class="badge b-med"><i class="dot"></i>ปานกลาง</span></td><td>เมื่อวาน 17:03</td><td class="warn">▲ แย่ลง</td><td><span class="act">ดู / ติดตาม</span></td></tr>
+          <tr><td class="code">NM-0562</td><td class="num">81</td><td><span class="badge b-med"><i class="dot"></i>ปานกลาง</span></td><td>2 วันก่อน</td><td class="up">▼ ดีขึ้น</td><td><span class="act">ดู / ติดตาม</span></td></tr>
+        </tbody>
+      </table>
+      <div class="foot">ข้อมูลแสดงแบบไม่ระบุตัวตนตาม PDPA — ผลทั้งหมดเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย</div>
+    </div>
+  </main>
+
+  <aside class="drawer">
+    <div class="sec" style="margin:0">รายละเอียดผู้ใช้</div>
+    <div class="dh">
+      <div class="av">NM</div>
+      <div style="flex:1">
+        <b style="font-size:15px;display:block">NM-2841</b>
+        <small style="font-size:11.5px;color:var(--muted)">อายุ 72 · เข้าร่วม 84 วัน</small>
+      </div>
+      <span class="badge b-high"><i class="dot"></i>สูง</span>
+    </div>
+
+    <div>
+      <div class="sec">คะแนนเสี่ยงย้อนหลัง 30 วัน</div>
+      <svg viewBox="0 0 280 76" style="width:100%;height:76px;background:#FAFBFC;border-radius:9px">
+        <polyline points="12,58 52,54 92,48 132,40 172,34 212,25 268,17" fill="none" stroke="#D64545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="sec">ผลรายแบบทดสอบล่าสุด</div>
+      <div class="trow"><span>วาดก้นหอย</span><span class="st-check">ควรตรวจเพิ่ม</span></div>
+      <div class="trow"><span>ความนิ่งของมือ</span><span class="st-check">ควรตรวจเพิ่ม</span></div>
+      <div class="trow"><span>เคาะนิ้ว</span><span class="st-watch">เฝ้าดู</span></div>
+      <div class="trow"><span>สแกนใบหน้า</span><span class="st-ok">ปกติ</span></div>
+      <div class="trow" style="border-bottom:0"><span>เสียงพูด</span><span class="st-ok">ปกติ</span></div>
+    </div>
+
+    <div>
+      <div class="sec">สถานะการติดตาม</div>
+      <div class="note">รอการติดต่อ — ยังไม่มีผู้รับผิดชอบ</div>
+    </div>
+
+    <div class="cta">รับเคสนี้ / นัดติดตาม</div>
+    <div class="pdpa">แสดงรหัสไม่ระบุตัวตนเท่านั้น<br>ไม่มีชื่อ–นามสกุลหรือเลขบัตรประชาชนในหน้านี้</div>
+  </aside>
+
+</div>
+</body>
+</html>
