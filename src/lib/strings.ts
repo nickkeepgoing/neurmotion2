@@ -465,6 +465,12 @@ export const S = {
       'ผลทั้งหมดเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย · แสดงเฉพาะรหัสอ้างอิงตาม PDPA',
   },
 
+  // demo entry opened from the QR code shown to judges
+  demo: {
+    banner: 'โหมดสาธิต · ข้อมูลตัวอย่าง',
+    hide: 'ซ่อนป้ายโหมดสาธิต',
+  },
+
   // bottom tab bar
   nav: {
     label: 'เมนูหลัก',
