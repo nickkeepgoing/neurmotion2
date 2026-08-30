@@ -190,11 +190,18 @@ export const S = {
   // 3-step test flow: watch video → practice → real test
   flow: {
     steps: ['ดูคลิป', 'ทดลองใช้', 'ทดสอบจริง'],
-    watchTitle: 'ดูวิธีทำก่อน',
+    // Was "ดูวิธีทำก่อน" — the trailing "ก่อน" (…first) doesn't say anything
+    // the step order doesn't already say. "วิธีทดสอบ" matches the word every
+    // other screen already uses (stepLabel, TestShell titles) instead of
+    // introducing "ทำ" as a second word for the same idea.
+    watchTitle: 'วิธีทดสอบ',
     // The demo animation IS the designed content; a video is a bonus. Never
     // mention admins to a patient.
     noVideo: 'ดูภาพสาธิตด้านบนให้เข้าใจก่อน แล้วไปลองทำในขั้นถัดไปได้เลย',
-    toPractice: 'ต่อไป: ทดลองใช้',
+    // Was "ต่อไป: ทดลองใช้" — the button already IS the way to go to the next
+    // step; prefixing it with "ต่อไป:" narrates that instead of just naming
+    // the destination (which the step-1 screen's own title is one word).
+    toPractice: 'ทดลองใช้',
     practiceTitle: 'ทดลองใช้',
     practiceHint: 'ลองทำดูก่อนได้เลย ยังไม่เก็บคะแนน',
     practiceTapping: 'ลองแตะปุ่มตามจังหวะเสียง',
@@ -209,7 +216,10 @@ export const S = {
     practiceNoMic: 'ยังเปิดไมโครโฟนไม่ได้ — ข้ามไปทดสอบจริงได้เลย',
     voiceLoud: 'ดังพอดี',
     faceFound: 'เห็นใบหน้าแล้ว',
-    toReal: 'พร้อมแล้ว ทดสอบจริง',
+    // Was "พร้อมแล้ว ทดสอบจริง" — "พร้อมแล้ว" (ready!) is filler enthusiasm
+    // stacked in front of the actual action; the countdown that follows
+    // already communicates "get ready" on its own.
+    toReal: 'ทดสอบจริง',
     watchAgain: 'ดูอีกครั้ง',
   },
 

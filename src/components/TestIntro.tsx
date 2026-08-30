@@ -106,71 +106,79 @@ export default function TestIntro({
     <div className="flex flex-col flex-1">
       <TestStages current={step === 0 ? 0 : 1} />
 
-      {step === 0 && (
-        <div className="flex flex-col flex-1">
-          <h2 className="mt-4 text-xl font-extrabold text-ink">{S.flow.watchTitle}</h2>
+      {/* bottom padding reserves space for the fixed footer below, so the
+          last bit of scrolling content (e.g. the "no video" note) is never
+          hidden behind it */}
+      <div className="flex flex-col flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+        {step === 0 && (
+          <div className="flex flex-col flex-1">
+            <h2 className="mt-4 text-xl font-extrabold text-ink">{S.flow.watchTitle}</h2>
 
-          <div className="mt-3 flex-1 flex flex-col items-center justify-center gap-3">
-            {videoUrl ? (
-              <video
-                ref={replay}
-                src={videoUrl}
-                controls
-                autoPlay
-                playsInline
-                className="w-full max-h-[46vh] rounded-tile bg-black"
-              />
-            ) : (
-              <>
-                <div className="w-full">
-                  <TestDemo test={testId} />
+            <div className="mt-3 flex-1 flex flex-col items-center justify-center gap-3">
+              {videoUrl ? (
+                <video
+                  ref={replay}
+                  src={videoUrl}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full max-h-[46vh] rounded-tile bg-black"
+                />
+              ) : (
+                <>
+                  <div className="w-full">
+                    <TestDemo test={testId} />
+                  </div>
+                  {!hasClip && (
+                    <p className="text-base font-semibold text-muted-2 text-center leading-relaxed px-2">{S.flow.noVideo}</p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="flex flex-col flex-1">
+            <div className="mt-4 flex items-center justify-between gap-2">
+              <h2 className="text-xl font-extrabold text-ink">{S.flow.practiceTitle}</h2>
+              <button
+                onClick={handleWatchAgain}
+                className="flex-none min-h-11 pl-2.5 pr-3.5 rounded-full bg-secondary-soft border-0 flex items-center gap-1.5 cursor-pointer active:scale-[.97] transition-transform"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-none">
+                  <path d="M4 4v6h6M20 20v-6h-6" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M19 9a8 8 0 0 0-14-2.5M5 15a8 8 0 0 0 14 2.5" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" />
+                </svg>
+                <span className="text-base font-bold text-secondary">{S.flow.watchAgain}</span>
+              </button>
+            </div>
+            <p className="mt-1 text-base font-semibold text-muted-2">{S.flow.practiceHint}</p>
+
+            <div className="flex-1 flex flex-col items-center justify-center py-2">
+              {practice ?? (
+                <div className="flex flex-col items-center gap-3 w-full">
+                  <div className="w-full my-2">
+                    <TestDemo test={testId} />
+                  </div>
+                  <p className="text-base font-semibold text-muted-2 text-center px-4">{S.flow.practiceGeneric}</p>
                 </div>
-                {!hasClip && (
-                  <p className="text-base font-semibold text-muted-2 text-center leading-relaxed px-2">{S.flow.noVideo}</p>
-                )}
-              </>
-            )}
+              )}
+            </div>
           </div>
+        )}
+      </div>
 
-          <Button className="nm-blink mt-3" onClick={handleGoToPractice}>
-            {S.flow.toPractice}
-          </Button>
-        </div>
-      )}
-
-      {step === 1 && (
-        <div className="flex flex-col flex-1">
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <h2 className="text-xl font-extrabold text-ink">{S.flow.practiceTitle}</h2>
-            <button
-              onClick={handleWatchAgain}
-              className="flex-none min-h-11 pl-2.5 pr-3.5 rounded-full bg-secondary-soft border-0 flex items-center gap-1.5 cursor-pointer active:scale-[.97] transition-transform"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-none">
-                <path d="M4 4v6h6M20 20v-6h-6" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M19 9a8 8 0 0 0-14-2.5M5 15a8 8 0 0 0 14 2.5" stroke="#1B6CA8" strokeWidth="2.2" strokeLinecap="round" />
-              </svg>
-              <span className="text-base font-bold text-secondary">{S.flow.watchAgain}</span>
-            </button>
-          </div>
-          <p className="mt-1 text-base font-semibold text-muted-2">{S.flow.practiceHint}</p>
-
-          <div className="flex-1 flex flex-col items-center justify-center py-2">
-            {practice ?? (
-              <div className="flex flex-col items-center gap-3 w-full">
-                <div className="w-full my-2">
-                  <TestDemo test={testId} />
-                </div>
-                <p className="text-base font-semibold text-muted-2 text-center px-4">{S.flow.practiceGeneric}</p>
-              </div>
-            )}
-          </div>
-
-          <Button className="nm-blink" onClick={handleStartReal}>
-            {S.flow.toReal}
-          </Button>
-        </div>
-      )}
+      {/* Floating action bar — was the last element in the normal-flow column,
+          so on any screen where the video/demo pushed content past one
+          viewport, the ONE button that matters sat below the fold. Pinning it
+          (same pattern as Login.tsx's footer) means it's always reachable
+          without scrolling, on every one of the 5 tests this component serves. */}
+      <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-6 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-[rgba(255,249,242,.96)] backdrop-blur-md border-t border-line-warm shadow-bar">
+        <Button className="nm-blink" onClick={step === 0 ? handleGoToPractice : handleStartReal}>
+          {step === 0 ? S.flow.toPractice : S.flow.toReal}
+        </Button>
+      </footer>
     </div>
   );
 }
