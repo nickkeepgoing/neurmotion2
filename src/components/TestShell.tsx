@@ -15,6 +15,7 @@ export default function TestShell({
   title,
   instruction,
   demo,
+  autoSpeak = true,
   children,
 }: {
   stepLabel: string;
@@ -22,17 +23,16 @@ export default function TestShell({
   title: string;
   instruction?: string;
   demo?: ReactNode;
+  autoSpeak?: boolean;
   children: ReactNode;
 }) {
   const { settings } = useSettings();
   const spokenText = instruction ? `${title}. ${instruction}` : '';
 
   useEffect(() => {
-    if (settings.voiceOn && spokenText) speak(spokenText);
+    if (autoSpeak && settings.voiceOn && spokenText) speak(spokenText);
     return () => stopSpeaking();
-    // speak once when the screen mounts
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [autoSpeak, spokenText, settings.voiceOn]);
 
   return (
     <div className="min-h-dvh bg-bg flex flex-col px-6 pb-8 max-w-md mx-auto">

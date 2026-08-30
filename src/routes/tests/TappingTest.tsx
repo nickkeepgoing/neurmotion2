@@ -189,7 +189,7 @@ export default function TappingTest() {
 
   if (phase === 'intro') {
     return (
-      <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction}>
+      <TestShell stepLabel={S.stepLabel(2)} title={S.tests.tapping.title} instruction={S.tests.tapping.instruction} autoSpeak={false}>
         <TestIntro testId="tapping" onStart={restart} practice={<TapPractice />} />
       </TestShell>
     );

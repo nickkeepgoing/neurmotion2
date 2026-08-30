@@ -203,7 +203,7 @@ export default function SpiralTest() {
 
   if (phase === 'intro') {
     return (
-      <TestShell stepLabel={S.stepLabel(1)} title={S.tests.spiral.title} instruction={S.tests.spiral.instruction}>
+      <TestShell stepLabel={S.stepLabel(1)} title={S.tests.spiral.title} instruction={S.tests.spiral.instruction} autoSpeak={false}>
         <TestIntro testId="spiral" onStart={start} practice={<SpiralPractice />} />
       </TestShell>
     );

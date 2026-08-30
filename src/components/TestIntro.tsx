@@ -31,6 +31,18 @@ export default function TestIntro({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const hasClip = hasVideo(testId);
   const caption = S.demoCaption[testId];
+  const replay = useRef<HTMLVideoElement>(null);
+
+  const stopVideo = () => {
+    if (replay.current) {
+      replay.current.pause();
+      try {
+        replay.current.currentTime = 0;
+      } catch {
+        /* ignore if video not loaded */
+      }
+    }
+  };
 
   // load the admin clip (if any) and clean up its object URL
   useEffect(() => {
@@ -44,14 +56,51 @@ export default function TestIntro({
     };
   }, [testId]);
 
-  // speak the caption for the current step
+  // Clean up media and speech on unmount
   useEffect(() => {
-    if (settings.voiceOn) speak(step === 0 ? caption : S.flow.practiceHint);
-    return () => stopSpeaking();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+    return () => {
+      stopSpeaking();
+      stopVideo();
+    };
+  }, []);
 
-  const replay = useRef<HTMLVideoElement>(null);
+  // speak the caption for the current step
+  // IMPORTANT: When a custom tutorial video is present (videoUrl or hasClip),
+  // DO NOT speak the default TTS caption on step 0 to prevent voice overlap!
+  useEffect(() => {
+    if (settings.voiceOn) {
+      if (step === 0) {
+        if (!videoUrl && !hasClip) {
+          speak(caption);
+        } else {
+          stopSpeaking();
+        }
+      } else if (step === 1) {
+        stopVideo();
+        speak(S.flow.practiceHint);
+      }
+    } else {
+      stopSpeaking();
+    }
+    return () => stopSpeaking();
+  }, [step, videoUrl, hasClip, caption, settings.voiceOn]);
+
+  const handleGoToPractice = () => {
+    stopSpeaking();
+    stopVideo();
+    setStep(1);
+  };
+
+  const handleStartReal = () => {
+    stopSpeaking();
+    stopVideo();
+    onStart();
+  };
+
+  const handleWatchAgain = () => {
+    stopSpeaking();
+    setStep(0);
+  };
 
   return (
     <div className="flex flex-col flex-1">
@@ -83,7 +132,7 @@ export default function TestIntro({
             )}
           </div>
 
-          <Button className="nm-blink mt-3" onClick={() => setStep(1)}>
+          <Button className="nm-blink mt-3" onClick={handleGoToPractice}>
             {S.flow.toPractice}
           </Button>
         </div>
@@ -94,7 +143,7 @@ export default function TestIntro({
           <div className="mt-4 flex items-center justify-between gap-2">
             <h2 className="text-xl font-extrabold text-ink">{S.flow.practiceTitle}</h2>
             <button
-              onClick={() => setStep(0)}
+              onClick={handleWatchAgain}
               className="flex-none min-h-11 pl-2.5 pr-3.5 rounded-full bg-secondary-soft border-0 flex items-center gap-1.5 cursor-pointer active:scale-[.97] transition-transform"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-none">
@@ -117,7 +166,7 @@ export default function TestIntro({
             )}
           </div>
 
-          <Button className="nm-blink" onClick={onStart}>
+          <Button className="nm-blink" onClick={handleStartReal}>
             {S.flow.toReal}
           </Button>
         </div>

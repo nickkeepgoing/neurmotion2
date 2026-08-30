@@ -278,7 +278,7 @@ export default function FacialTest() {
 
   if (phase === 'intro') {
     return (
-      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title} instruction={S.tests.facial.instruction}>
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.facial.title} instruction={S.tests.facial.instruction} autoSpeak={false}>
         <TestIntro testId="facial" onStart={start} practice={<HeadTurnPractice />} />
       </TestShell>
     );

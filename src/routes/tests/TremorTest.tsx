@@ -164,7 +164,7 @@ export default function TremorTest() {
 
   if (phase === 'intro') {
     return (
-      <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title} instruction={S.tests.tremor.instruction}>
+      <TestShell stepLabel={S.stepLabel(3)} title={S.tests.tremor.title} instruction={S.tests.tremor.instruction} autoSpeak={false}>
         <TestIntro testId="tremor" onStart={start} practice={<TremorPractice />} />
       </TestShell>
     );

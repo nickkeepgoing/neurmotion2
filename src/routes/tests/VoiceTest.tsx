@@ -185,7 +185,7 @@ export default function VoiceTest() {
 
   if (phase === 'intro') {
     return (
-      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction}>
+      <TestShell stepLabel={S.advancedTest} advanced title={S.tests.voice.title} instruction={S.tests.voice.instruction} autoSpeak={false}>
         <TestIntro testId="voice" onStart={start} practice={<VoicePractice />} />
       </TestShell>
     );

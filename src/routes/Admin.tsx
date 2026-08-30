@@ -36,6 +36,7 @@ function Row({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [statusText, setStatusText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Uploading writes to BOTH tiers from one action: the cloud copy is what
@@ -47,12 +48,20 @@ function Row({
     if (!file) return;
     setBusy(true);
     setError(null);
+    setStatusText(S.admin.uploading);
     try {
-      const [cloudResult] = await Promise.all([uploadVideoToCloud(id, file), saveVideo(id, file)]);
+      const [cloudResult] = await Promise.all([
+        uploadVideoToCloud(id, file, (st) => {
+          if (st === 'compressing') setStatusText(S.admin.compressing);
+          else if (st === 'uploading') setStatusText(S.admin.uploading);
+        }),
+        saveVideo(id, file),
+      ]);
       if (!cloudResult.ok) setError(cloudResult.reason);
       onChange();
     } finally {
       setBusy(false);
+      setStatusText(null);
       if (inputRef.current) inputRef.current.value = '';
     }
   };
@@ -78,7 +87,9 @@ function Row({
         <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
         <div className="flex flex-col min-w-0 gap-0.5">
           <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
-          {cloud === 'checking' ? (
+          {statusText ? (
+            <span className="text-sm font-extrabold text-secondary animate-pulse">{statusText}</span>
+          ) : cloud === 'checking' ? (
             <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
           ) : (
             <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>

@@ -121,27 +121,175 @@ async function cloudVideoUrlIfExists(test: TestId): Promise<string | null> {
 
 export type CloudUploadResult = { ok: true } | { ok: false; reason: string };
 
+/** Max upload size target for Supabase Storage (5 MB) */
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+
 /**
- * Upload a clip to Supabase Storage under the test's id, with no extension —
- * Storage serves back whatever Content-Type the browser sent on upload, so a
- * plain `<video>` tag works without needing to guess a matching extension.
- *
- * `x-upsert: true` makes re-uploading the same test overwrite the old clip
- * instead of erroring, so "replace" in the admin UI is just "upload again".
+ * Compress a video file client-side using canvas + MediaRecorder if file exceeds size limit.
+ * Scales down resolution (max dim 720px) and lowers bitrate (~1.2 Mbps).
  */
-export async function uploadVideoToCloud(test: TestId, file: File): Promise<CloudUploadResult> {
+export async function compressVideoIfNeeded(file: File): Promise<Blob> {
+  if (file.size <= MAX_UPLOAD_SIZE) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = URL.createObjectURL(file);
+    video.muted = true;
+    video.playsInline = true;
+
+    const cleanup = () => {
+      URL.revokeObjectURL(video.src);
+      video.remove();
+    };
+
+    // Timeout safety net (12 seconds)
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      resolve(file);
+    }, 12000);
+
+    video.onloadedmetadata = () => {
+      try {
+        const origWidth = video.videoWidth || 1280;
+        const origHeight = video.videoHeight || 720;
+
+        let targetWidth = origWidth;
+        let targetHeight = origHeight;
+        const maxDim = 720;
+        if (Math.max(targetWidth, targetHeight) > maxDim) {
+          if (targetWidth > targetHeight) {
+            targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
+            targetWidth = maxDim;
+          } else {
+            targetWidth = Math.round((targetWidth * maxDim) / targetHeight);
+            targetHeight = maxDim;
+          }
+        }
+        targetWidth = targetWidth - (targetWidth % 2);
+        targetHeight = targetHeight - (targetHeight % 2);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx || typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+          clearTimeout(timeoutId);
+          cleanup();
+          resolve(file);
+          return;
+        }
+
+        const stream = canvas.captureStream(25);
+        const mimeType = [
+          'video/webm;codecs=vp8',
+          'video/webm',
+          'video/mp4',
+        ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
+
+        const recorderOptions: MediaRecorderOptions = { videoBitsPerSecond: 1_200_000 };
+        if (mimeType) recorderOptions.mimeType = mimeType;
+
+        const mediaRecorder = new MediaRecorder(stream, recorderOptions);
+        const chunks: Blob[] = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          clearTimeout(timeoutId);
+          cleanup();
+          if (chunks.length > 0) {
+            const compressedBlob = new Blob(chunks, { type: mimeType || 'video/mp4' });
+            resolve(compressedBlob);
+          } else {
+            resolve(file);
+          }
+        };
+
+        let animId: number;
+        const drawFrame = () => {
+          if (video.ended || video.paused) return;
+          ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+          animId = requestAnimationFrame(drawFrame);
+        };
+
+        video.onplay = () => {
+          mediaRecorder.start();
+          drawFrame();
+        };
+
+        video.onended = () => {
+          cancelAnimationFrame(animId);
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
+        };
+
+        video.play().catch(() => {
+          clearTimeout(timeoutId);
+          cleanup();
+          resolve(file);
+        });
+      } catch {
+        clearTimeout(timeoutId);
+        cleanup();
+        resolve(file);
+      }
+    };
+
+    video.onerror = () => {
+      clearTimeout(timeoutId);
+      cleanup();
+      resolve(file);
+    };
+  });
+}
+
+/**
+ * Upload a clip to Supabase Storage under the test's id.
+ * Auto-compresses large files and provides clear status/error feedback.
+ */
+export async function uploadVideoToCloud(
+  test: TestId,
+  file: File,
+  onStatusChange?: (status: string) => void
+): Promise<CloudUploadResult> {
   if (!isSupabaseConfigured()) {
     return { ok: false, reason: 'ยังไม่ได้ตั้งค่า Supabase (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)' };
   }
+
+  let uploadBody: Blob = file;
+  if (file.size > MAX_UPLOAD_SIZE) {
+    onStatusChange?.('compressing');
+    try {
+      uploadBody = await compressVideoIfNeeded(file);
+    } catch {
+      uploadBody = file;
+    }
+  }
+
+  onStatusChange?.('uploading');
   const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${test}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { ...authHeaders(), 'Content-Type': file.type || 'video/mp4', 'x-upsert': 'true' },
-      body: file,
+      headers: { ...authHeaders(), 'Content-Type': uploadBody.type || file.type || 'video/mp4', 'x-upsert': 'true' },
+      body: uploadBody,
     });
     if (res.ok) return { ok: true };
+
     const body = await res.text().catch(() => '');
+    if (res.status === 413 || (res.status === 400 && (body.includes('EntityTooLarge') || body.includes('Payload too large')))) {
+      return {
+        ok: false,
+        reason: 'ไฟล์วิดีโอมีขนาดใหญ่เกินไป (ระบบรองรับไม่เกิน 5MB) กรุณาลดความยาวหรือขนาดวิดีโอก่อนอัปโหลด',
+      };
+    }
     return { ok: false, reason: `${res.status} ${body}`.trim() };
   } catch (e) {
     return { ok: false, reason: e instanceof Error ? e.message : 'อัปโหลดไม่สำเร็จ (เครือข่าย)' };
