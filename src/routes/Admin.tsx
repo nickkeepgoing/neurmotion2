@@ -2,9 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceIcon, SpiralIcon, TapIcon, TremorIcon, VoiceIcon } from '../components/icons';
 import { seedSampleData } from '../lib/storage';
 import AppBar from '../components/AppBar';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { S } from '../lib/strings';
 import type { TestId } from '../lib/types';
-import { deleteVideo, saveVideo, videoKeys } from '../lib/videos';
+import {
+  cloudVideoStatus,
+  deleteVideo,
+  deleteVideoFromCloud,
+  saveVideo,
+  uploadVideoToCloud,
+} from '../lib/videos';
 
 const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'spiral', icon: <SpiralIcon /> },
@@ -14,16 +21,35 @@ const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'voice', icon: <VoiceIcon /> },
 ];
 
-function Row({ id, icon, has, onChange }: { id: TestId; icon: React.ReactNode; has: boolean; onChange: () => void }) {
+type CloudState = 'checking' | 'yes' | 'no';
+
+function Row({
+  id,
+  icon,
+  cloud,
+  onChange,
+}: {
+  id: TestId;
+  icon: React.ReactNode;
+  cloud: CloudState;
+  onChange: () => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Uploading writes to BOTH tiers from one action: the cloud copy is what
+  // every judge's phone sees; the local copy is this device's own offline
+  // fallback if the venue's network drops mid-demo. One button, two safety
+  // nets, so the admin never has to think about which store they are filling.
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setBusy(true);
+    setError(null);
     try {
-      await saveVideo(id, file);
+      const [cloudResult] = await Promise.all([uploadVideoToCloud(id, file), saveVideo(id, file)]);
+      if (!cloudResult.ok) setError(cloudResult.reason);
       onChange();
     } finally {
       setBusy(false);
@@ -31,45 +57,91 @@ function Row({ id, icon, has, onChange }: { id: TestId; icon: React.ReactNode; h
     }
   };
 
+  const onRemove = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const cloudResult = await deleteVideoFromCloud(id);
+      if (!cloudResult.ok) setError(cloudResult.reason);
+      await deleteVideo(id);
+      onChange();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const hasCloud = cloud === 'yes';
+
   return (
-    <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex items-center gap-3.5">
-      <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
-      <div className="flex flex-col min-w-0">
-        <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
-        <span className={`text-sm font-bold ${has ? 'text-risk-low-text' : 'text-muted'}`}>
-          {has ? `✓ ${S.admin.hasVideo}` : S.admin.noVideo}
-        </span>
-      </div>
-      <div className="ml-auto flex items-center gap-2">
-        {has && (
+    <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-2.5">
+      <div className="flex items-center gap-3.5">
+        <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
+        <div className="flex flex-col min-w-0 gap-0.5">
+          <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
+          {cloud === 'checking' ? (
+            <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
+          ) : (
+            <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
+              <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
+              {hasCloud ? S.admin.hasCloudVideo : S.admin.noVideo}
+            </span>
+          )}
+        </div>
+        <div className="ml-auto flex items-center gap-2 flex-none">
+          {hasCloud && (
+            <button
+              onClick={onRemove}
+              disabled={busy}
+              className="h-11 px-3 rounded-[12px] border-2 border-field bg-white text-risk-high-text text-sm font-bold cursor-pointer disabled:opacity-50"
+            >
+              {S.admin.remove}
+            </button>
+          )}
           <button
-            onClick={async () => {
-              await deleteVideo(id);
-              onChange();
-            }}
-            className="h-11 px-3 rounded-[12px] border-2 border-field bg-white text-risk-high-text text-sm font-bold cursor-pointer"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="h-11 px-4 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50"
           >
-            {S.admin.remove}
+            {busy ? '…' : hasCloud ? S.admin.replace : S.admin.upload}
           </button>
-        )}
-        <button
-          onClick={() => inputRef.current?.click()}
-          disabled={busy}
-          className="h-11 px-4 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50"
-        >
-          {busy ? '…' : has ? S.admin.replace : S.admin.upload}
-        </button>
-        <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
+          <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
+        </div>
       </div>
+      {error && (
+        <p className="text-sm font-semibold text-risk-high-text bg-risk-high-bg rounded-[10px] px-3 py-2 m-0 leading-relaxed">
+          {S.admin.cloudError}: {error}
+        </p>
+      )}
     </div>
   );
 }
 
-/** Hidden admin screen to attach tutorial clips per test (stored locally). */
+/**
+ * Hidden admin screen to attach tutorial clips per test.
+ *
+ * Uploads go to Supabase Storage (public bucket `tutorials`) so one upload —
+ * from this device, once — is visible on every device that opens the site,
+ * including a judge's own phone from the QR link. A local copy is kept on
+ * this device too, purely as an offline fallback; see lib/videos.ts.
+ */
 export default function Admin() {
-  const [keys, setKeys] = useState<TestId[]>([]);
+  const [cloud, setCloud] = useState<Record<TestId, CloudState>>({
+    spiral: 'checking', tapping: 'checking', tremor: 'checking', facial: 'checking', voice: 'checking',
+  });
   const [seeded, setSeeded] = useState(false);
-  const refresh = () => setKeys(videoKeys());
+
+  const refresh = () => {
+    setCloud((prev) => {
+      const next = { ...prev };
+      (Object.keys(next) as TestId[]).forEach((k) => (next[k] = 'checking'));
+      return next;
+    });
+    cloudVideoStatus().then((status) => {
+      const next = {} as Record<TestId, CloudState>;
+      (Object.keys(status) as TestId[]).forEach((k) => (next[k] = status[k] ? 'yes' : 'no'));
+      setCloud(next);
+    });
+  };
   useEffect(refresh, []);
 
   return (
@@ -78,9 +150,16 @@ export default function Admin() {
       <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
       <p className="text-base font-medium text-muted-2 leading-relaxed -mt-2">{S.admin.subtitle}</p>
 
+      {!isSupabaseConfigured() && (
+        <div className="rounded-2xl bg-risk-high-bg border-2 border-[#F2D2CC] px-4 py-3.5 flex flex-col gap-1">
+          <span className="text-base font-extrabold text-risk-high-text">{S.admin.notConfiguredTitle}</span>
+          <span className="text-sm font-semibold text-[#8A5A5A] leading-relaxed">{S.admin.notConfiguredDesc}</span>
+        </div>
+      )}
+
       <div className="flex flex-col gap-3 mt-1">
         {TESTS.map((t) => (
-          <Row key={t.id} id={t.id} icon={t.icon} has={keys.includes(t.id)} onChange={refresh} />
+          <Row key={t.id} id={t.id} icon={t.icon} cloud={cloud[t.id]} onChange={refresh} />
         ))}
       </div>
 
