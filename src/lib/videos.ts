@@ -125,12 +125,12 @@ export type UploadProgressInfo = {
   percent: number;
 };
 
-/** Max upload size target for Supabase Storage (3 MB) */
-const MAX_UPLOAD_SIZE = 3 * 1024 * 1024;
+/** Max upload size target for Supabase Storage (50 MB) */
+const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
 
 /**
- * Compress a video file client-side using canvas + MediaRecorder if file exceeds size limit.
- * Dynamically adjusts bitrate and resolution (max dim 480px) to guarantee output size ~2.5 MB.
+ * Compress a video file client-side if file exceeds 50 MB.
+ * Retains FULL video duration, HD 720p resolution, and original audio voiceover.
  */
 export async function compressVideoIfNeeded(
   file: File,
@@ -150,10 +150,8 @@ export async function compressVideoIfNeeded(
     video.style.opacity = '0';
     video.style.pointerEvents = 'none';
     video.preload = 'metadata';
-    video.muted = true;
-    video.volume = 0;
+    video.muted = false; // allow audio capture
     video.playsInline = true;
-    video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
 
     document.body.appendChild(video);
@@ -177,32 +175,28 @@ export async function compressVideoIfNeeded(
     timeoutId = setTimeout(() => {
       cleanup();
       resolve(file);
-    }, 30000);
+    }, 45000);
 
     video.onloadedmetadata = () => {
       try {
         const origWidth = video.videoWidth || 1280;
         const origHeight = video.videoHeight || 720;
-        // Cap max tutorial clip duration at 30s to keep size tiny
-        const maxDurationS = 30;
-        const duration = Math.min(maxDurationS, video.duration || 10);
+        const duration = video.duration || 10;
 
-        // Reset timeout dynamically based on duration (give 1.5x time, min 60s)
+        // Reset timeout dynamically based on full duration
         clearTimeout(timeoutId);
-        const dynamicTimeoutMs = Math.max(60000, Math.ceil(duration * 1000 * 1.5));
+        const dynamicTimeoutMs = Math.max(90000, Math.ceil(duration * 1000 * 2));
         timeoutId = setTimeout(() => {
           cleanup();
           resolve(file);
         }, dynamicTimeoutMs);
 
-        // Dynamic bitrate target: aim for 2.0 MB total file size
-        const targetBits = 2.0 * 8 * 1024 * 1024;
-        const calculatedBitrate = Math.floor(targetBits / duration);
-        const targetBitrate = Math.min(700_000, Math.max(150_000, calculatedBitrate));
+        // HD quality 720p (max dimension 1280px) at ~2.0 Mbps for crystal clear video
+        const targetBitrate = 2_000_000;
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
-        const maxDim = 480; // 480p mobile-optimized standard
+        const maxDim = 1280;
         if (Math.max(targetWidth, targetHeight) > maxDim) {
           if (targetWidth > targetHeight) {
             targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
@@ -226,9 +220,26 @@ export async function compressVideoIfNeeded(
           return;
         }
 
-        const stream = canvas.captureStream(20);
+        const canvasStream = canvas.captureStream(25);
+        
+        // Extract audio track from video element if available
+        let audioTrack: MediaStreamTrack | null = null;
+        try {
+          const videoStream = (video as any).captureStream ? (video as any).captureStream() : (video as any).mozCaptureStream ? (video as any).mozCaptureStream() : null;
+          audioTrack = videoStream?.getAudioTracks()?.[0] || null;
+        } catch {
+          audioTrack = null;
+        }
+
+        const tracks: MediaStreamTrack[] = [...canvasStream.getVideoTracks()];
+        if (audioTrack) {
+          tracks.push(audioTrack);
+        }
+
+        const combinedStream = new MediaStream(tracks);
+
         const mimeType = [
-          'video/webm;codecs=vp8',
+          'video/webm;codecs=vp8,opus',
           'video/webm',
           'video/mp4',
         ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
@@ -236,7 +247,7 @@ export async function compressVideoIfNeeded(
         const recorderOptions: MediaRecorderOptions = { videoBitsPerSecond: targetBitrate };
         if (mimeType) recorderOptions.mimeType = mimeType;
 
-        const mediaRecorder = new MediaRecorder(stream, recorderOptions);
+        const mediaRecorder = new MediaRecorder(combinedStream, recorderOptions);
         const chunks: Blob[] = [];
 
         mediaRecorder.ondataavailable = (e) => {
@@ -256,7 +267,7 @@ export async function compressVideoIfNeeded(
 
         let animId: number;
         const drawFrame = () => {
-          if (video.ended || video.paused || video.currentTime >= maxDurationS) {
+          if (video.ended || video.paused) {
             if (mediaRecorder.state !== 'inactive') {
               mediaRecorder.stop();
             }
@@ -264,19 +275,13 @@ export async function compressVideoIfNeeded(
           }
           ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
           if (onProgress && duration > 0) {
-            const pct = Math.min(99, Math.round((Math.min(video.currentTime, maxDurationS) / duration) * 100));
+            const pct = Math.min(99, Math.round((video.currentTime / duration) * 100));
             onProgress(pct);
           }
           animId = requestAnimationFrame(drawFrame);
         };
 
         video.onplay = () => {
-          // Speed up video encoding to 2.0x if supported to finish faster
-          try {
-            video.playbackRate = 2.0;
-          } catch {
-            /* ignore playbackRate errors */
-          }
           mediaRecorder.start();
           drawFrame();
         };
