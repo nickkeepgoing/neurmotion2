@@ -234,9 +234,17 @@ export function seedSampleData(): void {
       ],
     };
   };
-  // a gently improving week with one worse day, ending mid-range
+  // A gently improving week with one worse day, ending mid-range — and ending
+  // YESTERDAY, so the demo user arrives with history but nothing done today.
+  //
+  // Seeding today too left three of the five tests already ticked off, which
+  // pointed the dashboard's one big button at the head-turn test: the judge's
+  // very first tap would open a camera-permission prompt and wait on the face
+  // model to download. Leaving today empty aims that same button at the spiral
+  // instead — no permission, no model, draws immediately — and tells a better
+  // story besides: here is your week, now add today's reading to it.
   const scores = [52, 46, 58, 41, 35, 44, 38];
-  saveSessions(scores.map((s, i) => mk(scores.length - 1 - i, s)));
+  saveSessions(scores.map((s, i) => mk(scores.length - i, s)));
 }
 
 /**

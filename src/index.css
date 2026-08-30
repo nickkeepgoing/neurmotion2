@@ -88,6 +88,12 @@ html {
 html[data-textscale='1'] { font-size: 18px; }
 html[data-textscale='2'] { font-size: 20px; }
 
+/* Room for the floating demo-mode pill (see DemoBanner). Every page already
+   pads itself clear of the fixed tab bar, but the pill sits ABOVE that bar and
+   so covered the last card even at the bottom of the scroll. Set only while
+   the pill is actually on screen, so dismissing it gives the space back. */
+html[data-demo-banner='on'] body { padding-bottom: 3.5rem; }
+
 body {
   margin: 0;
   color: var(--color-ink);

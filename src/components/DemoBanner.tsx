@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isDemo } from '../lib/demoMode';
 import { S } from '../lib/strings';
 
@@ -15,7 +15,25 @@ import { S } from '../lib/strings';
  */
 export default function DemoBanner() {
   const [hidden, setHidden] = useState(false);
-  if (!isDemo() || hidden) return null;
+  const showing = isDemo() && !hidden;
+
+  // Reserve the strip this banner occupies for as long as it is on screen.
+  //
+  // Floating clear of the tab bar kept it off the tab controls but put it over
+  // the CONTENT instead: every page's own bottom padding only clears the tab
+  // bar, so even scrolled fully to the end, the last card sat under the pill.
+  // The page can't know about a banner rendered outside its route, so the
+  // banner declares its own space on <html> — the same lever `data-textscale`
+  // already uses — and index.css pads the page out while it is there.
+  useEffect(() => {
+    if (!showing) return;
+    document.documentElement.dataset.demoBanner = 'on';
+    return () => {
+      delete document.documentElement.dataset.demoBanner;
+    };
+  }, [showing]);
+
+  if (!showing) return null;
 
   return (
     // bottom offset clears the fixed tab bar (min-h-16 + padding + safe area)
