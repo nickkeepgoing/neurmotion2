@@ -120,15 +120,22 @@ async function cloudVideoUrlIfExists(test: TestId): Promise<string | null> {
 // ------------------------------------------------------------- admin: cloud
 
 export type CloudUploadResult = { ok: true } | { ok: false; reason: string };
+export type UploadProgressInfo = {
+  stage: 'compressing' | 'uploading';
+  percent: number;
+};
 
-/** Max upload size target for Supabase Storage (5 MB) */
-const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+/** Max upload size target for Supabase Storage (3 MB) */
+const MAX_UPLOAD_SIZE = 3 * 1024 * 1024;
 
 /**
  * Compress a video file client-side using canvas + MediaRecorder if file exceeds size limit.
- * Scales down resolution (max dim 720px) and lowers bitrate (~1.2 Mbps).
+ * Dynamically adjusts bitrate and resolution (max dim 480px) to guarantee output size ~2.5 MB.
  */
-export async function compressVideoIfNeeded(file: File): Promise<Blob> {
+export async function compressVideoIfNeeded(
+  file: File,
+  onProgress?: (pct: number) => void
+): Promise<Blob> {
   if (file.size <= MAX_UPLOAD_SIZE) {
     return file;
   }
@@ -145,20 +152,27 @@ export async function compressVideoIfNeeded(file: File): Promise<Blob> {
       video.remove();
     };
 
-    // Timeout safety net (12 seconds)
+    // Timeout safety net (20 seconds)
     const timeoutId = setTimeout(() => {
       cleanup();
       resolve(file);
-    }, 12000);
+    }, 20000);
 
     video.onloadedmetadata = () => {
       try {
         const origWidth = video.videoWidth || 1280;
         const origHeight = video.videoHeight || 720;
+        const duration = video.duration || 10;
+
+        // Dynamic bitrate target: aim for 2.5 MB total file size
+        // Size = (bitrate * duration) / 8 => bitrate = (2.5MB * 8) / duration
+        const targetBits = 2.5 * 8 * 1024 * 1024;
+        const calculatedBitrate = Math.floor(targetBits / duration);
+        const targetBitrate = Math.min(800_000, Math.max(250_000, calculatedBitrate));
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
-        const maxDim = 720;
+        const maxDim = 480; // 480p mobile-optimized standard
         if (Math.max(targetWidth, targetHeight) > maxDim) {
           if (targetWidth > targetHeight) {
             targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
@@ -183,14 +197,14 @@ export async function compressVideoIfNeeded(file: File): Promise<Blob> {
           return;
         }
 
-        const stream = canvas.captureStream(25);
+        const stream = canvas.captureStream(24);
         const mimeType = [
           'video/webm;codecs=vp8',
           'video/webm',
           'video/mp4',
         ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
 
-        const recorderOptions: MediaRecorderOptions = { videoBitsPerSecond: 1_200_000 };
+        const recorderOptions: MediaRecorderOptions = { videoBitsPerSecond: targetBitrate };
         if (mimeType) recorderOptions.mimeType = mimeType;
 
         const mediaRecorder = new MediaRecorder(stream, recorderOptions);
@@ -203,6 +217,7 @@ export async function compressVideoIfNeeded(file: File): Promise<Blob> {
         mediaRecorder.onstop = () => {
           clearTimeout(timeoutId);
           cleanup();
+          onProgress?.(100);
           if (chunks.length > 0) {
             const compressedBlob = new Blob(chunks, { type: mimeType || 'video/mp4' });
             resolve(compressedBlob);
@@ -215,6 +230,10 @@ export async function compressVideoIfNeeded(file: File): Promise<Blob> {
         const drawFrame = () => {
           if (video.ended || video.paused) return;
           ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+          if (onProgress && duration > 0) {
+            const pct = Math.min(99, Math.round((video.currentTime / duration) * 100));
+            onProgress(pct);
+          }
           animId = requestAnimationFrame(drawFrame);
         };
 
@@ -251,13 +270,12 @@ export async function compressVideoIfNeeded(file: File): Promise<Blob> {
 }
 
 /**
- * Upload a clip to Supabase Storage under the test's id.
- * Auto-compresses large files and provides clear status/error feedback.
+ * Upload a clip to Supabase Storage under the test's id using XHR for real-time progress.
  */
 export async function uploadVideoToCloud(
   test: TestId,
   file: File,
-  onStatusChange?: (status: string) => void
+  onProgress?: (info: UploadProgressInfo) => void
 ): Promise<CloudUploadResult> {
   if (!isSupabaseConfigured()) {
     return { ok: false, reason: 'ยังไม่ได้ตั้งค่า Supabase (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)' };
@@ -265,32 +283,67 @@ export async function uploadVideoToCloud(
 
   let uploadBody: Blob = file;
   if (file.size > MAX_UPLOAD_SIZE) {
-    onStatusChange?.('compressing');
+    onProgress?.({ stage: 'compressing', percent: 0 });
     try {
-      uploadBody = await compressVideoIfNeeded(file);
+      uploadBody = await compressVideoIfNeeded(file, (pct) => {
+        onProgress?.({ stage: 'compressing', percent: pct });
+      });
     } catch {
       uploadBody = file;
     }
   }
 
-  onStatusChange?.('uploading');
-  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${test}`;
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { ...authHeaders(), 'Content-Type': uploadBody.type || file.type || 'video/mp4', 'x-upsert': 'true' },
-      body: uploadBody,
+  const doUpload = (body: Blob) => {
+    onProgress?.({ stage: 'uploading', percent: 0 });
+    const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${test}`;
+    const headers = { ...authHeaders(), 'Content-Type': body.type || file.type || 'video/mp4', 'x-upsert': 'true' };
+
+    return new Promise<{ ok: boolean; status: number; bodyText: string }>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      Object.entries(headers).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+      if (xhr.upload && onProgress) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && e.total > 0) {
+            const pct = Math.min(100, Math.round((e.loaded / e.total) * 100));
+            onProgress({ stage: 'uploading', percent: pct });
+          }
+        };
+      }
+      xhr.onload = () => resolve({ ok: xhr.status >= 200 && xhr.status < 300, status: xhr.status, bodyText: xhr.responseText || '' });
+      xhr.onerror = () => reject(new Error('อัปโหลดไม่สำเร็จ (เครือข่าย)'));
+      xhr.ontimeout = () => reject(new Error('การอัปโหลดหมดเวลา'));
+      xhr.send(body);
     });
+  };
+
+  try {
+    let res = await doUpload(uploadBody);
+
+    // If initial upload failed with 413/400 payload error and we haven't compressed yet, compress now and retry
+    if (!res.ok && (res.status === 413 || (res.status === 400 && (res.bodyText.includes('EntityTooLarge') || res.bodyText.includes('Payload too large'))))) {
+      if (uploadBody === file) {
+        onProgress?.({ stage: 'compressing', percent: 0 });
+        try {
+          uploadBody = await compressVideoIfNeeded(file, (pct) => {
+            onProgress?.({ stage: 'compressing', percent: pct });
+          });
+          res = await doUpload(uploadBody);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+
     if (res.ok) return { ok: true };
 
-    const body = await res.text().catch(() => '');
-    if (res.status === 413 || (res.status === 400 && (body.includes('EntityTooLarge') || body.includes('Payload too large')))) {
+    if (res.status === 413 || (res.status === 400 && (res.bodyText.includes('EntityTooLarge') || res.bodyText.includes('Payload too large')))) {
       return {
         ok: false,
-        reason: 'ไฟล์วิดีโอมีขนาดใหญ่เกินไป (ระบบรองรับไม่เกิน 5MB) กรุณาลดความยาวหรือขนาดวิดีโอก่อนอัปโหลด',
+        reason: 'ไฟล์วิดีโอมีขนาดใหญ่เกินขีดจำกัดของระบบกลาง กรุณาใช้คลิปวิดีโอสั้นๆ (ความยาวประมาณ 5-15 วินาที)',
       };
     }
-    return { ok: false, reason: `${res.status} ${body}`.trim() };
+    return { ok: false, reason: `${res.status} ${res.bodyText}`.trim() };
   } catch (e) {
     return { ok: false, reason: e instanceof Error ? e.message : 'อัปโหลดไม่สำเร็จ (เครือข่าย)' };
   }

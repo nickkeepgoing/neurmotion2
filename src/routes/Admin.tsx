@@ -11,6 +11,7 @@ import {
   deleteVideoFromCloud,
   saveVideo,
   uploadVideoToCloud,
+  type UploadProgressInfo,
 } from '../lib/videos';
 
 const TESTS: { id: TestId; icon: React.ReactNode }[] = [
@@ -36,7 +37,7 @@ function Row({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [statusText, setStatusText] = useState<string | null>(null);
+  const [progressInfo, setProgressInfo] = useState<UploadProgressInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Uploading writes to BOTH tiers from one action: the cloud copy is what
@@ -48,20 +49,17 @@ function Row({
     if (!file) return;
     setBusy(true);
     setError(null);
-    setStatusText(S.admin.uploading);
+    setProgressInfo({ stage: 'uploading', percent: 0 });
     try {
       const [cloudResult] = await Promise.all([
-        uploadVideoToCloud(id, file, (st) => {
-          if (st === 'compressing') setStatusText(S.admin.compressing);
-          else if (st === 'uploading') setStatusText(S.admin.uploading);
-        }),
+        uploadVideoToCloud(id, file, (info) => setProgressInfo(info)),
         saveVideo(id, file),
       ]);
       if (!cloudResult.ok) setError(cloudResult.reason);
       onChange();
     } finally {
       setBusy(false);
-      setStatusText(null);
+      setProgressInfo(null);
       if (inputRef.current) inputRef.current.value = '';
     }
   };
@@ -80,6 +78,7 @@ function Row({
   };
 
   const hasCloud = cloud === 'yes';
+  const isCompressing = progressInfo?.stage === 'compressing';
 
   return (
     <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-2.5">
@@ -87,8 +86,10 @@ function Row({
         <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
         <div className="flex flex-col min-w-0 gap-0.5">
           <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
-          {statusText ? (
-            <span className="text-sm font-extrabold text-secondary animate-pulse">{statusText}</span>
+          {progressInfo ? (
+            <span className="text-sm font-extrabold text-secondary">
+              {isCompressing ? S.admin.compressing : S.admin.uploading}
+            </span>
           ) : cloud === 'checking' ? (
             <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
           ) : (
@@ -118,6 +119,22 @@ function Row({
           <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
         </div>
       </div>
+
+      {progressInfo && (
+        <div className="flex flex-col gap-1.5 bg-[#F4F8FB] rounded-xl p-3 border border-secondary-soft/50">
+          <div className="flex justify-between items-center text-sm font-extrabold text-secondary">
+            <span>{isCompressing ? S.admin.compressing : S.admin.uploading}</span>
+            <span className="font-num font-black">{progressInfo.percent}%</span>
+          </div>
+          <div className="w-full h-2.5 bg-line-warm rounded-full overflow-hidden">
+            <div
+              className="h-full bg-secondary rounded-full transition-all duration-150"
+              style={{ width: `${progressInfo.percent}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       {error && (
         <p className="text-sm font-semibold text-risk-high-text bg-risk-high-bg rounded-[10px] px-3 py-2 m-0 leading-relaxed">
           {S.admin.cloudError}: {error}
