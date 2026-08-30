@@ -1,0 +1,1148 @@
+<title>คู่มือพิตช์ Neuro Motion AI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+  :root {
+    --bg: #FFF9F2;
+    --surface: #FFFFFF;
+    --surface-2: #FDEFE2;
+    --ink: #233A4D;
+    --ink-soft: #3D5468;
+    --muted: #64727E;
+    --line: #EDE6DC;
+    --line-strong: #DCD2C4;
+    --primary: #E8762C;
+    --primary-dark: #BC5411;
+    --secondary: #1B6CA8;
+    --secondary-soft: #E3EEF6;
+    --good: #2E9E5B;
+    --good-bg: #E9F5EC;
+    --warn-bg: #FBF3D9;
+    --warn-text: #8A6D10;
+    --bad: #D64545;
+    --bad-bg: #FBEAEA;
+    --bad-text: #A63535;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171F29;
+      --surface: #202B38;
+      --surface-2: #2E2517;
+      --ink: #F2EFE9;
+      --ink-soft: #D3DAE2;
+      --muted: #A2AEBA;
+      --line: #303D4C;
+      --line-strong: #3E4C5C;
+      --primary: #F2955D;
+      --primary-dark: #F7B183;
+      --secondary: #74B4E4;
+      --secondary-soft: #1F3448;
+      --good: #74C795;
+      --good-bg: #1C3226;
+      --warn-bg: #383016;
+      --warn-text: #E4C876;
+      --bad: #EA8A8A;
+      --bad-bg: #382222;
+      --bad-text: #F0A5A5;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171F29;
+    --surface: #202B38;
+    --surface-2: #2E2517;
+    --ink: #F2EFE9;
+    --ink-soft: #D3DAE2;
+    --muted: #A2AEBA;
+    --line: #303D4C;
+    --line-strong: #3E4C5C;
+    --primary: #F2955D;
+    --primary-dark: #F7B183;
+    --secondary: #74B4E4;
+    --secondary-soft: #1F3448;
+    --good: #74C795;
+    --good-bg: #1C3226;
+    --warn-bg: #383016;
+    --warn-text: #E4C876;
+    --bad: #EA8A8A;
+    --bad-bg: #382222;
+    --bad-text: #F0A5A5;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans Thai', system-ui, sans-serif;
+    line-height: 1.75;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2.5rem 1.4rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: .55rem; }
+  .eyebrow {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 5vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .masthead .sub { color: var(--muted); font-size: .97rem; margin: 0; max-width: 60ch; }
+
+  /* ---------- nav ---------- */
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  nav a {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: .85rem;
+    text-decoration: none;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: .35rem .85rem;
+    transition: background .15s, color .15s;
+  }
+  nav a:hover, nav a:focus-visible { background: var(--surface-2); color: var(--primary-dark); }
+
+  /* ---------- timeline ---------- */
+  .timeline {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 2.9rem;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: .78rem;
+  }
+  .timeline > div {
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; white-space: nowrap; padding: 0 .35rem; overflow: hidden;
+  }
+  .t1 { background: var(--primary-dark); flex: 120; }
+  .t2 { background: var(--secondary);    flex: 75; }
+  .t3 { background: var(--primary);      flex: 45; }
+  .legend { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; font-size: .83rem; color: var(--muted); margin-top: -2.6rem; }
+  .legend span { display: inline-flex; align-items: center; gap: .45rem; }
+  .dot { width: .6rem; height: .6rem; border-radius: 999px; flex: none; }
+
+  /* ---------- sections ---------- */
+  section { display: flex; flex-direction: column; gap: 1.1rem; scroll-margin-top: 1rem; }
+  .sec-head { display: flex; align-items: baseline; gap: .65rem; flex-wrap: wrap; border-bottom: 2px solid var(--line-strong); padding-bottom: .5rem; }
+  .sec-head h2 { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
+  .sec-num {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .95rem;
+    color: var(--primary); font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .76rem;
+    padding: .2rem .65rem; border-radius: 999px;
+    background: var(--surface-2); color: var(--primary-dark);
+    font-variant-numeric: tabular-nums; margin-left: auto;
+  }
+  .note { color: var(--muted); font-size: .93rem; margin: 0; max-width: 68ch; }
+
+  /* ---------- script ---------- */
+  .script { display: flex; flex-direction: column; gap: .9rem; }
+  .beat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--primary);
+    border-radius: 14px;
+    padding: 1.1rem 1.3rem;
+  }
+  .beat-meta {
+    display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    margin-bottom: .55rem;
+  }
+  .beat-time {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .82rem;
+    color: #fff; background: var(--primary-dark);
+    border-radius: 6px; padding: .1rem .5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .beat-label {
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: .78rem; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .beat p { margin: 0 0 .9em; font-size: 1.07rem; max-width: 64ch; }
+  .beat p:last-child { margin-bottom: 0; }
+  .beat strong { color: var(--primary-dark); }
+
+  .stage {
+    background: var(--secondary-soft);
+    border-radius: 10px;
+    padding: .7rem .95rem;
+    font-size: .93rem;
+    color: var(--ink-soft);
+    display: flex; gap: .55rem; align-items: flex-start;
+    margin-bottom: .9rem;
+  }
+  .stage::before {
+    content: "การกระทำ";
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .68rem;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--secondary); flex: none; padding-top: .22rem;
+  }
+  .stage span { flex: 1; }
+
+  /* ---------- technical cards ---------- */
+  .tech { display: flex; flex-direction: column; gap: 1.2rem; }
+  .tcard {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .tcard-head {
+    display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+    padding: .95rem 1.25rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .tcard-head h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+  .weight {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .8rem;
+    color: var(--primary-dark);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+    background: var(--bg); border-radius: 999px; padding: .15rem .6rem;
+  }
+  .tcard-body { padding: 1.15rem 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  .tline { display: flex; flex-direction: column; gap: .2rem; }
+  .tline .k {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .72rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--secondary);
+  }
+  .tline .v { font-size: .98rem; max-width: 66ch; }
+
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .89rem; min-width: 30rem; }
+  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--line); }
+  th {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .74rem;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 2px solid var(--line-strong);
+  }
+  td.num { font-family: 'Nunito', sans-serif; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+
+  .say {
+    background: var(--good-bg);
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    font-size: .95rem;
+  }
+  .say::before {
+    content: "ถ้ากรรมการถาม ตอบว่า";
+    display: block;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .68rem;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--good); margin-bottom: .3rem;
+  }
+
+  /* ---------- Q&A ---------- */
+  .qa { display: flex; flex-direction: column; gap: 1.4rem; }
+  .qa-group { display: flex; flex-direction: column; gap: .75rem; }
+  .qa-title {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .82rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--secondary);
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .qa-title::before { content: ""; width: 1rem; height: 3px; background: var(--secondary); border-radius: 2px; }
+  details {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: .85rem 1.1rem;
+  }
+  details[open] { border-color: var(--line-strong); }
+  summary {
+    cursor: pointer; font-weight: 700; font-size: 1rem;
+    list-style: none; display: flex; gap: .5rem; align-items: flex-start;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "ถาม"; flex: none;
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .68rem;
+    letter-spacing: .06em; color: var(--secondary);
+    background: var(--secondary-soft); border-radius: 5px;
+    padding: .18rem .4rem; margin-top: .25rem;
+  }
+  details p { margin: .7rem 0 0; font-size: .97rem; color: var(--ink-soft); max-width: 66ch; }
+  details p + p { margin-top: .55rem; }
+
+  /* ---------- roadmap ---------- */
+  .roadmap { display: flex; flex-direction: column; gap: 0; }
+  .phase {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 1.1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase-when {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .82rem;
+    color: var(--primary-dark); padding-top: .15rem;
+  }
+  .phase-when small { display: block; font-weight: 700; color: var(--muted); font-size: .74rem; letter-spacing: .04em; }
+  .phase-body { display: flex; flex-direction: column; gap: .35rem; }
+  .phase-body h4 { margin: 0; font-size: 1.03rem; font-weight: 800; }
+  .phase-body ul { margin: .15rem 0 0; padding-left: 1.15rem; color: var(--ink-soft); font-size: .95rem; }
+  .phase-body li { margin-bottom: .3rem; }
+  .phase-body li:last-child { margin-bottom: 0; }
+
+  /* ---------- slide guidance ---------- */
+  .slides { display: flex; flex-direction: column; gap: .7rem; }
+  .slide-row {
+    display: flex; gap: .95rem; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: .95rem 1.15rem;
+  }
+  .slide-tag {
+    flex: none;
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .74rem;
+    color: #fff; background: var(--muted);
+    border-radius: 999px; padding: .22rem .6rem; white-space: nowrap;
+    margin-top: .12rem; font-variant-numeric: tabular-nums;
+  }
+  .slide-row.fix .slide-tag { background: var(--bad); }
+  .slide-row.add .slide-tag { background: var(--secondary); }
+  .slide-row.keep .slide-tag { background: var(--good); }
+  .slide-body { display: flex; flex-direction: column; gap: .22rem; }
+  .slide-body .t { font-weight: 700; }
+  .slide-body .d { color: var(--muted); font-size: .93rem; max-width: 62ch; }
+
+  .group-head {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .8rem;
+    letter-spacing: .06em; text-transform: uppercase;
+    display: flex; align-items: center; gap: .5rem; margin-top: .6rem;
+  }
+  .group-head.fix { color: var(--bad); }
+  .group-head.add { color: var(--secondary); }
+  .group-head.keep { color: var(--good); }
+
+  .callout {
+    background: var(--warn-bg);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    font-size: .96rem;
+    color: var(--ink);
+  }
+  .callout strong { color: var(--warn-text); }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: .85rem;
+    padding-top: 1.2rem; border-top: 1px solid var(--line-strong);
+  }
+
+  code {
+    font-family: 'Nunito', ui-monospace, monospace;
+    background: var(--surface-2); color: var(--primary-dark);
+    padding: .08em .35em; border-radius: 4px; font-size: .93em; font-weight: 700;
+  }
+
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+
+  @media (max-width: 560px) {
+    .page { padding: 2rem 1rem 4rem; gap: 2.75rem; }
+    .beat { padding: 1rem 1.05rem; }
+    .beat p { font-size: 1.02rem; }
+    .phase { grid-template-columns: 1fr; gap: .4rem; }
+    .legend { margin-top: 0; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    nav, .legend { display: none; }
+    details { break-inside: avoid; }
+    details[open] summary ~ * { display: block; }
+    .tcard, .beat { break-inside: avoid; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <span class="eyebrow">ทีม M19 · HIT Award 2026 · คู่มือซ้อมพูด</span>
+    <h1>คู่มือพิตช์ Neuro Motion AI</h1>
+    <p class="sub">บทพูด 2 นาที · ความรู้เทคนิคทั้ง 5 การทดสอบ · คำตอบกรรมการ · แผนพัฒนา · เช็กลิสต์สไลด์</p>
+  </header>
+
+  <nav>
+    <a href="#script">บทพูด 2 นาที</a>
+    <a href="#tech">ความรู้เทคนิค</a>
+    <a href="#qa">คำตอบกรรมการ</a>
+    <a href="#roadmap">แผนพัฒนา</a>
+    <a href="#slides">เช็กลิสต์สไลด์</a>
+  </nav>
+
+  <!-- ===================== 1. SCRIPT ===================== -->
+  <section id="script">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>บทพูด 2 นาที</h2>
+      <span class="badge">120 วินาที</span>
+    </div>
+    <p class="note">
+      โครงนี้ออกแบบให้กรรมการ<strong>ลงมือใช้แอปตั้งแต่วินาทีที่ 25</strong> แล้วพูดคลอไปขณะที่เขากดจอ —
+      ไม่ปล่อยให้เขานั่งฟังเฉย ๆ แล้วค่อยลอง เพราะเวลาไม่พอให้ทำสองรอบ
+    </p>
+
+    <div class="timeline" aria-hidden="true">
+      <div class="t1">พูดคลอขณะกรรมการลองแอป · 80 วิ</div>
+      <div class="t2">ผล + ความเป็นส่วนตัว · 25 วิ</div>
+      <div class="t3">อนาคต · 15 วิ</div>
+    </div>
+
+    <div class="script">
+
+      <div class="beat">
+        <div class="beat-meta">
+          <span class="beat-time">0:00</span>
+          <span class="beat-label">เปิด — ปัญหา</span>
+        </div>
+        <p>
+          สวัสดีครับ ทีม M19 ขอนำเสนอ <strong>Neuro Motion AI</strong>
+        </p>
+        <p>
+          อาการเริ่มต้นของโรคพาร์กินสัน — มือสั่นเบา ๆ ลายมือเล็กลง เคลื่อนไหวช้าลง —
+          ค่อย ๆ เปลี่ยนทีละนิดจนคนไข้เองไม่ทันสังเกต กว่าจะรู้ตัวก็มักผ่านไปหลายปีแล้ว
+          ขณะที่การตรวจเฉพาะทางก็มีคิวยาวและเข้าถึงยาก
+        </p>
+      </div>
+
+      <div class="beat">
+        <div class="beat-meta">
+          <span class="beat-time">0:20</span>
+          <span class="beat-label">สั่งการกรรมการ</span>
+        </div>
+        <div class="stage">
+          <span>
+            ยกใบปลิว QR ขึ้นให้เห็นชัด · พูดช้าและชัดเป็นพิเศษตรงนี้ · หยุด 3 วินาทีให้ทุกคนสแกนทัน
+          </span>
+        </div>
+        <p>
+          ขอเชิญกรรมการทุกท่าน<strong>สแกน QR code บนใบปลิวได้เลยครับ</strong>
+          ท่านจะเข้าสู่ระบบทันทีโดยไม่ต้องสมัครสมาชิก
+          แล้วรบกวนกด<strong>แบบทดสอบแรก "วาดก้นหอย"</strong> แล้วลากนิ้วตามเส้นจากตรงกลางวนออกมาด้านนอกครับ
+          ระหว่างที่ท่านลอง ผมจะอธิบายว่าเบื้องหลังมันวัดอะไรอยู่
+        </p>
+      </div>
+
+      <div class="beat">
+        <div class="beat-meta">
+          <span class="beat-time">0:35</span>
+          <span class="beat-label">อธิบายเทคนิค — คลอไปกับที่เขากด</span>
+        </div>
+        <p>
+          ระบบมีแบบทดสอบ 5 อย่าง แต่ละอย่างจับสัญญาณคนละชนิดของโรค
+        </p>
+        <p>
+          <strong>วาดก้นหอย</strong> — เราวางเส้นก้นหอยแบบอาร์คิมิดีสเป็นแม่แบบ
+          แล้ววัดว่านิ้วท่านเบี่ยงจากเส้นเท่าไหร่ จากนั้นเอาสัญญาณความคลาดเคลื่อนนั้นมาแยกความถี่ด้วย FFT
+          เพื่อหาพลังงานในย่าน <strong>4 ถึง 7 เฮิรตซ์</strong> ซึ่งเป็นย่านความถี่เฉพาะของอาการสั่นแบบพาร์กินสัน
+          พูดง่าย ๆ คือเราไม่ได้ดูแค่ว่าวาดเบี้ยวไหม แต่ดูว่า<strong>เบี้ยวด้วยความถี่ของโรคหรือเปล่า</strong>
+        </p>
+        <p>
+          <strong>เคาะนิ้ว</strong> ใช้โครงเดียวกับ <strong>MDS-UPDRS ข้อ 3.4</strong>
+          ซึ่งเป็นมาตรฐานที่แพทย์ใช้ประเมินผู้ป่วยพาร์กินสันจริง มี 3 ช่วง —
+          เคาะตามจังหวะเมโทรนอม แล้วเคาะเร็วที่สุดทีละมือ
+          เพื่อวัดทั้งความสม่ำเสมอ ความเร็ว การช้าลงเรื่อย ๆ ระหว่างทาง และ<strong>ความต่างระหว่างสองมือ</strong>
+          เพราะพาร์กินสันระยะแรกมักเริ่มข้างเดียวก่อน
+        </p>
+        <p>
+          อีกสามอย่างคือ <strong>ความนิ่งของมือ</strong> ที่อ่านค่าจากเซ็นเซอร์วัดความเร่งในเครื่อง
+          <strong>การหันศีรษะ</strong> ที่ใช้กล้องจับจุดบนใบหน้า และ <strong>เสียงพูด</strong>
+          ที่วิเคราะห์ความสั่นของเสียงจากการออกเสียง "อาา" ยาว ๆ
+        </p>
+      </div>
+
+      <div class="beat">
+        <div class="beat-meta">
+          <span class="beat-time">1:20</span>
+          <span class="beat-label">ผลลัพธ์ + ความเป็นส่วนตัว</span>
+        </div>
+        <div class="stage">
+          <span>
+            ถ้ากรรมการวาดเสร็จแล้ว ให้กดปุ่ม "ดูผลของฉัน" · ชี้ที่ข้อความ "ไม่ใช่การวินิจฉัย" บนหน้าจอเขาเอง
+          </span>
+        </div>
+        <p>
+          ทุกค่าที่วัดได้จะถูกแปลงเป็นคะแนน 0 ถึง 100 ถ่วงน้ำหนักตามความสำคัญของแต่ละการทดสอบ
+          แล้วสรุปเป็นระดับความเสี่ยงพร้อมกราฟแนวโน้มย้อนหลัง ให้ผู้ใช้ติดตามตัวเองได้ต่อเนื่อง
+        </p>
+        <p>
+          และเรื่องที่ทีมให้ความสำคัญที่สุด — <strong>ภาพจากกล้องและเสียงถูกประมวลผลในเครื่องแล้วลบทิ้งทันที
+          ไม่มีการอัปโหลดออกไปไหนเลย</strong> สิ่งที่เก็บมีแค่ตัวเลขผลลัพธ์
+          เพราะข้อมูลสุขภาพและชีวมาตรถือเป็นข้อมูลอ่อนไหวตาม PDPA
+        </p>
+      </div>
+
+      <div class="beat">
+        <div class="beat-meta">
+          <span class="beat-time">1:45</span>
+          <span class="beat-label">ปิด — อนาคต</span>
+        </div>
+        <p>
+          ที่ท่านเพิ่งลอง คำนวณจากเกณฑ์ทางวิศวกรรมที่อ้างอิงงานวิจัย <strong>ยังไม่ใช่ AI</strong>
+          ก้าวต่อไปคือเมื่อมีข้อมูลจากผู้ใช้ที่ยินยอมมากพอ เราจะนำมาฝึกโมเดลจริง
+          ควบคู่กับการตรวจสอบความแม่นยำร่วมกับแพทย์ผู้เชี่ยวชาญ
+          เพื่อให้เครื่องมือนี้ไปถึงมือคนที่ยังไม่รู้ตัวว่าควรไปพบแพทย์ ขอบคุณครับ
+        </p>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <strong>แผนสำรองถ้าเน็ตล่ม:</strong> ระบบออกแบบให้คลิปสอนมีสำเนาในเครื่องอยู่แล้ว
+      แต่ถ้ากรรมการสแกนแล้วเข้าไม่ได้เลย ให้เปลี่ยนเป็น<strong>ยื่นโทรศัพท์ของทีมที่เปิดแอปค้างไว้ให้กรรมการลองแทน</strong>
+      อย่าเสียเวลาแก้หน้างาน — เตรียมเครื่องเปิดแอปค้างไว้อย่างน้อย 2 เครื่อง
+    </div>
+  </section>
+
+  <!-- ===================== 2. TECHNICAL ===================== -->
+  <section id="tech">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>ความรู้เทคนิค — 5 การทดสอบ</h2>
+    </div>
+    <p class="note">
+      ตัวเลขทุกตัวในตารางดึงมาจาก <code>src/lib/thresholds.ts</code> ในระบบจริง
+      ไม่ต้องท่องทั้งหมด — จำ <strong>หลักการ</strong> กับ <strong>ตัวเลขที่ขีดเส้นใต้ไว้ในช่อง "ถ้ากรรมการถาม"</strong> ก็พอ
+    </p>
+
+    <div class="tech">
+
+      <!-- SPIRAL -->
+      <article class="tcard">
+        <div class="tcard-head">
+          <h3>1 · วาดก้นหอย</h3>
+          <span class="weight">น้ำหนัก 30%</span>
+        </div>
+        <div class="tcard-body">
+          <div class="tline">
+            <span class="k">วัดอะไร</span>
+            <span class="v">อาการสั่นขณะเคลื่อนไหว (action tremor) และการควบคุมมือให้เคลื่อนที่ตามเส้นอย่างสม่ำเสมอ</span>
+          </div>
+          <div class="tline">
+            <span class="k">ทำงานยังไง</span>
+            <span class="v">
+              วางแม่แบบเป็นเส้นก้นหอยอาร์คิมิดีส <code>r = b·θ</code> จำนวน 3 รอบ
+              ระบบเก็บพิกัดนิ้ว <code>{x, y, เวลา}</code> ตลอดการลาก แล้วเทียบรัศมีที่ผู้ใช้อยู่จริง
+              กับรัศมีที่ควรเป็นตามมุมนั้น ได้เป็น "สัญญาณความคลาดเคลื่อนเทียบกับเวลา"
+              จากนั้นสุ่มตัวอย่างใหม่ให้สม่ำเสมอที่ 60 Hz แล้วทำ FFT เพื่อดูว่าพลังงานไปกองอยู่ที่ความถี่ไหน
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ค่าที่วัด</th><th>ปกติ</th><th>ผิดปกติ</th><th>น้ำหนัก</th></tr></thead>
+              <tbody>
+                <tr><td>ความคลาดเคลื่อนจากเส้น (RMS)</td><td class="num">0.05</td><td class="num">0.30</td><td class="num">35%</td></tr>
+                <tr><td>พลังงานย่านสั่น 4–7 Hz</td><td class="num">0.03</td><td class="num">0.20</td><td class="num">30%</td></tr>
+                <tr><td>ความสม่ำเสมอของระยะห่างแต่ละรอบ</td><td class="num">0.08</td><td class="num">0.35</td><td class="num">15%</td></tr>
+                <tr><td>ความสม่ำเสมอของความเร็วลาก</td><td class="num">0.35</td><td class="num">1.00</td><td class="num">20%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="say">
+            "เราไม่ได้ดูแค่ว่าวาดเบี้ยวไหมครับ เพราะคนไม่เป็นโรคก็วาดเบี้ยวได้ถ้ารีบ
+            สิ่งที่จำเพาะกว่าคือเอาความคลาดเคลื่อนมาแยกความถี่ด้วย FFT
+            แล้วดูว่าพลังงานอยู่ในย่าน 4–7 เฮิรตซ์เท่าไหร่ ซึ่งเป็นย่านของ Parkinsonian tremor โดยเฉพาะ
+            การสั่นจากความประหม่าจะมีความถี่สูงกว่านั้นและกระจายกว่า"
+          </div>
+        </div>
+      </article>
+
+      <!-- TAPPING -->
+      <article class="tcard">
+        <div class="tcard-head">
+          <h3>2 · เคาะนิ้ว</h3>
+          <span class="weight">น้ำหนัก 25%</span>
+        </div>
+        <div class="tcard-body">
+          <div class="tline">
+            <span class="k">วัดอะไร</span>
+            <span class="v">ภาวะเคลื่อนไหวช้า (bradykinesia) ความสม่ำเสมอของจังหวะ และความไม่เท่ากันของสองข้าง</span>
+          </div>
+          <div class="tline">
+            <span class="k">ทำงานยังไง</span>
+            <span class="v">
+              ใช้โครงสร้างตาม <strong>MDS-UPDRS ข้อ 3.4</strong> แบ่งเป็น 3 ช่วง ช่วงละ 10 วินาที —
+              (1) เคาะตามเมโทรนอมทุก 500 มิลลิวินาที (2) เคาะเร็วที่สุดด้วยมือถนัด
+              (3) เคาะเร็วที่สุดด้วยมืออีกข้าง ระบบบันทึกเวลาที่แตะทุกครั้ง
+              แล้วคำนวณระยะห่างระหว่างการเคาะแต่ละครั้ง
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ค่าที่วัด</th><th>ปกติ</th><th>ผิดปกติ</th><th>น้ำหนัก</th></tr></thead>
+              <tbody>
+                <tr><td>ความเร็วเคาะ (ครั้ง/วินาที) — เอามือที่ช้ากว่า</td><td class="num">5</td><td class="num">2</td><td class="num">25%</td></tr>
+                <tr><td>ความแกว่งของจังหวะ (ms)</td><td class="num">30</td><td class="num">130</td><td class="num">20%</td></tr>
+                <tr><td>อัตราการช้าลงระหว่างทาง (ms/ครั้ง)</td><td class="num">0</td><td class="num">5</td><td class="num">20%</td></tr>
+                <tr><td>ความคลาดจากจังหวะเมโทรนอม (ms)</td><td class="num">50</td><td class="num">180</td><td class="num">15%</td></tr>
+                <tr><td>ความต่างระหว่างสองมือ</td><td class="num">0.10</td><td class="num">0.45</td><td class="num">20%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="say">
+            "จุดที่ทีมออกแบบมาเฉพาะคือ<strong>ความเร็ววัดจากช่วงเคาะอิสระเท่านั้น ไม่วัดตอนมีเมโทรนอม</strong>
+            เพราะถ้ามีจังหวะกำกับ ทุกคนจะเคาะตามจังหวะเท่ากันหมด แล้วค่านี้จะแยกคนไม่ออกเลย
+            และเราเก็บ 'อัตราการช้าลงระหว่างทาง' แยกต่างหาก เพราะ decrement คืออาการเฉพาะของ bradykinesia
+            ที่คนปกติเหนื่อยแล้วช้าลงจะไม่ชันเท่า"
+          </div>
+        </div>
+      </article>
+
+      <!-- TREMOR -->
+      <article class="tcard">
+        <div class="tcard-head">
+          <h3>3 · ความนิ่งของมือ</h3>
+          <span class="weight">น้ำหนัก 20%</span>
+        </div>
+        <div class="tcard-body">
+          <div class="tline">
+            <span class="k">วัดอะไร</span>
+            <span class="v">อาการสั่นขณะพัก (rest tremor) — สัญญาณที่<strong>จำเพาะกับพาร์กินสันมากที่สุด</strong>ในบรรดาที่แอปนี้วัดได้</span>
+          </div>
+          <div class="tline">
+            <span class="k">ทำงานยังไง</span>
+            <span class="v">
+              อ่านค่าจากเซ็นเซอร์วัดความเร่งในโทรศัพท์ ที่ 60 Hz นาน 8 วินาทีต่อท่า มี 2 ท่า —
+              <strong>ท่ายกลอย</strong> (ถือโทรศัพท์ยกขึ้น แขนไม่พิง) วัด postural tremor
+              และ <strong>ท่าวางพัก</strong> (วางข้อศอกและแขนบนโต๊ะหรือตัก) วัด rest tremor
+              แล้วหาสัดส่วนพลังงานในย่าน 4–7 Hz ของแต่ละท่า
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ค่าที่วัด</th><th>ปกติ</th><th>ผิดปกติ</th><th>น้ำหนัก</th></tr></thead>
+              <tbody>
+                <tr><td>พลังงานย่านสั่น — ท่าพัก</td><td class="num">0.04</td><td class="num">0.26</td><td class="num">40%</td></tr>
+                <tr><td>ความแรงการสั่น — ท่าพัก</td><td class="num">0.02</td><td class="num">0.30</td><td class="num">20%</td></tr>
+                <tr><td>พลังงานย่านสั่น — ท่ายกลอย</td><td class="num">0.05</td><td class="num">0.30</td><td class="num">25%</td></tr>
+                <tr><td>ความแรงการสั่น — ท่ายกลอย</td><td class="num">0.03</td><td class="num">0.35</td><td class="num">15%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="say">
+            "เหตุผลที่ต้องแยกสองท่าคือ<strong>รูปแบบการสั่นต่างกันบอกโรคต่างกัน</strong>
+            พาร์กินสันจะสั่นตอนวางพัก แต่พอขยับกลับนิ่งลง ส่วน essential tremor ตรงข้าม
+            คือนิ่งตอนพัก แต่สั่นตอนยกค้าง เราจึงให้น้ำหนักท่าพักมากที่สุดที่ 40%
+            และระบบมีตัวชี้รูปแบบแยกสามกลุ่มอาการจากตรงนี้ด้วย"
+          </div>
+        </div>
+      </article>
+
+      <!-- FACIAL -->
+      <article class="tcard">
+        <div class="tcard-head">
+          <h3>4 · การหันศีรษะ</h3>
+          <span class="weight">น้ำหนัก 15%</span>
+        </div>
+        <div class="tcard-body">
+          <div class="tline">
+            <span class="k">วัดอะไร</span>
+            <span class="v">ช่วงการเคลื่อนไหวของคอ ความสมมาตรซ้าย–ขวา และความลื่นไหลของการหัน (ภาวะแข็งเกร็ง)</span>
+          </div>
+          <div class="tline">
+            <span class="k">ทำงานยังไง</span>
+            <span class="v">
+              ใช้ <strong>MediaPipe Face Landmarker</strong> จับจุดบนใบหน้า 468 จุดจากกล้องหน้า
+              คำนวณมุมหันซ้ายขวาจากตำแหน่งปลายจมูกเทียบกับกึ่งกลางใบหน้า หารด้วยครึ่งหนึ่งของความกว้างหน้า
+              ทำให้ค่าไม่ขึ้นกับว่าผู้ใช้อยู่ใกล้หรือไกลกล้อง
+              <strong>เฟรมภาพถูกประมวลผลในเครื่องแล้วทิ้งทันที ไม่มีการบันทึกหรืออัปโหลด</strong>
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ค่าที่วัด</th><th>ปกติ</th><th>ผิดปกติ</th><th>น้ำหนัก</th></tr></thead>
+              <tbody>
+                <tr><td>ช่วงหันรวมซ้าย+ขวา (องศา)</td><td class="num">110</td><td class="num">45</td><td class="num">45%</td></tr>
+                <tr><td>ความไม่เท่ากันซ้าย–ขวา</td><td class="num">0.10</td><td class="num">0.50</td><td class="num">35%</td></tr>
+                <tr><td>ความไม่ลื่นไหลของการหัน</td><td class="num">0.50</td><td class="num">1.50</td><td class="num">20%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="say">
+            "ข้อนี้ยืมแนวคิดจากการตรวจเส้นประสาทสมองที่แพทย์ทำในห้องตรวจครับ
+            แต่ต้องยอมรับว่าช่วงการหันคอลดลงตามอายุและภาวะกระดูกคอเสื่อมได้เอง
+            เราจึงให้น้ำหนักแค่ 15% และมีการปรับเกณฑ์ตามอายุแรงที่สุดในบรรดาทุกค่า คือ 14% ต่อทศวรรษ"
+          </div>
+        </div>
+      </article>
+
+      <!-- VOICE -->
+      <article class="tcard">
+        <div class="tcard-head">
+          <h3>5 · เสียงพูด</h3>
+          <span class="weight">น้ำหนัก 10%</span>
+        </div>
+        <div class="tcard-body">
+          <div class="tline">
+            <span class="k">วัดอะไร</span>
+            <span class="v">ความไม่นิ่งของเส้นเสียง (dysphonia) ซึ่งเป็นอาการที่พบได้เร็วในพาร์กินสัน</span>
+          </div>
+          <div class="tline">
+            <span class="k">ทำงานยังไง</span>
+            <span class="v">
+              ให้ออกเสียง "อาา" ยาว 5 วินาที ตัดสัญญาณเป็นเฟรมละ 40 มิลลิวินาที เลื่อนทีละ 20 มิลลิวินาที
+              หาความถี่มูลฐานของแต่ละเฟรมด้วย autocorrelation ในช่วง 70–400 Hz
+              แล้ววัดความแปรปรวนของคาบเสียง (jitter) ความแปรปรวนของความดัง (shimmer) และความแกว่งของระดับเสียง
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ค่าที่วัด</th><th>ปกติ</th><th>ผิดปกติ</th><th>น้ำหนัก</th></tr></thead>
+              <tbody>
+                <tr><td>Jitter — ความแปรปรวนคาบเสียง (%)</td><td class="num">0.6</td><td class="num">2.5</td><td class="num">40%</td></tr>
+                <tr><td>Shimmer — ความแปรปรวนความดัง (%)</td><td class="num">3.5</td><td class="num">11</td><td class="num">35%</td></tr>
+                <tr><td>ความแกว่งของระดับเสียง</td><td class="num">0.015</td><td class="num">0.09</td><td class="num">25%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="say">
+            "มีจุดที่ทีมตั้งใจ<strong>ไม่วัด</strong>ครับ คือความดังเสียง
+            ถึงแม้เสียงเบาลงจะเป็นอาการของพาร์กินสันจริง แต่เบราว์เซอร์ไม่ให้ค่าความดังที่สอบเทียบได้
+            และไมค์แต่ละรุ่นก็ต่างกัน เราจึงใช้แถบวัดระดับเสียงแค่ช่วยให้ผู้ใช้พูดดังพอเท่านั้น
+            ไม่เอาไปคิดคะแนน เพราะจะเป็นตัวเลขที่ไม่มีความหมาย"
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <h3>วิธีรวมคะแนน</h3>
+      </div>
+      <div class="tcard-body">
+        <div class="tline">
+          <span class="k">ขั้นที่ 1 — แปลงเป็นคะแนน</span>
+          <span class="v">แต่ละค่าที่วัดได้ถูกแมปเชิงเส้นจาก "ปกติ" = 0 คะแนน ไปจนถึง "ผิดปกติ" = 100 คะแนน</span>
+        </div>
+        <div class="tline">
+          <span class="k">ขั้นที่ 2 — ปรับตามอายุ</span>
+          <span class="v">
+            เลื่อนเกณฑ์ให้ผ่อนลงตามอายุที่เกิน 60 ปี เช่น ความเร็วเคาะนิ้วผ่อน 12% ต่อทศวรรษ
+            เพราะความเสื่อมตามวัยปกติไม่ควรถูกตีเป็นความเสี่ยง — ผ่อนสูงสุดถึงอายุ 90
+          </span>
+        </div>
+        <div class="tline">
+          <span class="k">ขั้นที่ 3 — ถ่วงน้ำหนักรวม</span>
+          <span class="v">รวมคะแนนของแต่ละการทดสอบตามน้ำหนัก 30 / 25 / 20 / 15 / 10 เปอร์เซ็นต์ ได้คะแนนรวม 0–100</span>
+        </div>
+        <div class="tline">
+          <span class="k">ขั้นที่ 4 — ตัดระดับ</span>
+          <span class="v">ไม่เกิน 33 = เสี่ยงต่ำ · 34–66 = เฝ้าดู · เกิน 66 = ควรพบแพทย์</span>
+        </div>
+        <div class="say">
+          "มีกลไกที่สำคัญมากชื่อ <strong>red-flag override</strong> ครับ —
+          ถ้าการทดสอบใดการทดสอบหนึ่งได้คะแนนตั้งแต่ 80 ขึ้นไป ระบบจะ<strong>ห้ามสรุปว่าเสี่ยงต่ำ</strong>เด็ดขาด
+          เหตุผลคือค่าเฉลี่ยถ่วงน้ำหนักมันชดเชยกันได้ คนที่มี rest tremor ชัดเจนอย่างเดียว
+          แต่อีกสี่อย่างปกติหมด จะถูกเฉลี่ยจนกลายเป็นเสี่ยงต่ำ ทั้งที่ rest tremor เป็นสัญญาณที่จำเพาะที่สุด
+          และพาร์กินสันระยะแรกมันเป็นแบบนั้นจริง ๆ คือกระทบแค่บางด้าน"
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. Q&A ===================== -->
+  <section id="qa">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>คำตอบกรรมการ</h2>
+    </div>
+    <p class="note">กดที่คำถามเพื่อดูคำตอบ — ซ้อมตอบออกเสียงอย่างน้อยรอบหนึ่งก่อนขึ้นเวที</p>
+
+    <div class="qa">
+
+      <div class="qa-group">
+        <span class="qa-title">กรรมการสายแพทย์</span>
+
+        <details>
+          <summary>เกณฑ์พวกนี้ผ่านการตรวจสอบทางคลินิกหรือยัง ความไวความจำเพาะเท่าไหร่</summary>
+          <p>
+            ตอบตรง ๆ ว่า<strong>ยังครับ</strong> ทุกค่าเป็น engineering estimate ที่ตั้งจากงานวิจัยที่อ้างอิงไว้ในโค้ด
+            แต่ยังไม่ได้ทดสอบกับผู้ป่วยจริง จึงยังไม่มีตัวเลข sensitivity หรือ specificity
+          </p>
+          <p>
+            สิ่งที่ทีม<strong>ตรวจสอบแล้ว</strong>คือความถูกต้องของการประมวลผลสัญญาณเอง
+            เรามีชุดทดสอบ 21 ข้อที่ป้อนสัญญาณสังเคราะห์ที่รู้คำตอบอยู่แล้วเข้าไป
+            เช่น สร้างสัญญาณสั่น 5 เฮิรตซ์ขึ้นมา แล้วตรวจว่าระบบวัดได้ 5 เฮิรตซ์จริงไหม
+            — เป็นการยืนยันว่าคณิตศาสตร์ถูก ไม่ใช่ยืนยันว่าวินิจฉัยแม่น
+            ซึ่งเป็นเหตุผลที่เราเรียกมันว่า "คัดกรองเบื้องต้น" และมีคำเตือนให้พบแพทย์ในทุกหน้าผลลัพธ์
+          </p>
+        </details>
+
+        <details>
+          <summary>ผู้สูงอายุเคลื่อนไหวช้าอยู่แล้ว จะแจ้งเตือนผิดพลาดเยอะไหม</summary>
+          <p>
+            ทุกค่ามีการปรับเกณฑ์ตามอายุครับ โดยเลื่อนจุดตัด "ปกติ" ให้ผ่อนลงตามสัดส่วนของช่วงคะแนน
+            สำหรับทุกทศวรรษที่เกิน 60 ปี เช่นความเร็วเคาะนิ้วผ่อน 12% ต่อทศวรรษ
+            ช่วงการหันคอผ่อน 14% ต่อทศวรรษ และผ่อนสูงสุดแค่ 3 ทศวรรษ คือหยุดที่อายุ 90
+            เพื่อไม่ให้เกณฑ์กว้างจนไม่มีความหมาย
+          </p>
+        </details>
+
+        <details>
+          <summary>ถ้าผลออกมาเสี่ยงสูง ผู้ใช้จะทำอะไรต่อ ระบบแนะนำอะไร</summary>
+          <p>
+            หน้าผลลัพธ์จะแนะนำให้ไปพบแพทย์พร้อมบอกว่าการทดสอบไหนผิดปกติ
+            และมีระบบติดตามที่ถ้าผลอยู่ในระดับเสี่ยงสูง<strong>ติดต่อกัน 5 วัน</strong>
+            จะขึ้นการแจ้งเตือนที่หนักแน่นขึ้นให้ไปพบแพทย์ครับ
+          </p>
+          <p>
+            เราออกแบบให้เป็นการนับ<strong>วันตามปฏิทินจริง</strong> ถ้าเว้นไปวันหนึ่งจะเริ่มนับใหม่
+            เพื่อไม่ให้ระบบอ้างว่า "ต่อเนื่อง 5 วัน" ทั้งที่ข้อมูลห่างกันเป็นเดือน
+          </p>
+        </details>
+
+        <details>
+          <summary>แยกพาร์กินสันจากอาการสั่นแบบอื่นได้ไหม</summary>
+          <p>
+            ระบบมีตัวชี้รูปแบบที่แยก 3 กลุ่มอาการครับ — <strong>พาร์กินสัน</strong> ที่เด่นเรื่องสั่นตอนพัก
+            เคลื่อนไหวช้า และไม่สมมาตร · <strong>essential tremor</strong> ที่สั่นตอนยกค้าง สมมาตรสองข้าง
+            ไม่มีอาการช้า · และ <strong>อาการสั่นทางสรีรวิทยา</strong> ที่สั่นเบามากจากความเครียดหรือคาเฟอีน
+          </p>
+          <p>
+            ตัวแยกหลักคือการเทียบท่าพักกับท่ายกลอย ถ้าสั่นตอนพักมากกว่าตอนยก
+            คะแนนฝั่งพาร์กินสันจะถูกคูณเพิ่ม แต่ต้องย้ำว่านี่คือ<strong>ตัวชี้ความคล้ายรูปแบบ ไม่ใช่การวินิจฉัยแยกโรค</strong>ครับ
+          </p>
+        </details>
+      </div>
+
+      <div class="qa-group">
+        <span class="qa-title">กรรมการสายวิศวกรรม</span>
+
+        <details>
+          <summary>ตรวจจับความสั่นด้วยวิธีอะไร ทำไมถึงเชื่อถือได้</summary>
+          <p>
+            ใช้ FFT แบบ radix-2 ที่ทีมเขียนเอง ไม่ได้ใช้ไลบรารีภายนอก
+            ก่อนแปลงจะทำ detrend เพื่อตัดแนวโน้มระยะยาวออก และคูณด้วย Hann window
+            เพื่อลด spectral leakage จากขอบสัญญาณ
+          </p>
+          <p>
+            สิ่งที่เอาไปคิดคะแนนคือ<strong>สัดส่วนพลังงานในย่าน 4–7 Hz เทียบกับพลังงานทั้งหมด</strong>
+            ไม่ใช่ค่าสัมบูรณ์ ข้อดีคือมันไม่ขึ้นกับว่าผู้ใช้ถือแรงหรือเบา
+            หรือเซ็นเซอร์แต่ละรุ่นให้ค่าต่างกัน — วัดว่าพลังงาน "กระจุกอยู่ในย่านโรคหรือเปล่า" มากกว่าวัดว่า "สั่นแรงแค่ไหน"
+          </p>
+        </details>
+
+        <details>
+          <summary>ข้อมูลผู้ใช้เก็บที่ไหน ปลอดภัยแค่ไหน</summary>
+          <p>
+            ภาพจากกล้องและเสียงประมวลผลใน memory แล้วทิ้งทันที <strong>ไม่เคยถูกอัปโหลดหรือบันทึกเป็นไฟล์</strong>
+            สิ่งที่เก็บมีแค่ตัวเลขผลลัพธ์ที่คำนวณเสร็จแล้ว เก็บใน localStorage ของเครื่องผู้ใช้เอง
+          </p>
+          <p>
+            หน้าขอความยินยอมแยกเป็น 2 ช่องติ๊กที่ไม่ติ๊กมาให้ล่วงหน้า — ช่องแรกคือยินยอมให้เก็บผลของตัวเอง
+            ช่องที่สองคือยินยอมให้ใช้ข้อมูลแบบไม่ระบุตัวตนเพื่อพัฒนาระบบ ซึ่ง<strong>เลือกไม่ติ๊กก็ใช้แอปได้ปกติ</strong>
+            เป็นไปตามหลัก PDPA ที่ข้อมูลสุขภาพและชีวมาตรถือเป็นข้อมูลอ่อนไหว
+          </p>
+        </details>
+
+        <details>
+          <summary>ถ้าผู้ใช้ทำไม่ครบหรือทำผิดวิธี ระบบรู้ไหม</summary>
+          <p>
+            รู้ครับ และเป็นจุดที่ทีมให้ความสำคัญมาก ทุกการทดสอบมีเกณฑ์ข้อมูลขั้นต่ำ เช่น
+            ต้องเคาะอย่างน้อย 6 ครั้ง · ต้องมีสัญญาณเซ็นเซอร์อย่างน้อย 20 ตัวอย่างต่อท่า ·
+            ต้องวาดก้นหอยครบอย่างน้อย 70% · ต้องมีเสียงจริงอย่างน้อย 25% ของช่วงอัด
+          </p>
+          <p>
+            ถ้าไม่ผ่านเกณฑ์ ระบบจะแจ้งว่า<strong>"ทำไม่สำเร็จ ลองใหม่" แทนที่จะให้คะแนน</strong>
+            เหตุผลคือถ้าไม่มีข้อมูล ค่าที่ได้จะเป็นศูนย์ ซึ่งพอแปลงเป็นคะแนนแล้วมันจะกลายเป็น "ปกติสมบูรณ์แบบ"
+            แปลว่า "เครื่องอ่านค่าไม่ได้" กับ "คุณสุขภาพดี" จะแยกกันไม่ออก ซึ่งอันตรายมากในบริบทสุขภาพ
+          </p>
+        </details>
+
+        <details>
+          <summary>ทำไมถึงเป็นเว็บ ไม่ทำเป็นแอปติดตั้ง</summary>
+          <p>
+            เพราะกลุ่มเป้าหมายคือผู้สูงอายุครับ ขั้นตอนการเข้า App Store ค้นหา ติดตั้ง สมัครสมาชิก
+            เป็นกำแพงที่ทำให้คนกลุ่มนี้เลิกกลางทางสูงมาก การเป็นเว็บทำให้<strong>สแกน QR แล้วใช้ได้ทันที</strong>
+            อย่างที่กรรมการเพิ่งเห็น
+          </p>
+          <p>
+            และเป็น PWA ที่ติดตั้งลงหน้าจอโฮมได้ถ้าต้องการ ส่วนแผนระยะยาวคือทำแอป Android ด้วย Flutter
+            โดยใช้ตรรกะการคำนวณชุดเดียวกับที่เขียนไว้แล้ว
+          </p>
+        </details>
+      </div>
+
+      <div class="qa-group">
+        <span class="qa-title">กรรมการสายออกแบบ / สถาปัตย์</span>
+
+        <details>
+          <summary>ออกแบบยังไงให้ผู้สูงอายุใช้ได้จริง</summary>
+          <p>
+            ทุกหน้าจอฝั่งผู้ใช้ยึดหลัก elderly-first ครับ — ตัวอักษรอย่างน้อย 18px ปุ่มกดอย่างน้อย 56px
+            หนึ่งหน้าจอมีปุ่มหลักปุ่มเดียวเพื่อไม่ให้ลังเล ไอคอนต้องมีข้อความกำกับเสมอ
+            และสีต้องมีข้อความคู่เสมอ เผื่อผู้ใช้ตาบอดสี
+          </p>
+          <p>
+            มีปุ่มขยายตัวอักษร 3 ระดับที่ขยายทั้งแอปพร้อมกัน และก่อนทำจริงทุกการทดสอบจะมี
+            <strong>ขั้นดูวิธีทำและขั้นทดลองที่ยังไม่เก็บคะแนน</strong> เพราะผู้สูงอายุมักกังวลว่าจะทำผิด
+          </p>
+        </details>
+
+        <details>
+          <summary>ทำไมหน้าสำหรับบุคลากรถึงหน้าตาต่างจากหน้าผู้ใช้</summary>
+          <p>
+            เพราะคนละกลุ่มผู้ใช้และคนละบริบทครับ หน้าผู้ป่วยใช้บนมือถือ ตัวใหญ่ กดง่าย ทีละอย่าง
+            แต่หน้าบุคลากรใช้บนคอมพิวเตอร์ ต้องเห็นภาพรวมประชากรและคัดว่าควรตามใครก่อน
+            จึงใช้ความหนาแน่นของข้อมูลสูงกว่าและเป็นตารางบนจอใหญ่ ย่อเป็นการ์ดบนจอเล็ก
+          </p>
+          <p>
+            และหน้านี้ตั้งใจสร้างบน<strong>ข้อมูลสังเคราะห์ล้วน ไม่ใช่ข้อมูลผู้ป่วยจริง</strong>
+            ซึ่งเป็นเหตุผลที่มันอยู่นอกระบบขอความยินยอม เพราะไม่มีข้อมูลที่ใครยินยอมไว้อยู่ในนั้นเลย
+          </p>
+        </details>
+      </div>
+
+      <div class="qa-group">
+        <span class="qa-title">คำถามยากที่ควรเตรียมใจ</span>
+
+        <details>
+          <summary>ถ้าแอปบอกว่าเสี่ยงต่ำ แต่เขาเป็นโรคจริง ใครรับผิดชอบ</summary>
+          <p>
+            ตอบตรงไปตรงมาว่านี่คือเหตุผลที่ทีม<strong>ไม่เคยใช้คำว่าวินิจฉัย</strong>ในทุกจุดของระบบครับ
+            และหน้าผลลัพธ์เขียนไว้ชัดว่า "ผลปกติไม่ได้ยืนยันว่าไม่มีโรค หากมีอาการควรพบแพทย์แม้ผลจะปกติ"
+          </p>
+          <p>
+            เครื่องมือนี้ทำหน้าที่<strong>เพิ่มโอกาสให้คนที่ยังไม่เคยคิดจะไปตรวจ ได้เห็นสัญญาณและตัดสินใจไปพบแพทย์</strong>
+            ไม่ได้ทำหน้าที่แทนแพทย์ และไม่ควรถูกใช้เพื่อตัดสินใจไม่ไปพบแพทย์
+          </p>
+        </details>
+
+        <details>
+          <summary>มีคู่แข่งไหม ต่างจากแอปอื่นยังไง</summary>
+          <p>
+            งานวิจัยและแอปต่างประเทศที่ใช้สมาร์ตโฟนคัดกรองพาร์กินสันมีอยู่จริงครับ
+            แต่ส่วนใหญ่เป็นงานวิจัยที่ต้องเข้าร่วมโครงการ หรือเป็นภาษาอังกฤษและออกแบบสำหรับผู้ใช้ทั่วไป
+          </p>
+          <p>
+            จุดต่างของทีมคือ <strong>ภาษาไทย · ออกแบบสำหรับผู้สูงอายุไทยโดยเฉพาะ · เข้าถึงได้ทันทีโดยไม่ต้องสมัครหรือติดตั้ง ·
+            และไม่ส่งข้อมูลชีวมาตรออกจากเครื่อง</strong> ซึ่งสามข้อหลังคือกำแพงที่ทำให้เครื่องมือต่างประเทศเข้าไม่ถึงกลุ่มนี้
+          </p>
+        </details>
+
+        <details>
+          <summary>ใช้ AI ตรงไหน ทำไมชื่อมี AI</summary>
+          <p>
+            <strong>อย่าเลี่ยงคำถามนี้</strong> — ตอบตรงว่าคะแนนตอนนี้คำนวณจากเกณฑ์ทางวิศวกรรมที่อ้างอิงงานวิจัย
+            <strong>ยังไม่ได้ใช้โมเดล AI</strong> ในการให้คะแนน
+          </p>
+          <p>
+            ส่วนที่ใช้การเรียนรู้ของเครื่องแล้วจริงคือ <strong>MediaPipe Face Landmarker</strong>
+            ซึ่งเป็นโมเดลตรวจจับจุดบนใบหน้าที่รันในเครื่องสำหรับการทดสอบหันศีรษะ
+          </p>
+          <p>
+            และ AI ในชื่อคือทิศทางที่วางไว้ครับ — เมื่อมีข้อมูลจากผู้ใช้ที่ยินยอมมากพอ
+            จะนำตัวเลขที่สะสมพร้อมช่วงอายุมาฝึกโมเดลจริงเพื่อแทนเกณฑ์คงที่ปัจจุบัน
+            การตอบตรงตรงนี้ดีกว่าถูกจับได้ว่าเคลมเกินมาก
+          </p>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== 4. ROADMAP ===================== -->
+  <section id="roadmap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>แผนพัฒนา</h2>
+    </div>
+    <p class="note">ใส่ลงสไลด์ "การต่อยอดในอนาคต" — จุดสำคัญคือแต่ละขั้นต้องบอก<strong>เงื่อนไขที่ต้องมีก่อน</strong> ไม่ใช่แค่รายการสิ่งที่อยากทำ</p>
+
+    <div class="roadmap">
+
+      <div class="phase">
+        <div class="phase-when">ระยะที่ 1<small>3–6 เดือน</small></div>
+        <div class="phase-body">
+          <h4>เก็บข้อมูลอย่างมีระบบ</h4>
+          <ul>
+            <li>ทำระบบหลังบ้านและระบบยืนยันตัวตน ให้ผู้ใช้ดูผลข้ามอุปกรณ์ได้ (ตอนนี้ผลอยู่เฉพาะในเครื่องเดียว)</li>
+            <li>เก็บข้อมูลจากผู้ใช้ที่ยินยอมพร้อมช่วงอายุ เพศ และข้อมูลที่ผู้ใช้แจ้งเอง เช่น มีประวัติครอบครัวหรือไม่</li>
+            <li>วัดว่าผู้ใช้ทำครบทั้ง 5 การทดสอบกี่เปอร์เซ็นต์ และตกกลางทางตรงไหน เพื่อปรับหน้าจอ</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-when">ระยะที่ 2<small>6–12 เดือน</small></div>
+        <div class="phase-body">
+          <h4>ตรวจสอบความแม่นยำร่วมกับแพทย์</h4>
+          <ul>
+            <li>ร่วมมือกับโรงพยาบาลหรือคณะแพทยศาสตร์ เก็บข้อมูลผู้ป่วยที่แพทย์วินิจฉัยแล้วเทียบกับกลุ่มควบคุม</li>
+            <li>คำนวณ sensitivity และ specificity จริง แล้วปรับเกณฑ์ทั้งหมดจากข้อมูลแทนการประมาณ</li>
+            <li>ขอความเห็นชอบด้านจริยธรรมการวิจัยก่อนเก็บข้อมูลผู้ป่วย</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-when">ระยะที่ 3<small>12–18 เดือน</small></div>
+        <div class="phase-body">
+          <h4>เปลี่ยนจากเกณฑ์คงที่เป็นโมเดล AI</h4>
+          <ul>
+            <li>ฝึกโมเดลจากข้อมูลที่ผ่านการตรวจสอบในระยะที่ 2 แทนเกณฑ์ที่ตั้งด้วยมือ</li>
+            <li>ใช้โมเดลที่<strong>อธิบายผลได้</strong> เพื่อให้บอกผู้ใช้และแพทย์ได้ว่าคะแนนมาจากอะไร ไม่ใช่กล่องดำ</li>
+            <li>เพิ่มการวัดที่ยังทำไม่ได้ตอนนี้ คือลายมือเล็กลง และการแสดงสีหน้าลดลง</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-when">ระยะที่ 4<small>18 เดือนขึ้นไป</small></div>
+        <div class="phase-body">
+          <h4>ขยายสู่การใช้งานจริง</h4>
+          <ul>
+            <li>เชื่อมหน้าสำหรับบุคลากรเข้ากับข้อมูลจริง ภายใต้ระบบสิทธิ์การเข้าถึงที่รัดกุม</li>
+            <li>ทำแอป Android ด้วย Flutter โดยใช้ตรรกะการคำนวณชุดเดิม</li>
+            <li>ร่วมกับ อสม. หรือหน่วยบริการปฐมภูมิ ใช้คัดกรองผู้สูงอายุในชุมชน</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== 5. SLIDES ===================== -->
+  <section id="slides">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>เช็กลิสต์สไลด์</h2>
+    </div>
+    <p class="note">อ้างอิงจากไฟล์ Pitching.pdf 14 หน้าที่ส่งมา</p>
+
+    <div class="slides">
+
+      <div class="group-head fix">ต้องแก้ก่อนขึ้นเวที</div>
+
+      <div class="slide-row fix">
+        <span class="slide-tag">หน้า 6–9</span>
+        <div class="slide-body">
+          <span class="t">ภาพหน้าจอเป็นเวอร์ชันเก่า</span>
+          <span class="d">
+            ยังโชว์ปุ่ม "ต่อไป: ทดลองใช้" และ "พร้อมแล้ว ทดสอบจริง" ซึ่งแก้ไปแล้วในแอปจริง
+            (ตอนนี้ปุ่มลอยติดล่างจอ ข้อความเป็น "ทดลองใช้" กับ "ทดสอบจริง")
+            กรรมการที่สแกน QR จะเห็นไม่ตรงกับสไลด์ — ถ่ายใหม่แทนที่
+          </span>
+        </div>
+      </div>
+
+      <div class="slide-row fix">
+        <span class="slide-tag">หน้า 14</span>
+        <div class="slide-body">
+          <span class="t">สไลด์ปิดว่างเปล่า</span>
+          <span class="d">เติมคำขอบคุณ + QR code ขนาดใหญ่ + ชื่อทีม เพื่อให้กรรมการสแกนซ้ำได้ตอนถาม-ตอบ</span>
+        </div>
+      </div>
+
+      <div class="slide-row fix">
+        <span class="slide-tag">หน้า 6</span>
+        <div class="slide-body">
+          <span class="t">คลิปสอนในภาพเป็นคลิปทดสอบ</span>
+          <span class="d">
+            ภาพหน้าจอโชว์คลิปที่มีแบรนด์ "buzzallday CTF" ซึ่งไม่เกี่ยวกับโปรเจกต์
+            ถ้ายังไม่มีคลิปสอนจริง ให้ถ่ายภาพหน้าจอตอนที่แสดงภาพสาธิตในตัวแอปแทน
+          </span>
+        </div>
+      </div>
+
+      <div class="group-head add">ควรเพิ่ม</div>
+
+      <div class="slide-row add">
+        <span class="slide-tag">เพิ่มใหม่</span>
+        <div class="slide-body">
+          <span class="t">สไลด์ "เบื้องหลังการวัด"</span>
+          <span class="d">
+            ตอนนี้ทั้งเด็คบอกว่าแอป "ทำอะไร" แต่ไม่มีหน้าไหนบอกว่า "วัดยังไง" เลย
+            ซึ่งเป็นสิ่งที่กรรมการสายแพทย์และวิศวกรอยากรู้ที่สุด
+            ใส่ภาพเดียว: กราฟความถี่ที่ไฮไลต์ย่าน 4–7 Hz พร้อมข้อความว่าอ้างอิง MDS-UPDRS 3.4
+          </span>
+        </div>
+      </div>
+
+      <div class="slide-row add">
+        <span class="slide-tag">หน้า 12</span>
+        <div class="slide-body">
+          <span class="t">"จุดเด่น" ยังกว้างเกินไป</span>
+          <span class="d">
+            "ใช้งานง่าย" กับ "มีหลายรูปแบบ" เป็นสิ่งที่แอปไหนก็อ้างได้
+            เปลี่ยนเป็นจุดที่ทีมมีจริงแต่ยังไม่ได้พูด — ข้อมูลชีวมาตรไม่ออกจากเครื่องตาม PDPA ·
+            โครงสร้างอ้างอิง MDS-UPDRS · ปรับเกณฑ์ตามอายุ · ใช้ได้โดยไม่ต้องสมัครสมาชิก
+          </span>
+        </div>
+      </div>
+
+      <div class="slide-row add">
+        <span class="slide-tag">หน้า 13</span>
+        <div class="slide-body">
+          <span class="t">แผนอนาคตยังไม่มีกรอบเวลา</span>
+          <span class="d">แทนที่ 4 บูลเลตลอย ๆ ด้วยไทม์ไลน์ 4 ระยะจากหัวข้อ "แผนพัฒนา" ด้านบน — มีกรอบเวลาทำให้ดูเป็นแผนจริง ไม่ใช่ความฝัน</span>
+        </div>
+      </div>
+
+      <div class="slide-row add">
+        <span class="slide-tag">เพิ่มใหม่</span>
+        <div class="slide-body">
+          <span class="t">สไลด์การหันศีรษะ</span>
+          <span class="d">มีสไลด์เดี่ยวของ 4 การทดสอบ ขาดแค่การหันศีรษะ — ถ้าไม่มีเวลาทำ ให้พูดถึงตอนเดโมแทนเพื่อให้ครบ 5</span>
+        </div>
+      </div>
+
+      <div class="group-head keep">ดีอยู่แล้ว อย่าแก้</div>
+
+      <div class="slide-row keep">
+        <span class="slide-tag">หน้า 2–3</span>
+        <div class="slide-body">
+          <span class="t">การเล่าปัญหาชัดและมีน้ำหนัก</span>
+          <span class="d">ลำดับ ปัญหา → ช่องว่าง → โอกาส อ่านแล้วเข้าใจทันที และภาพข่าวจริงช่วยให้น่าเชื่อถือ</span>
+        </div>
+      </div>
+
+      <div class="slide-row keep">
+        <span class="slide-tag">หน้า 10–11</span>
+        <div class="slide-body">
+          <span class="t">ภาพหน้าจอผลลัพธ์และหน้าบุคลากร</span>
+          <span class="d">
+            แสดงของจริงที่ใช้งานได้ ไม่ใช่ภาพจำลอง และป้ายเตือน "ข้อมูลจำลองเพื่อการสาธิต"
+            ในหน้าบุคลากรแสดงความรอบคอบที่กรรมการสายแพทย์จะสังเกตเห็น
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>Neuro Motion AI · ทีม M19 · HIT Award 2026</footer>
+
+</div>
