@@ -147,16 +147,19 @@ export async function compressVideoIfNeeded(
     video.muted = true;
     video.playsInline = true;
 
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const cleanup = () => {
+      if (timeoutId) clearTimeout(timeoutId);
       URL.revokeObjectURL(video.src);
       video.remove();
     };
 
-    // Timeout safety net (20 seconds)
-    const timeoutId = setTimeout(() => {
+    // Default safety timeout until metadata loads
+    timeoutId = setTimeout(() => {
       cleanup();
       resolve(file);
-    }, 20000);
+    }, 30000);
 
     video.onloadedmetadata = () => {
       try {
@@ -164,11 +167,18 @@ export async function compressVideoIfNeeded(
         const origHeight = video.videoHeight || 720;
         const duration = video.duration || 10;
 
+        // Reset timeout dynamically based on duration (give 1.5x real time, min 60s)
+        clearTimeout(timeoutId);
+        const dynamicTimeoutMs = Math.max(60000, Math.ceil(duration * 1000 * 1.5));
+        timeoutId = setTimeout(() => {
+          cleanup();
+          resolve(file);
+        }, dynamicTimeoutMs);
+
         // Dynamic bitrate target: aim for 2.5 MB total file size
-        // Size = (bitrate * duration) / 8 => bitrate = (2.5MB * 8) / duration
         const targetBits = 2.5 * 8 * 1024 * 1024;
         const calculatedBitrate = Math.floor(targetBits / duration);
-        const targetBitrate = Math.min(800_000, Math.max(250_000, calculatedBitrate));
+        const targetBitrate = Math.min(800_000, Math.max(150_000, calculatedBitrate));
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
@@ -191,7 +201,6 @@ export async function compressVideoIfNeeded(
         const ctx = canvas.getContext('2d');
 
         if (!ctx || typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
-          clearTimeout(timeoutId);
           cleanup();
           resolve(file);
           return;
@@ -215,7 +224,6 @@ export async function compressVideoIfNeeded(
         };
 
         mediaRecorder.onstop = () => {
-          clearTimeout(timeoutId);
           cleanup();
           onProgress?.(100);
           if (chunks.length > 0) {
@@ -238,6 +246,12 @@ export async function compressVideoIfNeeded(
         };
 
         video.onplay = () => {
+          // Speed up video encoding to 2.0x if supported to finish faster
+          try {
+            video.playbackRate = 2.0;
+          } catch {
+            /* ignore playbackRate errors */
+          }
           mediaRecorder.start();
           drawFrame();
         };
@@ -250,19 +264,16 @@ export async function compressVideoIfNeeded(
         };
 
         video.play().catch(() => {
-          clearTimeout(timeoutId);
           cleanup();
           resolve(file);
         });
       } catch {
-        clearTimeout(timeoutId);
         cleanup();
         resolve(file);
       }
     };
 
     video.onerror = () => {
-      clearTimeout(timeoutId);
       cleanup();
       resolve(file);
     };
