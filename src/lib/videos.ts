@@ -142,17 +142,35 @@ export async function compressVideoIfNeeded(
 
   return new Promise((resolve) => {
     const video = document.createElement('video');
+    video.style.position = 'fixed';
+    video.style.top = '-9999px';
+    video.style.left = '-9999px';
+    video.style.width = '1px';
+    video.style.height = '1px';
+    video.style.opacity = '0';
+    video.style.pointerEvents = 'none';
     video.preload = 'metadata';
-    video.src = URL.createObjectURL(file);
     video.muted = true;
+    video.volume = 0;
     video.playsInline = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+
+    document.body.appendChild(video);
+    video.src = URL.createObjectURL(file);
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const cleanup = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      URL.revokeObjectURL(video.src);
-      video.remove();
+      try {
+        URL.revokeObjectURL(video.src);
+        if (video.parentNode) {
+          video.parentNode.removeChild(video);
+        }
+      } catch {
+        /* ignore */
+      }
     };
 
     // Default safety timeout until metadata loads
@@ -165,9 +183,11 @@ export async function compressVideoIfNeeded(
       try {
         const origWidth = video.videoWidth || 1280;
         const origHeight = video.videoHeight || 720;
-        const duration = video.duration || 10;
+        // Cap max tutorial clip duration at 30s to keep size tiny
+        const maxDurationS = 30;
+        const duration = Math.min(maxDurationS, video.duration || 10);
 
-        // Reset timeout dynamically based on duration (give 1.5x real time, min 60s)
+        // Reset timeout dynamically based on duration (give 1.5x time, min 60s)
         clearTimeout(timeoutId);
         const dynamicTimeoutMs = Math.max(60000, Math.ceil(duration * 1000 * 1.5));
         timeoutId = setTimeout(() => {
@@ -175,10 +195,10 @@ export async function compressVideoIfNeeded(
           resolve(file);
         }, dynamicTimeoutMs);
 
-        // Dynamic bitrate target: aim for 2.5 MB total file size
-        const targetBits = 2.5 * 8 * 1024 * 1024;
+        // Dynamic bitrate target: aim for 2.0 MB total file size
+        const targetBits = 2.0 * 8 * 1024 * 1024;
         const calculatedBitrate = Math.floor(targetBits / duration);
-        const targetBitrate = Math.min(800_000, Math.max(150_000, calculatedBitrate));
+        const targetBitrate = Math.min(700_000, Math.max(150_000, calculatedBitrate));
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
@@ -206,7 +226,7 @@ export async function compressVideoIfNeeded(
           return;
         }
 
-        const stream = canvas.captureStream(24);
+        const stream = canvas.captureStream(20);
         const mimeType = [
           'video/webm;codecs=vp8',
           'video/webm',
@@ -236,10 +256,15 @@ export async function compressVideoIfNeeded(
 
         let animId: number;
         const drawFrame = () => {
-          if (video.ended || video.paused) return;
+          if (video.ended || video.paused || video.currentTime >= maxDurationS) {
+            if (mediaRecorder.state !== 'inactive') {
+              mediaRecorder.stop();
+            }
+            return;
+          }
           ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
           if (onProgress && duration > 0) {
-            const pct = Math.min(99, Math.round((video.currentTime / duration) * 100));
+            const pct = Math.min(99, Math.round((Math.min(video.currentTime, maxDurationS) / duration) * 100));
             onProgress(pct);
           }
           animId = requestAnimationFrame(drawFrame);
