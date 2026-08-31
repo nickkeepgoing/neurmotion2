@@ -105,22 +105,8 @@ function Row({
     <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-2.5">
       <div className="flex items-center gap-3.5">
         <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
-        <div className="flex flex-col min-w-0 gap-0.5">
-          <span className="text-lg font-extrabold text-ink">{S.tests[id].name}</span>
-          {progressInfo ? (
-            <span className="text-sm font-extrabold text-secondary">
-              {isCompressing ? S.admin.compressing : S.admin.uploading}
-            </span>
-          ) : cloud === 'checking' ? (
-            <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
-          ) : (
-            <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
-              <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
-              {kind === 'youtube' ? S.admin.hasCloudVideoYouTube : kind === 'file' ? S.admin.hasCloudVideo : S.admin.noVideo}
-            </span>
-          )}
-        </div>
-        <div className="ml-auto flex items-center gap-2 flex-none">
+        <span className="text-lg font-extrabold text-ink flex-1 min-w-0 truncate">{S.tests[id].name}</span>
+        <div className="flex items-center gap-2 flex-none">
           {hasCloud && (
             <button
               onClick={onRemove}
@@ -139,6 +125,25 @@ function Row({
           </button>
           <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
         </div>
+      </div>
+
+      {/* status line on its own full-width row — was crammed into the name's
+          flex column and fighting the buttons for space, so a long label
+          (e.g. "มีคลิป (YouTube) · เห็นได้ทุกอุปกรณ์") would wrap and land
+          right under/beside a button instead of reading as one clean line */}
+      <div className="pl-[calc(3rem+0.875rem)]">
+        {progressInfo ? (
+          <span className="text-sm font-extrabold text-secondary">
+            {isCompressing ? S.admin.compressing : S.admin.uploading}
+          </span>
+        ) : cloud === 'checking' ? (
+          <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
+        ) : (
+          <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
+            <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
+            {kind === 'youtube' ? S.admin.hasCloudVideoYouTube : kind === 'file' ? S.admin.hasCloudVideo : S.admin.noVideo}
+          </span>
+        )}
       </div>
 
       {progressInfo && (
