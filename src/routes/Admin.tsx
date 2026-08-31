@@ -27,7 +27,14 @@ const TESTS: { id: TestId; icon: React.ReactNode }[] = [
 
 type CloudState = 'checking' | CloudVideoStatus;
 
-function Row({
+/**
+ * One card per test, split into two clearly separated zones:
+ *   - Header: identity (icon + name) + current status + remove action.
+ *   - Body: the two ways to attach a clip — upload a file, or paste a
+ *     YouTube link — visually divided by an "หรือ" rule so they never read
+ *     as one run-together block.
+ */
+function TutorialCard({
   id,
   icon,
   cloud,
@@ -99,100 +106,113 @@ function Row({
 
   const kind = cloud === 'checking' ? null : cloud.kind;
   const hasCloud = kind === 'youtube' || kind === 'file';
+  const currentYtId = cloud !== 'checking' && cloud.kind === 'youtube' ? cloud.id : null;
   const isCompressing = progressInfo?.stage === 'compressing';
 
   return (
-    <div className="bg-white rounded-2xl border border-line px-4 py-3.5 flex flex-col gap-2.5">
-      <div className="flex items-center gap-3.5">
-        <div className="w-12 h-12 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
-        <span className="text-lg font-extrabold text-ink flex-1 min-w-0 truncate">{S.tests[id].name}</span>
-        <div className="flex items-center gap-2 flex-none">
-          {hasCloud && (
-            <button
-              onClick={onRemove}
-              disabled={busy}
-              className="h-11 px-3 rounded-[12px] border-2 border-field bg-white text-risk-high-text text-sm font-bold cursor-pointer disabled:opacity-50"
-            >
-              {S.admin.remove}
-            </button>
+    <div className="bg-white rounded-2xl border border-line overflow-hidden">
+      {/* header: identity + status + remove — nothing here competes with the
+          upload/link actions below, which live in their own zone */}
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="w-11 h-11 rounded-ctl bg-primary-soft flex items-center justify-center flex-none">{icon}</div>
+        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+          <span className="text-base font-extrabold text-ink truncate">{S.tests[id].name}</span>
+          {progressInfo ? (
+            <span className="text-sm font-bold text-secondary truncate">
+              {isCompressing ? S.admin.compressing : S.admin.uploading}
+            </span>
+          ) : cloud === 'checking' ? (
+            <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
+          ) : (
+            <span className={`inline-flex items-center gap-1.5 text-sm font-bold truncate ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
+              <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
+              <span className="truncate">
+                {kind === 'youtube' ? S.admin.hasCloudVideoYouTube : kind === 'file' ? S.admin.hasCloudVideo : S.admin.noVideo}
+              </span>
+            </span>
           )}
+        </div>
+        {hasCloud && (
           <button
-            onClick={() => inputRef.current?.click()}
+            onClick={onRemove}
             disabled={busy}
-            className="h-11 px-4 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50"
+            className="flex-none h-9 px-3 rounded-full border border-field bg-white text-risk-high-text text-xs font-bold cursor-pointer disabled:opacity-50"
           >
-            {busy ? '…' : kind === 'file' ? S.admin.replace : S.admin.upload}
+            {S.admin.remove}
           </button>
-          <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
-        </div>
-      </div>
-
-      {/* status line on its own full-width row — was crammed into the name's
-          flex column and fighting the buttons for space, so a long label
-          (e.g. "มีคลิป (YouTube) · เห็นได้ทุกอุปกรณ์") would wrap and land
-          right under/beside a button instead of reading as one clean line */}
-      <div className="pl-[calc(3rem+0.875rem)]">
-        {progressInfo ? (
-          <span className="text-sm font-extrabold text-secondary">
-            {isCompressing ? S.admin.compressing : S.admin.uploading}
-          </span>
-        ) : cloud === 'checking' ? (
-          <span className="text-sm font-bold text-muted">{S.admin.checking}</span>
-        ) : (
-          <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
-            <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
-            {kind === 'youtube' ? S.admin.hasCloudVideoYouTube : kind === 'file' ? S.admin.hasCloudVideo : S.admin.noVideo}
-          </span>
         )}
       </div>
 
-      {progressInfo && (
-        <div className="flex flex-col gap-1.5 bg-[#F4F8FB] rounded-xl p-3 border border-secondary-soft/50">
-          <div className="flex justify-between items-center text-sm font-extrabold text-secondary">
-            <span>{isCompressing ? S.admin.compressing : S.admin.uploading}</span>
-            <span className="font-num font-black">{progressInfo.percent}%</span>
-          </div>
-          <div className="w-full h-2.5 bg-line-warm rounded-full overflow-hidden">
-            <div
-              className="h-full bg-secondary rounded-full transition-all duration-150"
-              style={{ width: `${progressInfo.percent}%` }}
+      {/* body: the two attach methods, visually divided so they never read
+          as one run-together block */}
+      <div className="border-t border-line-warm px-4 py-3.5 flex flex-col gap-3">
+        <button
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="h-12 rounded-[12px] border-2 border-dashed border-field bg-[#FAFBFC] text-sm font-extrabold text-muted-2 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-none">
+            <path d="M12 16V4M12 4l-4.5 4.5M12 4l4.5 4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+          {busy && !isCompressing ? S.admin.uploading : kind === 'file' ? S.admin.replace : S.admin.upload}
+        </button>
+        <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
+
+        <div className="flex items-center gap-3">
+          <span className="flex-1 h-px bg-line" />
+          <span className="text-xs font-bold text-muted flex-none">{S.admin.or}</span>
+          <span className="flex-1 h-px bg-line" />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-bold text-muted-2">{S.admin.ytLabel}</span>
+          {currentYtId && (
+            <span className="text-xs font-semibold text-muted truncate">
+              {S.admin.ytCurrent}: youtu.be/{currentYtId}
+            </span>
+          )}
+          <div className="flex items-center gap-2">
+            <input
+              type="url"
+              inputMode="url"
+              value={ytInput}
+              onChange={(e) => setYtInput(e.target.value)}
+              placeholder={S.admin.ytPlaceholder}
+              disabled={ytBusy}
+              className="flex-1 min-w-0 h-11 px-3 rounded-[12px] border-2 border-field bg-white text-sm font-semibold text-ink disabled:opacity-50"
             />
+            <button
+              onClick={onSaveYt}
+              disabled={ytBusy || !ytInput.trim()}
+              className="h-11 px-3.5 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50 flex-none"
+            >
+              {ytBusy ? S.admin.ytSaving : kind === 'youtube' ? S.admin.ytReplace : S.admin.ytSave}
+            </button>
           </div>
         </div>
-      )}
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-bold text-muted-2">{S.admin.ytLabel}</span>
-        {kind === 'youtube' && (
-          <span className="text-xs font-semibold text-muted">
-            {S.admin.ytCurrent}: youtu.be/{cloud !== 'checking' && cloud.kind === 'youtube' ? cloud.id : ''}
-          </span>
+        {progressInfo && (
+          <div className="flex flex-col gap-1.5 bg-[#F4F8FB] rounded-xl p-3 border border-secondary-soft/50">
+            <div className="flex justify-between items-center text-sm font-extrabold text-secondary">
+              <span>{isCompressing ? S.admin.compressing : S.admin.uploading}</span>
+              <span className="font-num font-black">{progressInfo.percent}%</span>
+            </div>
+            <div className="w-full h-2.5 bg-line-warm rounded-full overflow-hidden">
+              <div
+                className="h-full bg-secondary rounded-full transition-all duration-150"
+                style={{ width: `${progressInfo.percent}%` }}
+              />
+            </div>
+          </div>
         )}
-        <div className="flex items-center gap-2">
-          <input
-            type="url"
-            inputMode="url"
-            value={ytInput}
-            onChange={(e) => setYtInput(e.target.value)}
-            placeholder={S.admin.ytPlaceholder}
-            disabled={ytBusy}
-            className="flex-1 min-w-0 h-11 px-3 rounded-[12px] border-2 border-field bg-white text-sm font-semibold text-ink disabled:opacity-50"
-          />
-          <button
-            onClick={onSaveYt}
-            disabled={ytBusy || !ytInput.trim()}
-            className="h-11 px-3.5 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50 flex-none"
-          >
-            {ytBusy ? S.admin.ytSaving : kind === 'youtube' ? S.admin.ytReplace : S.admin.ytSave}
-          </button>
-        </div>
-      </div>
 
-      {error && (
-        <p className="text-sm font-semibold text-risk-high-text bg-risk-high-bg rounded-[10px] px-3 py-2 m-0 leading-relaxed">
-          {S.admin.cloudError}: {error}
-        </p>
-      )}
+        {error && (
+          <p className="text-sm font-semibold text-risk-high-text bg-risk-high-bg rounded-[10px] px-3 py-2 m-0 leading-relaxed">
+            {S.admin.cloudError}: {error}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -230,10 +250,13 @@ export default function Admin() {
   useEffect(refresh, []);
 
   return (
-    <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pb-10 flex flex-col gap-4">
+    <div className="min-h-dvh bg-bg max-w-md mx-auto px-6 pb-10 flex flex-col gap-5">
       <AppBar />
-      <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
-      <p className="text-base font-medium text-muted-2 leading-relaxed -mt-2">{S.admin.subtitle}</p>
+
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-extrabold text-ink m-0">{S.admin.title}</h1>
+        <p className="text-base font-medium text-muted-2 leading-relaxed m-0">{S.admin.subtitle}</p>
+      </div>
 
       {!isSupabaseConfigured() && (
         <div className="rounded-2xl bg-risk-high-bg border-2 border-[#F2D2CC] px-4 py-3.5 flex flex-col gap-1">
@@ -242,14 +265,14 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 mt-1">
+      <div className="flex flex-col gap-3">
         {TESTS.map((t) => (
-          <Row key={t.id} id={t.id} icon={t.icon} cloud={cloud[t.id]} onChange={refresh} />
+          <TutorialCard key={t.id} id={t.id} icon={t.icon} cloud={cloud[t.id]} onChange={refresh} />
         ))}
       </div>
 
       {/* demo aid: keeps the trend chart and history from being empty on stage */}
-      <div className="mt-4 bg-white rounded-2xl border border-line px-4 py-4 flex flex-col gap-2">
+      <div className="bg-white rounded-2xl border border-line px-4 py-4 flex flex-col gap-2">
         <span className="text-lg font-extrabold text-ink">{S.admin.seedTitle}</span>
         <span className="text-base font-medium text-muted-2 leading-relaxed">{S.admin.seedDesc}</span>
         <button
