@@ -105,15 +105,19 @@ encodes.
 `highRiskStreak()` walks *local calendar days* backward from today — sessions merely
 being chronologically close doesn't count as a streak if a day was skipped.
 
-### Tutorial videos: three-tier fallback (`supabase.ts` + `videos.ts` + `TestIntro.tsx`)
+### Tutorial videos: four-tier fallback (`supabase.ts` + `videos.ts` + `TestIntro.tsx`)
 
-Every test's "watch how" step tries, in order: (1) Supabase Storage public bucket
-`tutorials` — one admin upload, visible on every device including a judge's own phone;
-(2) this device's local IndexedDB copy — an offline fallback if the venue's network
-drops mid-pitch; (3) neither — falls back to the built-in animated demo
-(`TestDemo.tsx`), which was always the default before cloud upload existed. The whole
-chain lives in `getVideoUrl()` in `videos.ts`; `TestIntro.tsx` doesn't know or care
-which tier resolved.
+Every test's "watch how" step tries, in order: (0) a YouTube (Unlisted) link the admin
+pasted in `/admin` — the video lives on YouTube, not our infra, so there's no size
+limit and no client-side re-encode; what's stored is a tiny text object (`{test}.yt`,
+just the 11-char video ID) in the same `tutorials` bucket as tier 1; (1) Supabase
+Storage public bucket `tutorials` — an admin-uploaded file, visible on every device
+including a judge's own phone; (2) this device's local IndexedDB copy — an offline
+fallback if the venue's network drops mid-pitch; (3) neither — falls back to the
+built-in animated demo (`TestDemo.tsx`), which was always the default before cloud
+upload existed. The whole chain lives in `getVideoUrl()` in `videos.ts`, returning a
+`VideoSource` (`{type:'youtube', embedUrl}` or `{type:'file', url}`) — `TestIntro.tsx`
+renders an `<iframe>` for the former, a `<video>` for the latter.
 
 `lib/supabase.ts` talks to Storage's REST API directly with plain `fetch` — no
 `@supabase/supabase-js` dependency. Requires `VITE_SUPABASE_URL` and
@@ -123,8 +127,13 @@ key is meant to be public (it ships in the JS bundle regardless); **`docs/supaba
 grants that key insert/update/delete on the `tutorials` bucket only** — necessary
 because there is no admin auth yet. Re-run it if the bucket is ever recreated.
 
-Large uploads are compressed client-side (canvas + `MediaRecorder`, see
-`compressVideoIfNeeded` in `videos.ts`) before hitting Storage's per-file size limit.
+Large file uploads (tier 1) are compressed client-side (canvas + `MediaRecorder`, see
+`compressVideoIfNeeded` in `videos.ts`) before hitting Storage's per-file size limit;
+bitrate/resolution are chosen from a size budget (`MAX_UPLOAD_SIZE`) and the clip's
+duration so the output reliably lands under the limit rather than at a fixed rate.
+Pasting a YouTube link instead (tier 0) skips this entirely — full source quality,
+no compression, no size limit — which is why it's the recommended path for anyone who
+wants maximum clarity and is willing to upload to YouTube first.
 
 ### Design tokens (`src/index.css`, not a TS file)
 

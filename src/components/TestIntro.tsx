@@ -5,7 +5,7 @@ import Button from './ui/Button';
 import { useSettings } from '../context/SettingsContext';
 import { speak, stopSpeaking } from '../lib/speech';
 import { S } from '../lib/strings';
-import { getVideoUrl, hasVideo } from '../lib/videos';
+import { getVideoUrl, hasVideo, type VideoSource } from '../lib/videos';
 import type { TestId } from '../lib/types';
 
 /**
@@ -28,7 +28,7 @@ export default function TestIntro({
 }) {
   const { settings } = useSettings();
   const [step, setStep] = useState<0 | 1>(0);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoSource, setVideoSource] = useState<VideoSource | null>(null);
   const hasClip = hasVideo(testId);
   const caption = S.demoCaption[testId];
   const replay = useRef<HTMLVideoElement>(null);
@@ -44,15 +44,16 @@ export default function TestIntro({
     }
   };
 
-  // load the admin clip (if any) and clean up its object URL
+  // load the admin clip (if any) and clean up its object URL (file tier only —
+  // the youtube tier's embedUrl is a plain https URL, nothing to revoke)
   useEffect(() => {
-    let url: string | null = null;
-    getVideoUrl(testId).then((u) => {
-      url = u;
-      setVideoUrl(u);
+    let objectUrl: string | null = null;
+    getVideoUrl(testId).then((v) => {
+      if (v?.type === 'file' && v.url.startsWith('blob:')) objectUrl = v.url;
+      setVideoSource(v);
     });
     return () => {
-      if (url) URL.revokeObjectURL(url);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [testId]);
 
@@ -65,12 +66,12 @@ export default function TestIntro({
   }, []);
 
   // speak the caption for the current step
-  // IMPORTANT: When a custom tutorial video is present (videoUrl or hasClip),
+  // IMPORTANT: When a custom tutorial video is present (videoSource or hasClip),
   // DO NOT speak the default TTS caption on step 0 to prevent voice overlap!
   useEffect(() => {
     if (settings.voiceOn) {
       if (step === 0) {
-        if (!videoUrl && !hasClip) {
+        if (!videoSource && !hasClip) {
           speak(caption);
         } else {
           stopSpeaking();
@@ -83,7 +84,7 @@ export default function TestIntro({
       stopSpeaking();
     }
     return () => stopSpeaking();
-  }, [step, videoUrl, hasClip, caption, settings.voiceOn]);
+  }, [step, videoSource, hasClip, caption, settings.voiceOn]);
 
   const handleGoToPractice = () => {
     stopSpeaking();
@@ -115,10 +116,18 @@ export default function TestIntro({
             <h2 className="mt-4 text-xl font-extrabold text-ink">{S.flow.watchTitle}</h2>
 
             <div className="mt-3 flex-1 flex flex-col items-center justify-center gap-3">
-              {videoUrl ? (
+              {videoSource?.type === 'youtube' ? (
+                <iframe
+                  src={`${videoSource.embedUrl}&autoplay=1`}
+                  title={S.tests[testId].name}
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  className="w-full aspect-video max-h-[46vh] rounded-tile bg-black border-0"
+                />
+              ) : videoSource?.type === 'file' ? (
                 <video
                   ref={replay}
-                  src={videoUrl}
+                  src={videoSource.url}
                   controls
                   autoPlay
                   playsInline

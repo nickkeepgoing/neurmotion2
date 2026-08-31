@@ -1,9 +1,15 @@
 /**
  * Tutorial-video source for each test, in priority order:
  *
- *   1. Supabase Storage (public bucket `tutorials`) — uploaded once from
- *      /admin, visible on every device. This is the real answer to "I upload
- *      once, judges see it on their own phones."
+ *   0. YouTube (admin pastes an Unlisted video's link in /admin) — the video
+ *      itself lives on YouTube, not our infra, so there is no 50MB upload
+ *      limit and no client-side re-encode: viewers get YouTube's own
+ *      adaptive-bitrate stream at up to source quality. What we store is a
+ *      tiny text object (`{test}.yt`, just the 11-char video ID) in the same
+ *      Supabase `tutorials` bucket as tier 1 — no new infra, same policies.
+ *   1. Supabase Storage (public bucket `tutorials`) — the actual video file,
+ *      uploaded once from /admin, visible on every device. The fallback for
+ *      anyone who'd rather upload a file than use YouTube.
  *   2. IndexedDB on THIS device — the original per-device store. Kept as the
  *      offline fallback: if the venue's internet drops mid-pitch, a clip
  *      saved locally beforehand still plays.
@@ -52,7 +58,7 @@ export function videoKeys(): TestId[] {
 }
 
 /** Synchronous, local-device check only — used for the step-1 caption before
- *  the async cloud check resolves. See getVideoUrl for the real 3-tier lookup. */
+ *  the async cloud check resolves. See getVideoUrl for the real 4-tier lookup. */
 export function hasVideo(test: TestId): boolean {
   return videoKeys().includes(test);
 }
@@ -75,22 +81,30 @@ export async function deleteVideo(test: TestId): Promise<void> {
   setLocalKey(test, false);
 }
 
+export type VideoSource =
+  | { type: 'youtube'; id: string; embedUrl: string }
+  | { type: 'file'; url: string };
+
 /**
- * Resolve a clip's URL: cloud first, then this device's local copy, then
- * null (caller shows the animated demo instead).
+ * Resolve a clip's source: YouTube link first, then the cloud file, then
+ * this device's local copy, then null (caller shows the animated demo
+ * instead).
  *
- * The cloud check is a HEAD request with a short timeout so a slow or
- * unreachable network cannot stall the tutorial step — it just falls through
- * to the next tier at the same speed a missing video always resolved at.
+ * Each cloud check has a short timeout so a slow or unreachable network
+ * cannot stall the tutorial step — it just falls through to the next tier at
+ * the same speed a missing video always resolved at.
  */
-export async function getVideoUrl(test: TestId): Promise<string | null> {
+export async function getVideoUrl(test: TestId): Promise<VideoSource | null> {
+  const ytId = await cloudYouTubeIdIfExists(test);
+  if (ytId) return { type: 'youtube', id: ytId, embedUrl: youTubeEmbedUrl(ytId) };
+
   const cloudUrl = await cloudVideoUrlIfExists(test);
-  if (cloudUrl) return cloudUrl;
+  if (cloudUrl) return { type: 'file', url: cloudUrl };
 
   if (hasVideo(test)) {
     try {
       const blob = await tx<Blob | undefined>('readonly', (s) => s.get(test) as IDBRequest<Blob | undefined>);
-      if (blob) return URL.createObjectURL(blob);
+      if (blob) return { type: 'file', url: URL.createObjectURL(blob) };
     } catch {
       /* fall through to null */
     }
@@ -114,6 +128,97 @@ async function cloudVideoUrlIfExists(test: TestId): Promise<string | null> {
     return null; // offline, DNS failure, CORS, timeout — all treated the same
   } finally {
     clearTimeout(timer);
+  }
+}
+
+// ------------------------------------------------------------- YouTube tier
+
+const YT_ID_RE = /^[\w-]{11}$/;
+
+/** Object key for the tiny text file holding a test's YouTube video ID. */
+function ytObjectPath(test: TestId): string {
+  return `${test}.yt`;
+}
+
+export function youTubeEmbedUrl(id: string): string {
+  return `https://www.youtube-nocookie.com/embed/${id}?playsinline=1&rel=0`;
+}
+
+/** Accepts a bare 11-char video ID or a youtu.be/youtube.com URL (watch, embed, or shorts). */
+export function extractYouTubeId(input: string): string | null {
+  const trimmed = input.trim();
+  if (YT_ID_RE.test(trimmed)) return trimmed;
+
+  try {
+    // Admins commonly paste a link without a scheme (copied from an address
+    // bar, not a share button) — treat a bare host the same as an https:// one.
+    const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    if (url.hostname.endsWith('youtu.be')) {
+      const id = url.pathname.slice(1);
+      return YT_ID_RE.test(id) ? id : null;
+    }
+    if (url.hostname.endsWith('youtube.com')) {
+      const embedMatch = url.pathname.match(/^\/(?:embed|shorts)\/([\w-]{11})/);
+      if (embedMatch) return embedMatch[1];
+      const v = url.searchParams.get('v');
+      if (v && YT_ID_RE.test(v)) return v;
+    }
+  } catch {
+    /* not a URL — not a valid link either */
+  }
+  return null;
+}
+
+async function cloudYouTubeIdIfExists(test: TestId): Promise<string | null> {
+  if (!isSupabaseConfigured()) return null;
+  const url = publicVideoUrl(ytObjectPath(test));
+  if (!url) return null;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CLOUD_CHECK_TIMEOUT_MS);
+  try {
+    // GET, not HEAD — the payload IS the video ID, and it's a few bytes.
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) return null;
+    const text = (await res.text()).trim();
+    return YT_ID_RE.test(text) ? text : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Save (or replace) the YouTube link for a test. Accepts an ID or a full URL. */
+export async function saveYouTubeLink(test: TestId, idOrUrl: string): Promise<CloudUploadResult> {
+  if (!isSupabaseConfigured()) {
+    return { ok: false, reason: 'ยังไม่ได้ตั้งค่า Supabase (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)' };
+  }
+  const id = extractYouTubeId(idOrUrl);
+  if (!id) return { ok: false, reason: 'ลิงก์ YouTube ไม่ถูกต้อง' };
+
+  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${ytObjectPath(test)}`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'text/plain', 'x-upsert': 'true' },
+      body: id,
+    });
+    if (res.ok) return { ok: true };
+    return { ok: false, reason: `${res.status} ${await res.text()}`.trim() };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : 'บันทึกลิงก์ไม่สำเร็จ (เครือข่าย)' };
+  }
+}
+
+export async function deleteYouTubeLink(test: TestId): Promise<CloudUploadResult> {
+  if (!isSupabaseConfigured()) return { ok: false, reason: 'ยังไม่ได้ตั้งค่า Supabase' };
+  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${ytObjectPath(test)}`;
+  try {
+    const res = await fetch(url, { method: 'DELETE', headers: authHeaders() });
+    return res.ok ? { ok: true } : { ok: false, reason: String(res.status) };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : 'ลบไม่สำเร็จ (เครือข่าย)' };
   }
 }
 
@@ -196,21 +301,29 @@ export async function compressVideoIfNeeded(
 
         // Size-budget the encode so the output actually lands under
         // MAX_UPLOAD_SIZE regardless of source duration, instead of always
-        // encoding at a fixed 2.0 Mbps (which only fits short clips — a long
-        // source video would sail past the limit and fail the exact same
-        // upload check a second time).
-        const AUDIO_BITRATE = 96_000;
-        const CONTAINER_OVERHEAD = 0.9; // leave headroom below the hard cap
+        // encoding at a fixed rate that either wastes quality on short clips
+        // (tutorial clips are meant to be 5-15s, see the upload-failure copy
+        // below) or overflows the limit on long ones. Ceiling is generous —
+        // 8 Mbps — because a 15s clip at 8 Mbps is only ~15MB, well inside
+        // the 50MB budget, so short clips upload at near-source quality.
+        const AUDIO_BITRATE = 128_000; // explicit, not left to the browser default
+        // 0.8, not 0.9: real tutorial clips run ~1-2 min with a lot of motion
+        // (finger tapping, spiral demos), and a VBR encoder overshoots its
+        // target bitrate in bursts on high-motion content — this margin is
+        // what keeps those bursts from tipping a ~45MB target over 50MB.
+        const CONTAINER_OVERHEAD = 0.8;
         const bitBudget = MAX_UPLOAD_SIZE * 8 * CONTAINER_OVERHEAD;
         const idealVideoBitrate = Math.floor(bitBudget / duration) - AUDIO_BITRATE;
-        const targetBitrate = Math.max(250_000, Math.min(2_000_000, idealVideoBitrate));
+        const targetBitrate = Math.max(250_000, Math.min(8_000_000, idealVideoBitrate));
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
         // Drop resolution further when the size budget forces a low bitrate,
-        // otherwise a long clip would be encoded at 720p with too few bits
-        // per pixel to be watchable.
-        const maxDim = targetBitrate < 600_000 ? 640 : targetBitrate < 1_200_000 ? 854 : 1280;
+        // otherwise a long clip would be encoded with too few bits per pixel
+        // to be watchable; raise it to 1080p when the budget comfortably
+        // supports it (short high-bitrate clips) for a crisper picture.
+        const maxDim =
+          targetBitrate < 600_000 ? 640 : targetBitrate < 1_200_000 ? 854 : targetBitrate < 4_000_000 ? 1280 : 1920;
         if (Math.max(targetWidth, targetHeight) > maxDim) {
           if (targetWidth > targetHeight) {
             targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
@@ -234,7 +347,7 @@ export async function compressVideoIfNeeded(
           return;
         }
 
-        const canvasStream = canvas.captureStream(25);
+        const canvasStream = canvas.captureStream(30);
         
         // Extract audio track from video element if available
         let audioTrack: MediaStreamTrack | null = null;
@@ -252,13 +365,19 @@ export async function compressVideoIfNeeded(
 
         const combinedStream = new MediaStream(tracks);
 
+        // VP9 first: same bitrate encodes noticeably sharper than VP8, and
+        // it's what Chrome/Edge/Firefox all support via captureStream.
         const mimeType = [
+          'video/webm;codecs=vp9,opus',
           'video/webm;codecs=vp8,opus',
           'video/webm',
           'video/mp4',
         ].find((t) => MediaRecorder.isTypeSupported(t)) || '';
 
-        const recorderOptions: MediaRecorderOptions = { videoBitsPerSecond: targetBitrate };
+        const recorderOptions: MediaRecorderOptions = {
+          videoBitsPerSecond: targetBitrate,
+          audioBitsPerSecond: AUDIO_BITRATE,
+        };
         if (mimeType) recorderOptions.mimeType = mimeType;
 
         const mediaRecorder = new MediaRecorder(combinedStream, recorderOptions);
@@ -415,11 +534,18 @@ export async function deleteVideoFromCloud(test: TestId): Promise<CloudUploadRes
   }
 }
 
-/** HEAD-check every test's cloud clip in parallel, for the admin list view. */
-export async function cloudVideoStatus(): Promise<Record<TestId, boolean>> {
+export type CloudVideoStatus = { kind: 'youtube'; id: string } | { kind: 'file' } | { kind: 'none' };
+
+/** Check every test's cloud clip (YouTube link first, then file) in parallel, for the admin list view. */
+export async function cloudVideoStatus(): Promise<Record<TestId, CloudVideoStatus>> {
   const tests: TestId[] = ['spiral', 'tapping', 'tremor', 'facial', 'voice'];
   const entries = await Promise.all(
-    tests.map(async (t) => [t, Boolean(await cloudVideoUrlIfExists(t))] as const)
+    tests.map(async (t) => {
+      const ytId = await cloudYouTubeIdIfExists(t);
+      if (ytId) return [t, { kind: 'youtube', id: ytId } as CloudVideoStatus] as const;
+      const fileUrl = await cloudVideoUrlIfExists(t);
+      return [t, { kind: fileUrl ? 'file' : 'none' } as CloudVideoStatus] as const;
+    })
   );
-  return Object.fromEntries(entries) as Record<TestId, boolean>;
+  return Object.fromEntries(entries) as Record<TestId, CloudVideoStatus>;
 }

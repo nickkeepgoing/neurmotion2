@@ -9,8 +9,11 @@ import {
   cloudVideoStatus,
   deleteVideo,
   deleteVideoFromCloud,
+  deleteYouTubeLink,
   saveVideo,
+  saveYouTubeLink,
   uploadVideoToCloud,
+  type CloudVideoStatus,
   type UploadProgressInfo,
 } from '../lib/videos';
 
@@ -22,7 +25,7 @@ const TESTS: { id: TestId; icon: React.ReactNode }[] = [
   { id: 'voice', icon: <VoiceIcon /> },
 ];
 
-type CloudState = 'checking' | 'yes' | 'no';
+type CloudState = 'checking' | CloudVideoStatus;
 
 function Row({
   id,
@@ -39,6 +42,8 @@ function Row({
   const [busy, setBusy] = useState(false);
   const [progressInfo, setProgressInfo] = useState<UploadProgressInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ytInput, setYtInput] = useState('');
+  const [ytBusy, setYtBusy] = useState(false);
 
   // Uploading writes to BOTH tiers from one action: the cloud copy is what
   // every judge's phone sees; the local copy is this device's own offline
@@ -68,7 +73,8 @@ function Row({
     setBusy(true);
     setError(null);
     try {
-      const cloudResult = await deleteVideoFromCloud(id);
+      const cloudResult =
+        cloud !== 'checking' && cloud.kind === 'youtube' ? await deleteYouTubeLink(id) : await deleteVideoFromCloud(id);
       if (!cloudResult.ok) setError(cloudResult.reason);
       await deleteVideo(id);
       onChange();
@@ -77,7 +83,22 @@ function Row({
     }
   };
 
-  const hasCloud = cloud === 'yes';
+  const onSaveYt = async () => {
+    if (!ytInput.trim()) return;
+    setYtBusy(true);
+    setError(null);
+    try {
+      const result = await saveYouTubeLink(id, ytInput);
+      if (!result.ok) setError(result.reason);
+      else setYtInput('');
+      onChange();
+    } finally {
+      setYtBusy(false);
+    }
+  };
+
+  const kind = cloud === 'checking' ? null : cloud.kind;
+  const hasCloud = kind === 'youtube' || kind === 'file';
   const isCompressing = progressInfo?.stage === 'compressing';
 
   return (
@@ -95,7 +116,7 @@ function Row({
           ) : (
             <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${hasCloud ? 'text-risk-low-text' : 'text-muted'}`}>
               <span className={`w-2 h-2 rounded-full flex-none ${hasCloud ? 'bg-risk-low' : 'bg-line'}`} />
-              {hasCloud ? S.admin.hasCloudVideo : S.admin.noVideo}
+              {kind === 'youtube' ? S.admin.hasCloudVideoYouTube : kind === 'file' ? S.admin.hasCloudVideo : S.admin.noVideo}
             </span>
           )}
         </div>
@@ -114,7 +135,7 @@ function Row({
             disabled={busy}
             className="h-11 px-4 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50"
           >
-            {busy ? '…' : hasCloud ? S.admin.replace : S.admin.upload}
+            {busy ? '…' : kind === 'file' ? S.admin.replace : S.admin.upload}
           </button>
           <input ref={inputRef} type="file" accept="video/*" onChange={onFile} className="hidden" />
         </div>
@@ -135,6 +156,30 @@ function Row({
         </div>
       )}
 
+      {kind !== 'youtube' && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-bold text-muted-2">{S.admin.ytLabel}</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="url"
+              inputMode="url"
+              value={ytInput}
+              onChange={(e) => setYtInput(e.target.value)}
+              placeholder={S.admin.ytPlaceholder}
+              disabled={ytBusy}
+              className="flex-1 min-w-0 h-11 px-3 rounded-[12px] border-2 border-field bg-white text-sm font-semibold text-ink disabled:opacity-50"
+            />
+            <button
+              onClick={onSaveYt}
+              disabled={ytBusy || !ytInput.trim()}
+              className="h-11 px-3.5 rounded-[12px] bg-secondary text-white text-sm font-extrabold cursor-pointer border-0 disabled:opacity-50 flex-none"
+            >
+              {ytBusy ? S.admin.ytSaving : S.admin.ytSave}
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
         <p className="text-sm font-semibold text-risk-high-text bg-risk-high-bg rounded-[10px] px-3 py-2 m-0 leading-relaxed">
           {S.admin.cloudError}: {error}
@@ -147,10 +192,14 @@ function Row({
 /**
  * Hidden admin screen to attach tutorial clips per test.
  *
- * Uploads go to Supabase Storage (public bucket `tutorials`) so one upload —
- * from this device, once — is visible on every device that opens the site,
- * including a judge's own phone from the QR link. A local copy is kept on
- * this device too, purely as an offline fallback; see lib/videos.ts.
+ * Two ways to attach a clip, both visible on every device that opens the
+ * site (including a judge's own phone from the QR link) once saved here:
+ *   - Paste a YouTube (Unlisted) link — no size limit, no re-encode, full
+ *     source quality via YouTube's own player.
+ *   - Upload a file — goes to Supabase Storage (public bucket `tutorials`);
+ *     large files are compressed client-side to fit the 50MB limit.
+ * A local copy of an uploaded file is also kept on this device as an offline
+ * fallback; see lib/videos.ts for the full priority order.
  */
 export default function Admin() {
   const [cloud, setCloud] = useState<Record<TestId, CloudState>>({
@@ -166,7 +215,7 @@ export default function Admin() {
     });
     cloudVideoStatus().then((status) => {
       const next = {} as Record<TestId, CloudState>;
-      (Object.keys(status) as TestId[]).forEach((k) => (next[k] = status[k] ? 'yes' : 'no'));
+      (Object.keys(status) as TestId[]).forEach((k) => (next[k] = status[k]));
       setCloud(next);
     });
   };
