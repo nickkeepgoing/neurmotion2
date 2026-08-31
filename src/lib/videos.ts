@@ -130,7 +130,10 @@ const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
 
 /**
  * Compress a video file client-side if file exceeds 50 MB.
- * Retains FULL video duration, HD 720p resolution, and original audio voiceover.
+ * Retains full video duration and original audio voiceover; bitrate and
+ * resolution (up to 720p) are chosen from the size budget and duration so
+ * the output reliably lands under MAX_UPLOAD_SIZE rather than a fixed rate
+ * that only works for short clips.
  */
 export async function compressVideoIfNeeded(
   file: File,
@@ -191,12 +194,23 @@ export async function compressVideoIfNeeded(
           resolve(file);
         }, dynamicTimeoutMs);
 
-        // HD quality 720p (max dimension 1280px) at ~2.0 Mbps for crystal clear video
-        const targetBitrate = 2_000_000;
+        // Size-budget the encode so the output actually lands under
+        // MAX_UPLOAD_SIZE regardless of source duration, instead of always
+        // encoding at a fixed 2.0 Mbps (which only fits short clips — a long
+        // source video would sail past the limit and fail the exact same
+        // upload check a second time).
+        const AUDIO_BITRATE = 96_000;
+        const CONTAINER_OVERHEAD = 0.9; // leave headroom below the hard cap
+        const bitBudget = MAX_UPLOAD_SIZE * 8 * CONTAINER_OVERHEAD;
+        const idealVideoBitrate = Math.floor(bitBudget / duration) - AUDIO_BITRATE;
+        const targetBitrate = Math.max(250_000, Math.min(2_000_000, idealVideoBitrate));
 
         let targetWidth = origWidth;
         let targetHeight = origHeight;
-        const maxDim = 1280;
+        // Drop resolution further when the size budget forces a low bitrate,
+        // otherwise a long clip would be encoded at 720p with too few bits
+        // per pixel to be watchable.
+        const maxDim = targetBitrate < 600_000 ? 640 : targetBitrate < 1_200_000 ? 854 : 1280;
         if (Math.max(targetWidth, targetHeight) > maxDim) {
           if (targetWidth > targetHeight) {
             targetHeight = Math.round((targetHeight * maxDim) / targetWidth);

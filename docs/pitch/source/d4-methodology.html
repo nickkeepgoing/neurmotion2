@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>หลักการทำงานเชิงเทคนิค — NeuroMotion AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* d4-only additions — layered on top of the shared style.css tokens, does not touch d1–d3 */
+.cover{position:relative}
+.cover-hero{display:flex;align-items:center;gap:36px}
+.cover-text{flex:1;min-width:0}
+.cover-spiral{flex:none;width:150px;text-align:center}
+.cover-spiral svg{width:150px;height:140px}
+.cover-spiral .cap{font-size:8pt;color:var(--muted);margin-top:6px;font-weight:700;line-height:1.5}
+.cover-spiral .cap b{color:var(--primary)}
+
+.h1row{display:flex;align-items:flex-start;gap:12px;margin-bottom:0}
+.h1row h1{margin:0}
+.icon-badge{flex:none;width:32px;height:32px;border-radius:9px;background:var(--soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--primary);margin-top:3px}
+.icon-badge svg{width:19px;height:19px}
+
+figure.diagram{margin:13px 0 16px;padding:13px 15px 9px;border:1px solid var(--line);border-radius:11px;background:#fff;break-inside:avoid}
+figure.diagram svg{width:100%;height:auto;display:block;color:var(--ink)}
+figure.diagram figcaption{font-size:8.5pt;color:var(--muted);margin-top:8px;line-height:1.6;padding-top:8px;border-top:1px solid var(--line)}
+.diagram-row{display:flex;gap:13px}
+.diagram-row>div{flex:1}
+.diagram-title{font-family:'Nunito',sans-serif;font-size:8.3pt;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;text-align:center}
+
+.kpi .bar{height:4px;border-radius:99px;background:var(--soft);margin:6px 0;overflow:hidden}
+.kpi .bar i{display:block;height:100%;background:var(--primary);border-radius:99px}
+</style>
+</head>
+<body>
+
+<section class="cover page">
+  <div class="cover-hero">
+    <div class="cover-text">
+      <div class="kicker">HIT AWARD 2026 · M19 NEURO MOTION AI</div>
+      <h1>หลักการทำงานเชิงเทคนิค</h1>
+      <div class="sub">ที่มา สมการ และวิธีวัดของทุกแบบทดสอบ — อ่านตรงจากซอร์สโค้ดจริง<br>ภาคผนวกสำหรับตอบคำถามเชิงลึกจากกรรมการ</div>
+      <div class="box">
+        <div class="row"><b>ปรับปรุง</b><span>28 สิงหาคม 2569</span></div>
+        <div class="row"><b>คู่กับเอกสาร</b><span>3. เตรียมความรู้สำหรับ Pitch (สรุปสั้นอยู่ในหัวข้อ 2 ของเอกสารนั้น)</span></div>
+        <div class="row"><b>แหล่งข้อมูล</b><span>src/lib/spiral.ts, tapping.ts, tremor.ts, facial.ts, voice.ts, fft.ts, scoring.ts, thresholds.ts</span></div>
+        <div class="row"><b>วิธีใช้</b><span>ไม่ต้องท่องขึ้นเวที — ใช้เปิดตอบตอนกรรมการ (โดยเฉพาะสายวิศวกรรม) ถามลึก</span></div>
+      </div>
+    </div>
+    <div class="cover-spiral">
+      <svg viewBox="0 0 150 140" role="img" aria-label="เส้นเกลียว Archimedean สามรอบ ซึ่งเป็นเส้นแม่แบบของแบบทดสอบที่ 1 และเป็นสมการตั้งต้นของเอกสารนี้">
+        <polyline points="75.0,75.0 75.4,75.0 75.8,75.2 76.1,75.4 76.4,75.8 76.7,76.2 76.8,76.6 76.9,77.1 76.9,77.7 76.7,78.2 76.5,78.8 76.1,79.3 75.6,79.8 75.1,80.3 74.4,80.7 73.6,81.0 72.8,81.1 71.9,81.2 70.9,81.1 70.0,80.9 69.0,80.5 68.0,80.0 67.1,79.3 66.3,78.5 65.6,77.5 64.9,76.4 64.4,75.2 64.1,73.9 63.9,72.5 63.9,71.1 64.0,69.6 64.4,68.1 65.0,66.6 65.8,65.2 66.8,63.8 68.0,62.6 69.4,61.4 70.9,60.5 72.6,59.7 74.5,59.1 76.4,58.8 78.4,58.7 80.5,58.8 82.6,59.2 84.6,59.9 86.6,60.8 88.5,62.0 90.3,63.5 91.9,65.2 93.4,67.2 94.6,69.3 95.5,71.6 96.2,74.1 96.5,76.7 96.6,79.3 96.3,82.0 95.7,84.7 94.7,87.3 93.4,89.8 91.8,92.2 89.9,94.4 87.6,96.4 85.2,98.1 82.4,99.6 79.5,100.7 76.4,101.4 73.2,101.8 70.0,101.8 66.7,101.4 63.4,100.6 60.2,99.4 57.1,97.7 54.2,95.7 51.6,93.3 49.2,90.6 47.2,87.6 45.5,84.3 44.2,80.8 43.3,77.1 42.9,73.2 42.9,69.3 43.4,65.4 44.4,61.5 45.9,57.8 47.9,54.1 50.3,50.8 53.1,47.7 56.3,44.9 59.9,42.5 63.7,40.5 67.9,39.0 72.2,38.0 76.7,37.6 81.2,37.6 85.7,38.2 90.2,39.4 94.6,41.1 98.7,43.4 102.6,46.2 106.2,49.4 109.4,53.1 112.1,57.2 114.4,61.7 116.1,66.4 117.2,71.3 117.8,76.4 117.7,81.6 117.0,86.8 115.6,91.9 113.7,96.8 111.1,101.5 108.0,105.9 104.3,110.0 100.1,113.6 95.5,116.7 90.5,119.2 85.2,121.2 79.6,122.4 73.9,123.1 68.1,123.0 62.3,122.2 56.6,120.7 51.0,118.6 45.8,115.7 40.8,112.2 36.3,108.1 32.3,103.5 28.8,98.3 26.0,92.8 23.8,86.9 22.3,80.7 21.6,74.4 21.7,67.9 22.5,61.5 24.1,55.2 26.5,49.0 29.6,43.2 33.5,37.7 38.0,32.7 43.1,28.2 48.7,24.4 54.8,21.2 61.3,18.8 68.1,17.1 75.1,16.3 82.1,16.4 89.2,17.2 96.2,19.0 102.9,21.5 109.3,24.9 115.4,29.1 120.9,34.0 125.8,39.5 130.0,45.7 133.5,52.3 136.2,59.4 138.0,66.8 139.0,74.4" fill="none" stroke="var(--primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="cap">แบบทดสอบที่ 1 · <b>r = b·θ</b><br>เส้นแม่แบบที่หัวข้อ 2 ใช้อ้างอิง</div>
+    </div>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="21" r="2"/><circle cx="14" cy="7" r="2"/><circle cx="21" cy="21" r="2"/><path d="M9 20 L12.3 9M15.7 9 L19 20"/></svg></div>
+    <h1>1. ภาพรวม: จากการสัมผัสหน้าจอ ไปจนถึงระดับความเสี่ยง</h1>
+  </div>
+  <div class="h1sub">ทุกแบบทดสอบไหลผ่านไปป์ไลน์เดียวกัน 4 ขั้น ต่างกันเฉพาะขั้นที่ 1–2 ตามชนิดของสัญญาณ</div>
+
+  <div class="tl">
+    <div class="d">
+      <div class="dh">ขั้น 1 — เก็บสัญญาณดิบ</div>
+      <div class="dm">ต่างกันตามแบบทดสอบ</div>
+      <ul><li>พิกัดนิ้ว {x, y, t} จากการลาก / เวลากดนิ้ว จาก performance.now() /
+      ความเร่งจาก accelerometer / จุดสังเกตใบหน้าจาก MediaPipe / คลื่นเสียงจาก Web Audio API</li></ul>
+    </div>
+    <div class="d">
+      <div class="dh">ขั้น 2 — คำนวณค่าชี้วัด (metrics)</div>
+      <div class="dm">คณิตศาสตร์ล้วน ไม่มี AI ที่ "เรียนรู้" ในขั้นนี้</div>
+      <ul><li>แปลงสัญญาณดิบเป็นตัวเลขที่มีความหมายทางคลินิก เช่น ความคลาดเคลื่อนจากเส้น
+      พลังงานย่านการสั่น ความแปรปรวนของจังหวะ — รายละเอียดในหัวข้อ 2–7</li></ul>
+    </div>
+    <div class="d">
+      <div class="dh">ขั้น 3 — แปลงเป็นคะแนนย่อย 0–100</div>
+      <div class="dm">เทียบกับช่วงอ้างอิงใน thresholds.ts</div>
+      <ul><li>normalize แต่ละค่าชี้วัดเทียบกับช่วง "ปกติ–ผิดปกติชัดเจน" แล้วถ่วงน้ำหนักรวมเป็นคะแนนของแบบทดสอบนั้น
+      พร้อมปรับเกณฑ์ตามอายุ — รายละเอียดในหัวข้อ 8</li></ul>
+    </div>
+    <div class="d">
+      <div class="dh">ขั้น 4 — รวมเป็นระดับความเสี่ยง</div>
+      <div class="dm">พร้อมกฎ Red Flag กันค่าเฉลี่ยกลบสัญญาณอันตราย</div>
+      <ul><li>ถ่วงน้ำหนักคะแนนของทุกแบบทดสอบที่ทำจริง แปลงเป็น ต่ำ/กลาง/สูง แล้วตรวจว่ามีสัญญาณเดี่ยวที่รุนแรงพอจะยกระดับหรือไม่</li></ul>
+    </div>
+  </div>
+
+  <div class="note info">
+    <div class="t">หลักการเดียวที่คุมทั้งระบบ</div>
+    <p>คะแนนทุกตัวเป็นการคำนวณเชิงสัญญาณ (signal processing) ตามกฎที่กำหนดไว้ชัดเจนในโค้ด
+    <b>ไม่มีส่วนใดเป็นโมเดล machine learning ที่เรียนรู้จากข้อมูล</b> — ส่วนเดียวที่เป็น AI จริงคือ MediaPipe
+    ซึ่งใช้ตรวจจับจุดสังเกตบนใบหน้าเท่านั้น ข้อดีคือทุกตัวเลขตรวจสอบย้อนกลับได้ทุกขั้นตอน</p>
+  </div>
+
+  <table>
+    <tr><th style="width:22%">แบบทดสอบ</th><th class="c" style="width:12%">น้ำหนักรวม</th><th>สัญญาณดิบที่เก็บ</th></tr>
+    <tr><td><b>1. วาดก้นหอย</b></td><td class="c"><b class="num">30%</b></td><td>พิกัดนิ้ว {x, y, t} ทุกครั้งที่มีการเคลื่อนไหว (pointer move)</td></tr>
+    <tr><td><b>2. เคาะนิ้ว</b></td><td class="c"><b class="num">25%</b></td><td>เวลาที่กดแต่ละครั้ง (performance.now, มิลลิวินาที)</td></tr>
+    <tr><td><b>3. ความนิ่งของมือ</b></td><td class="c"><b class="num">20%</b></td><td>ขนาดความเร่ง (accelerometer magnitude) จาก DeviceMotionEvent</td></tr>
+    <tr><td><b>4. หันศีรษะ</b></td><td class="c"><b class="num">15%</b></td><td>จุดสังเกตใบหน้า 468 จุดต่อเฟรมจาก MediaPipe Face Landmarker</td></tr>
+    <tr><td><b>5. เสียงพูด</b></td><td class="c"><b class="num">10%</b></td><td>คลื่นเสียง PCM จาก Web Audio API (5 วินาที)</td></tr>
+  </table>
+  <p style="font-size:9.3pt;color:var(--muted)">น้ำหนักทั้งห้าคือค่าที่ทีมกำหนดเอง (ประมาณเชิงวิศวกรรม)
+  ตามความจำเพาะทางคลินิกของแต่ละแบบทดสอบที่ประเมินได้ — ดูสูตรการรวมคะแนนเต็มในหัวข้อ 8</p>
+</section>
+
+<!-- 2 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.0,14.0 14.3,14.1 14.5,14.4 14.5,14.8 14.2,15.2 13.7,15.5 13.1,15.6 12.3,15.4 11.7,14.8 11.2,14.0 11.1,12.9 11.4,11.8 12.2,10.8 13.3,10.0 14.8,9.7 16.4,10.0 17.8,10.9 19.0,12.3 19.6,14.1 19.5,16.1 18.7,18.1 17.1,19.7 15.0,20.7 12.6,21.0 10.1,20.3 8.0,18.8 6.4,16.6 5.6,13.8 5.9,10.8 7.3,8.0 9.6,5.8 12.6,4.5 16.0,4.3"/></svg></div>
+    <h1>2. วาดก้นหอย (Spiral Tracing) — น้ำหนัก 30%</h1>
+  </div>
+  <div class="h1sub">ที่มา: การวิเคราะห์เกลียวดิจิทัล (digital spiral analysis) เป็นวิธีมาตรฐานในงานวิจัยที่ประเมินอาการสั่นและการควบคุมกล้ามเนื้อมัดเล็ก</div>
+
+  <h2>2.1 เส้นแม่แบบ</h2>
+  <p>สร้างจากสมการ <b>Archimedean spiral: r = b·θ</b> โดย</p>
+  <div class="mono">x = cx + b·θ·cos(θ)
+y = cy + b·θ·sin(θ)
+θ ∈ [0, 6π]   (3 รอบเต็ม, SPIRAL_TURNS = 3)
+b = รัศมีสูงสุดที่ต้องการ / θ_max   (ปรับเกลียวให้พอดีพื้นที่วาดบนจอ)</div>
+
+  <h2>2.2 การแปลงเป็นพิกัดเชิงขั้ว และแก้ปัญหาการวน (unwrap)</h2>
+  <p>สำหรับจุดผู้ใช้แต่ละจุด: r = √((x−cx)² + (y−cy)²) และหามุมด้วย atan2(y−cy, x−cx)
+  ปัญหาคือ atan2 ให้ค่าในช่วง (−π, π] เท่านั้น เมื่อผู้ใช้วนหลายรอบ มุมจะ "กระโดด" กลับทุก 2π
+  ระบบจึงต้อง <b>unwrap</b> โดยสะสม offset ±2π ทุกครั้งที่ตรวจพบการกระโดดมากกว่า π ระหว่างจุดติดกัน
+  เพื่อให้ θ เพิ่มขึ้นต่อเนื่องตลอดทั้งการวน</p>
+
+  <h2>2.3 การจัดตำแหน่งมุมเริ่มต้น (θ₀ registration)</h2>
+  <p><b>จุดที่ทีมแก้บั๊กจริงระหว่างพัฒนา:</b> ผู้ใช้เริ่มลากจากจุดศูนย์กลาง ซึ่งมุมรอบจุดศูนย์กลางไม่มีความหมายทางคณิตศาสตร์
+  (สัญญาณรบกวนสูงมาก) มุมเริ่มต้นที่ผิดจะกลายเป็นความคลาดเคลื่อนคงที่ b·θ₀ ตลอดทั้งเส้น —
+  เกลียวที่ผู้ใช้วาดสมบูรณ์แบบอาจได้คะแนนแย่มากถ้าไม่แก้จุดนี้</p>
+  <div class="note warn">
+    <div class="t">วิธีแก้</div>
+    <p>ค้นหาค่าชดเชยมุม k ที่ทำให้ RMS ของ (r − b·(θ−k)) ต่ำที่สุด โดยกวาดค่า k ตั้งแต่ −π ถึง π
+    ทีละ 0.02 เรเดียน และไม่ใช้จุดที่รัศมี < 15px (ใกล้ศูนย์กลางเกินไปจนมุมไม่น่าเชื่อถือ)</p>
+  </div>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 300 140" role="img" aria-label="กราฟเปรียบเทียบเส้นแม่แบบ r=bθ ที่เป็นเส้นตรงในพิกัด θ-r กับเส้นที่ผู้ใช้ลากจริงซึ่งแกว่งรอบเส้นแม่แบบ ช่องว่างระหว่างสองเส้นคือค่าความคลาดเคลื่อนที่นำมาคำนวณ RMS">
+      <line x1="20" y1="120" x2="280" y2="120" stroke="currentColor" stroke-opacity=".25"/>
+      <line x1="20" y1="10" x2="20" y2="120" stroke="currentColor" stroke-opacity=".25"/>
+      <text x="150" y="134" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity=".55">มุม θ (จำนวนรอบ) →</text>
+      <text x="12" y="65" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity=".55" transform="rotate(-90 12 65)">รัศมี r</text>
+      <polygon points="20.0,120.0 26.5,117.5 33.0,115.0 39.5,112.5 46.0,110.0 52.5,107.5 59.0,105.0 65.5,102.5 72.0,100.0 78.5,97.5 85.0,95.0 91.5,92.5 98.0,90.0 104.5,87.5 111.0,85.0 117.5,82.5 124.0,80.0 130.5,77.5 137.0,75.0 143.5,72.5 150.0,70.0 156.5,67.5 163.0,65.0 169.5,62.5 176.0,60.0 182.5,57.5 189.0,55.0 195.5,52.5 202.0,50.0 208.5,47.5 215.0,45.0 221.5,42.5 228.0,40.0 234.5,37.5 241.0,35.0 247.5,32.5 254.0,30.0 260.5,27.5 267.0,25.0 273.5,22.5 280.0,20.0 280.0,23.6 273.5,25.8 267.0,24.5 260.5,24.7 254.0,29.2 247.5,36.1 241.0,40.4 234.5,40.5 228.0,39.6 221.5,42.0 215.0,48.0 208.5,53.6 202.0,55.5 195.5,54.8 189.0,55.4 182.5,59.8 176.0,65.7 169.5,69.2 163.0,69.4 156.5,69.1 150.0,71.7 143.5,76.9 137.0,81.5 130.5,83.0 124.0,82.7 117.5,83.8 111.0,87.7 104.5,92.5 98.0,95.4 91.5,95.7 85.0,96.0 78.5,98.5 72.0,102.8 65.5,106.5 59.0,107.9 52.5,108.1 46.0,109.5 39.5,112.9 33.0,116.8 26.5,119.2 20.0,120.0" fill="var(--primary)" fill-opacity=".14" stroke="none"/>
+      <polyline points="20.0,120.0 26.5,117.5 33.0,115.0 39.5,112.5 46.0,110.0 52.5,107.5 59.0,105.0 65.5,102.5 72.0,100.0 78.5,97.5 85.0,95.0 91.5,92.5 98.0,90.0 104.5,87.5 111.0,85.0 117.5,82.5 124.0,80.0 130.5,77.5 137.0,75.0 143.5,72.5 150.0,70.0 156.5,67.5 163.0,65.0 169.5,62.5 176.0,60.0 182.5,57.5 189.0,55.0 195.5,52.5 202.0,50.0 208.5,47.5 215.0,45.0 221.5,42.5 228.0,40.0 234.5,37.5 241.0,35.0 247.5,32.5 254.0,30.0 260.5,27.5 267.0,25.0 273.5,22.5 280.0,20.0" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="1 4" stroke-linecap="round"/>
+      <polyline points="20.0,120.0 26.5,119.2 33.0,116.8 39.5,112.9 46.0,109.5 52.5,108.1 59.0,107.9 65.5,106.5 72.0,102.8 78.5,98.5 85.0,96.0 91.5,95.7 98.0,95.4 104.5,92.5 111.0,87.7 117.5,83.8 124.0,82.7 130.5,83.0 137.0,81.5 143.5,76.9 150.0,71.7 156.5,69.1 163.0,69.4 169.5,69.2 176.0,65.7 182.5,59.8 189.0,55.4 195.5,54.8 202.0,55.5 208.5,53.6 215.0,48.0 221.5,42.0 228.0,39.6 234.5,40.5 241.0,40.4 247.5,36.1 254.0,29.2 260.5,24.7 267.0,24.5 273.5,25.8 280.0,23.6" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="255" y="14" text-anchor="end" font-size="10.5" font-weight="700" fill="var(--primary)">เส้นที่ลากจริง</text>
+      <text x="255" y="128" text-anchor="end" font-size="10.5" fill="currentColor" fill-opacity=".6">เส้นแม่แบบ b·θ</text>
+    </svg>
+    <figcaption><b>สิ่งที่ภาพนี้แสดง:</b> เมื่อคลี่พิกัดเชิงขั้วออกมาเทียบ θ กับ r เส้นแม่แบบจะกลายเป็นเส้นตรง (r=b·θ)
+    ส่วนเส้นที่ผู้ใช้ลากจริงแกว่งรอบเส้นตรงนั้น — พื้นที่แรเงาคือค่าความคลาดเคลื่อนที่นำไปคำนวณ RMS (ก) และการแกว่งถี่ๆ
+    ที่ซ้อนอยู่บนแนวเบี่ยงช้าๆ คือสัญญาณที่ถูกแยกออกมาหาพลังงานย่าน 4–7Hz (ข)</figcaption>
+  </figure>
+
+  <h2>2.4 ค่าชี้วัดทั้ง 4 ตัว</h2>
+
+  <h3>ก. ความคลาดเคลื่อนจากเส้น (rmsErrorNorm) — น้ำหนัก 35%</h3>
+  <div class="mono">error_i = r_i − b·θ_i          (เฉพาะจุดที่ r_i ≥ 15px)
+RMS = √( Σ error_i² / n )
+rmsErrorNorm = RMS / (2πb)      ← หารด้วยระยะห่างระหว่างรอบ (turn gap)</div>
+  <p>เกณฑ์: ปกติ ≤ <b>0.05</b> (5% ของระยะห่างรอบ) · ผิดปกติชัดเจน ≥ <b>0.30</b></p>
+
+  <h3>ข. พลังงานย่านการสั่น 4–7 Hz (tremorBandPower) — น้ำหนัก 30%</h3>
+  <p>นำสัญญาณ "ความคลาดเคลื่อนตามเวลา" (error vs t) มา resample ให้สม่ำเสมอที่ 60Hz แล้วทำ FFT
+  หาสัดส่วนพลังงานในย่าน 4–7Hz (วิธีเต็มอยู่ในหัวข้อ 7) เกณฑ์: ปกติ ≤ <b>0.03</b> · ผิดปกติชัดเจน ≥ <b>0.20</b></p>
+
+  <h3>ค. ความสม่ำเสมอของระยะห่างระหว่างรอบ (spacingCV) — น้ำหนัก 15%</h3>
+  <p>ทุกครั้งที่ θ ข้ามจุดครบรอบ (2π, 4π, 6π, …) บันทึกรัศมี ณ จุดนั้น แล้วหาผลต่างระหว่างรอบติดกัน (gap)
+  <b>spacingCV = SD(gaps) / |mean(gaps)|</b> เกณฑ์: ปกติ ≤ <b>0.08</b> · ผิดปกติชัดเจน ≥ <b>0.35</b></p>
+
+  <h3>ง. ความราบรื่นของการลาก (speedCV) — น้ำหนัก 20%</h3>
+  <p>ความเร็ว v_i = ระยะทาง(p_i, p_{i−1}) / Δt แล้ว <b>speedCV = SD(v) / |mean(v)|</b>
+  เกณฑ์: ปกติ ≤ <b>0.35</b> · ผิดปกติชัดเจน ≥ <b>1.0</b> (การกระตุกหยุดๆ ระหว่างลาก / ลายมือช้าลง)</p>
+
+  <div class="note ok">
+    <div class="t">การตัดสิทธิ์ (ไม่ใช่การให้คะแนน)</div>
+    <p>coverage = θ_สุดท้าย / θ_max ต้องครอบคลุม ≥ <b>70%</b> ของเส้น มิฉะนั้นระบบจะไม่บันทึกผลเลย
+    เพราะการลากไม่ครบทำให้ค่าชี้วัดทุกตัวไม่มีความหมาย</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8" cy="22" r="2.2" fill="currentColor" stroke="none"/><circle cx="20" cy="22" r="2.2" fill="currentColor" stroke="none"/><path d="M8 17V8M13 17V11M18 17V5M23 17V13"/></svg></div>
+    <h1>3. เคาะนิ้ว (Finger Tapping) — น้ำหนัก 25%</h1>
+  </div>
+  <div class="h1sub">ที่มา: โครงสร้างอ้างอิง MDS-UPDRS ข้อ 3.4 — แบบประเมินการเคาะนิ้วที่แพทย์ใช้จริง</div>
+
+  <h2>3.1 สามช่วงการทดสอบ (ช่วงละ 10 วินาที)</h2>
+  <table>
+    <tr><th style="width:20%">ช่วง</th><th style="width:34%">ทำอะไร</th><th>วัดอะไรได้เฉพาะช่วงนี้</th></tr>
+    <tr><td><b>1. ตามจังหวะ (paced)</b></td><td>เคาะตามเมโทรนอมทุก 500ms (2 ครั้ง/วิ) ด้วยมือถนัด</td><td>ความแม่นยำของจังหวะ</td></tr>
+    <tr><td><b>2. เร็วสุด มือถนัด</b></td><td>เคาะเร็วที่สุด ไม่มีจังหวะนำ</td><td>ความเร็วสูงสุด และการช้าลงระหว่างช่วง</td></tr>
+    <tr><td><b>3. เร็วสุด มืออีกข้าง</b></td><td>เหมือนข้อ 2 แต่สลับมือ</td><td>ความไม่สมมาตรระหว่างสองมือ</td></tr>
+  </table>
+  <p><b>เหตุผลที่ต้องแยก 3 ช่วง:</b> ถ้าเคาะตามเมโทรนอมอย่างเดียว ทุกคนจะถูกจังหวะภายนอกบังคับให้เคาะที่อัตราเดียวกัน
+  ทำให้วัด "ความเร็วสูงสุด" และ "การช้าลงตามเวลา (bradykinesia decrement)" ไม่ได้เลย</p>
+
+  <h2>3.2 ค่าชี้วัด</h2>
+
+  <h3>ก. อัตราการเคาะ (rate) — น้ำหนัก 25% · จากมือที่ช้ากว่าในช่วงเร็วสุด</h3>
+  <p><b>rate = จำนวนครั้งที่เคาะ / 10 วินาที</b> เกณฑ์: ปกติ ≥ <b>5</b> ครั้ง/วิ (การเคาะนิ้วชี้สูงสุดผู้ใหญ่สุขภาพดี ≈ 4–6Hz)
+  · ผิดปกติชัดเจน ≤ <b>2</b> ครั้ง/วิ</p>
+
+  <h3>ข. ความแปรปรวนของจังหวะ (itiSD) — น้ำหนัก 20% · จากช่วงตามจังหวะ</h3>
+  <div class="mono">ITI_i = t_i − t_(i−1)              (ช่วงเวลาระหว่างการเคาะติดกัน, ms)
+itiSD = ส่วนเบี่ยงเบนมาตรฐานของ ITI ทั้งหมด</div>
+  <p>เกณฑ์: ปกติ ≤ <b>30ms</b> · ผิดปกติชัดเจน ≥ <b>130ms</b></p>
+
+  <h3>ค. ความชันของการช้าลง / decrement (decrementSlope) — น้ำหนัก 20% · ค่าแย่กว่าจากสองมือในช่วงเร็วสุด</h3>
+  <p>คำนวณด้วย least-squares regression ของ ITI เทียบกับลำดับการเคาะ i:
+  <b>slope = Σ(i−ī)(ITI_i−ITĪ) / Σ(i−ī)²</b>
+  ความชันเป็นบวก = ช่วงห่างยาวขึ้นเรื่อยๆ = เคาะช้าลงตามเวลา (สัญญาณ bradykinesia)
+  เกณฑ์: ปกติ ≈ <b>0</b> ms/ครั้ง · ผิดปกติชัดเจน ≥ <b>5</b> ms/ครั้ง</p>
+
+  <h3>ง. ค่าคลาดเคลื่อนของจังหวะ (timingError) — น้ำหนัก 15% · จากช่วงตามจังหวะ</h3>
+  <div class="mono">phase_i = (t_i − t_0) mod 500
+error_i = min(phase_i, 500 − phase_i)
+timingError = mean(error_i)</div>
+  <p>เกณฑ์: ปกติ ≤ <b>50ms</b> · ผิดปกติชัดเจน ≥ <b>180ms</b></p>
+
+  <h3>จ. ความไม่สมมาตรสองมือ (asymmetry) — น้ำหนัก 20% · จากอัตราสูงสุดสองมือ</h3>
+  <p><b>asymmetry = (อัตราเร็วสุด − อัตราช้าสุด) / อัตราเร็วสุด</b> → 0 = สองมือเท่ากัน, ใกล้ 1 = มือข้างหนึ่งแทบเคาะไม่ได้
+  เกณฑ์: ปกติ ≤ <b>0.10</b> · ผิดปกติชัดเจน ≥ <b>0.45</b></p>
+  <div class="note info">
+    <div class="t">ทำไม asymmetry ถึงสำคัญ</div>
+    <p>พาร์กินสันระยะแรกมักไม่สมมาตรสูง (เริ่มข้างเดียวก่อน) ค่านี้จึงเป็นหนึ่งในสัญญาณที่แยกโรคได้ดีที่สุด
+    และเป็นเหตุผลที่ต้องทดสอบทั้งสองมือ ไม่ใช่มือเดียว</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c2-8 3-8 4.5 0s2.5 8 4.5 0 2.5-8 4.5 0 2.5 8 4.5 0 2.5-8 4-1"/></svg></div>
+    <h1>4. ความนิ่งของมือ (Rest &amp; Postural Tremor) — น้ำหนัก 20%</h1>
+  </div>
+  <div class="h1sub">ที่มา: การสั่นขณะพักคือสัญญาณที่จำเพาะที่สุดของโรคพาร์กินสัน — ปรากฏเมื่อแขนอยู่นิ่งและมีที่รองรับ</div>
+
+  <h2>4.1 สองท่าทดสอบ (คนละ 8 วินาที สุ่มตัวอย่างที่ 60Hz)</h2>
+  <table>
+    <tr><th style="width:22%">ท่า</th><th style="width:38%">ทำอย่างไร</th><th>วัดอะไร</th></tr>
+    <tr><td><b>ยกค้าง (postural)</b></td><td>ถือโทรศัพท์ยกขึ้น แขนลอย ไม่มีที่พัก</td><td>การสั่นขณะออกแรง/คงท่า (action tremor)</td></tr>
+    <tr><td><b>พัก (rest)</b></td><td>วางแขนพักบนโต๊ะ/ตัก ถือโทรศัพท์นิ่งๆ</td><td>การสั่นขณะพัก (rest tremor) — จำเพาะสุด</td></tr>
+  </table>
+
+  <h2>4.2 ค่าชี้วัด (คำนวณแยกทั้งสองท่าด้วยวิธีเดียวกัน)</h2>
+  <p>resample ขนาดความเร่ง (acceleration magnitude) ให้สม่ำเสมอที่ 60Hz จากนั้น:</p>
+  <div class="mono">RMS (แอมพลิจูด) = √( Σ(x_i − mean)² / n )      หน่วย m/s²
+bandPower = สัดส่วนพลังงานในย่าน 4–7Hz              (วิธีเต็มในหัวข้อ 7)</div>
+
+  <table>
+    <tr><th style="width:30%">ค่าชี้วัด</th><th class="c" style="width:12%">น้ำหนัก</th><th class="c" style="width:16%">ปกติ</th><th class="c" style="width:16%">ผิดปกติชัดเจน</th></tr>
+    <tr><td><b>restBandPower</b> (สำคัญสุด)</td><td class="c">40%</td><td class="c">≤ 0.04</td><td class="c">≥ 0.26</td></tr>
+    <tr><td>restRms</td><td class="c">20%</td><td class="c">≤ 0.02</td><td class="c">≥ 0.30</td></tr>
+    <tr><td>posturalBandPower</td><td class="c">25%</td><td class="c">≤ 0.05</td><td class="c">≥ 0.30</td></tr>
+    <tr><td>posturalRms</td><td class="c">15%</td><td class="c">≤ 0.03</td><td class="c">≥ 0.35</td></tr>
+  </table>
+
+  <h2>4.3 ทำไมต้องวัด 2 ท่า — หัวใจของการแยกกลุ่มอาการ</h2>
+  <table>
+    <tr><th style="width:34%">กลุ่มอาการ</th><th style="width:22%">สั่นขณะพัก</th><th>สั่นขณะยกค้าง</th></tr>
+    <tr><td><b>Parkinsonian Syndrome</b></td><td class="t-high">สั่นชัด</td><td>ลดลง</td></tr>
+    <tr><td><b>Essential Tremor</b></td><td>น้อย</td><td class="t-high">สั่นชัด</td></tr>
+    <tr><td><b>Enhanced Physiological Tremor</b></td><td>น้อย</td><td class="t-med">สั่นละเอียด ความแรงต่ำ</td></tr>
+  </table>
+  <div class="note warn">
+    <div class="t">ต้องพูดตรงถ้าถูกถามลึก</div>
+    <p>ตารางนี้คือ "รูปแบบชี้แนะ" ตามหลักการทางคลินิกทั่วไป <b>ไม่ใช่การวินิจฉัยแยกโรคที่ผ่านการรับรองในแอปนี้</b> —
+    แอปใช้มันเพื่อ "ชี้ทิศทาง" ให้ผู้ใช้คุยกับแพทย์ ไม่ใช่ฟันธง</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 20A11 11 0 0 1 17 6"/><circle cx="17" cy="6" r="1.8" fill="currentColor" stroke="none"/><circle cx="6" cy="20" r="1.8" fill="currentColor" stroke="none"/><path d="M20 9l2-2.3-2.3-1"/></svg></div>
+    <h1>5. หันศีรษะ (Head-Turn Range of Motion) — น้ำหนัก 15%</h1>
+  </div>
+  <div class="h1sub">ที่มา: หลักการตรวจเส้นประสาทสมอง/การเคลื่อนไหวคอ — พิสัยลดลง ไม่สมมาตร หรือเคลื่อนไหวกระตุก สัมพันธ์กับโรคทางระบบประสาท</div>
+
+  <div class="note info">
+    <div class="t">หมายเหตุความซื่อสัตย์ — ต่างจากเอกสารออกแบบเดิม</div>
+    <p>เดิมออกแบบไว้เป็นแบบทดสอบ "ยิ้ม" (smile) ด้วย MediaPipe Face Landmarker แต่เวอร์ชันที่ implement จริง
+    เปลี่ยนเป็น<b>การหันศีรษะซ้าย–ขวา</b> เพราะวัดได้เสถียรกว่าบนกล้องมือถือที่คุณภาพหลากหลาย
+    ถ้ากรรมการถามอิงจากเอกสารเก่า ให้ตอบตรงตามที่ทำจริงในแอป</p>
+  </div>
+
+  <h2>5.1 การประมาณมุมหัน (yaw) จากจุดสังเกตบนใบหน้า</h2>
+  <p>ใช้ MediaPipe Face Landmarker ตรวจจุด 468 จุดบนใบหน้าแบบเรียลไทม์ แล้วประมาณมุมจากตำแหน่งปลายจมูก</p>
+  <div class="mono">mid  = (จุดขอบแก้มซ้าย.x + จุดขอบแก้มขวา.x) / 2
+half = |จุดขอบแก้มขวา.x − จุดขอบแก้มซ้าย.x| / 2
+proxy = clamp( (จมูก.x − mid) / half , −1.4, 1.4 )
+yaw (องศา) = −proxy × 60        (proxy=1 ↔ ประมาณ 60°)</div>
+  <p style="font-size:9.3pt;color:var(--muted)">เครื่องหมายลบเพื่อชดเชยว่าเฟรมกล้องดิบไม่ได้ถูกกลับด้าน (mirror)
+  เหมือนภาพพรีวิวที่ผู้ใช้เห็น</p>
+
+  <h2>5.2 ค่าชี้วัด (จากเฟรม {t, yaw} ที่เก็บระหว่างการหัน ~6 วินาที)</h2>
+  <div class="mono">centre   = median(yaw ทั้งหมด)                    ← ลดผลจากกล้องที่ไม่อยู่กึ่งกลางพอดี
+rightDeg = max(0, max(yaw) − centre)
+leftDeg  = max(0, centre − min(yaw))
+turnRangeDeg  = leftDeg + rightDeg
+turnAsymmetry = |leftDeg − rightDeg| / max(leftDeg, rightDeg, 1)</div>
+
+  <table>
+    <tr><th style="width:30%">ค่าชี้วัด</th><th class="c" style="width:12%">น้ำหนัก</th><th class="c" style="width:16%">ปกติ</th><th class="c" style="width:16%">ผิดปกติชัดเจน</th></tr>
+    <tr><td><b>turnRangeDeg</b> (กลับด้าน: มาก=ดี)</td><td class="c">45%</td><td class="c">≥ 110°</td><td class="c">≤ 45°</td></tr>
+    <tr><td>turnAsymmetry</td><td class="c">35%</td><td class="c">≤ 0.10</td><td class="c">≥ 0.50</td></tr>
+    <tr><td>turnSmoothness</td><td class="c">20%</td><td class="c">≤ 0.5</td><td class="c">≥ 1.5</td></tr>
+  </table>
+  <p><b>turnSmoothness</b> = CV ของความเร็วเชิงมุม |Δyaw|/Δt ระหว่างเฟรมติดกัน (ตัดเฟรมที่นิ่งเกินไปออก)
+  — วัดความกระตุก/แข็งเกร็งของการเคลื่อนไหว</p>
+</section>
+
+<!-- 6 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 15v-2M10 18v-8M15 21v-14M20 18v-8M23 15v-2"/></svg></div>
+    <h1>6. เสียงพูด (Sustained Vowel "อาา") — น้ำหนัก 10%</h1>
+  </div>
+  <div class="h1sub">ที่มา: jitter/shimmer จากเสียงสระเปล่งค้าง เป็นวิธีมาตรฐานในงานวิจัยเสียงพาร์กินสัน (อ้างอิงแนวทาง Little et al. 2009)</div>
+
+  <h2>6.1 การเก็บสัญญาณ</h2>
+  <p>บันทึกเสียง 5 วินาทีผ่าน Web Audio API — ปิด <b>autoGainControl</b> โดยตั้งใจ เพื่อไม่ให้ระบบขยายเสียงเบา
+  ขึ้นอัตโนมัติจนวัดแอมพลิจูดจริงไม่ได้ วิเคราะห์ในเครื่องแล้ว<b>ลบไฟล์ทันที</b> ไม่มีการอัปโหลด</p>
+
+  <h2>6.2 การตัดเฟรมและตรวจจับความถี่มูลฐาน (F0)</h2>
+  <p>ตัดสัญญาณเป็นเฟรมยาว 40ms ทุก 20ms (ซ้อนทับ 50%) แต่ละเฟรมหา F0 ด้วย normalized autocorrelation
+  ในช่วง 70–400Hz:</p>
+  <div class="mono">corr(lag) = Σ x[i]·x[i+lag] / energy         โดย energy = Σ x[i]²
+bestLag   = lag ที่ให้ corr สูงสุด ในช่วง [sampleRate/400, sampleRate/70]
+F0        = sampleRate / bestLag    ถ้า corr สูงสุด > 0.5   มิฉะนั้น = 0 (ไม่มีเสียง)</div>
+  <p>เฟรมที่ใช้ได้ (voiced) ต้องมี F0 &gt; 0 และ RMS แอมพลิจูด &gt; 0.005 —
+  <b>voicedRatio</b> = สัดส่วนเฟรมที่ใช้ได้ ต้อง ≥ <b>25%</b> จึงจะให้คะแนน มิฉะนั้นถือว่าทดสอบไม่สำเร็จ</p>
+
+  <h2>6.3 ค่าชี้วัด</h2>
+  <h3>ก. Jitter (%) — น้ำหนัก 40% — ความแปรปรวนคาบเสียงจากรอบสู่รอบ</h3>
+  <div class="mono">T_i = 1 / F0_i                                  (คาบเสียงแต่ละเฟรม)
+jitter% = mean(|T_i − T_(i−1)|) / mean(T) × 100</div>
+  <p>เกณฑ์: ปกติ ≤ <b>0.6%</b> · ผิดปกติชัดเจน ≥ <b>2.5%</b></p>
+
+  <h3>ข. Shimmer (%) — น้ำหนัก 35% — ความแปรปรวนความดังจากรอบสู่รอบ</h3>
+  <div class="mono">shimmer% = mean(|A_i − A_(i−1)|) / mean(A) × 100     A = RMS แอมพลิจูดของแต่ละเฟรม</div>
+  <p>เกณฑ์: ปกติ ≤ <b>3.5%</b> · ผิดปกติชัดเจน ≥ <b>11%</b></p>
+
+  <h3>ค. ความไม่คงที่ของระดับเสียง (f0CV) — น้ำหนัก 25%</h3>
+  <p><b>f0CV = SD(F0 ทุกเฟรมที่ใช้ได้) / mean(F0)</b> เกณฑ์: ปกติ ≤ <b>0.015</b> · ผิดปกติชัดเจน ≥ <b>0.09</b></p>
+
+  <div class="note warn">
+    <div class="t">สิ่งที่ตั้งใจ "ไม่วัด"</div>
+    <p>ความดังเสียง (loudness) ไม่ถูกนำมาคิดคะแนน เพราะไมโครโฟนแต่ละรุ่นโทรศัพท์มี gain ต่างกัน
+    และเบราว์เซอร์ไม่เปิดค่าความดังเป็นหน่วย SPL จริง มิเตอร์ในแอปเป็นเพียง "ตัวช่วยบอกว่าดังพอหรือยัง"
+    การวัด hypophonia (เสียงเบาผิดปกติ) ที่แม่นยำต้องใช้อุปกรณ์ที่สอบเทียบแล้ว</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 22h20M6 22V15m4 7V9m4 13V13m4 9V6m4 16v-8"/></svg></div>
+    <h1>7. กลไกร่วม: วิธีจับ "การสั่น" จากสัญญาณดิบ</h1>
+  </div>
+  <div class="h1sub">ใช้ร่วมกันในแบบทดสอบวาดก้นหอย (สัญญาณ error ตามเวลา) และความนิ่งของมือ (สัญญาณความเร่ง)</div>
+
+  <h2>7.1 ทำไมต้องแปลงเป็นโดเมนความถี่</h2>
+  <p>การสั่นแบบพาร์กินสัน (4–7Hz) มักถูกซ่อนอยู่ใต้การเคลื่อนไหวช้าที่มีพลังงานสูงกว่ามาก เช่น การเลื่อนมือช้าๆ
+  หรือความโค้งของเกลียวเอง การดูค่าเฉลี่ยหรือค่าเบี่ยงเบนมาตรฐานในโดเมนเวลาแยกสองสิ่งนี้ไม่ออก
+  ต้องแปลงเป็นสเปกตรัมความถี่ (FFT) แล้วดูว่าพลังงานอยู่ในย่านเป้าหมายมากแค่ไหน</p>
+
+  <h2>7.2 ขั้นตอนเต็มของ bandPowerRatio()</h2>
+  <ol>
+    <li><b>เติมศูนย์ (zero-pad)</b> ให้ความยาวสัญญาณเป็นเลขยกกำลังสองที่ใกล้ที่สุด — ข้อกำหนดของ FFT แบบ radix-2 Cooley–Tukey ที่ใช้</li>
+    <li><b>ลบแนวโน้มเชิงเส้น (linear detrend):</b> หาความชัน m ด้วย least-squares แล้วลบ mean + m×(i−mid)
+    ออกจากทุกจุด — ตัดการเคลื่อนไหวช้าๆ เช่น แขนตกหรือมือลอย มิฉะนั้นพลังงานจากมันจะ "รั่ว" ทับย่าน 4–7Hz</li>
+    <li><b>คูณด้วยหน้าต่าง Hann:</b> w[i] = 0.5×(1 − cos(2πi/(N−1))) — ลดการรั่วไหลของสเปกตรัมจากขอบสัญญาณ
+    (รูปสี่เหลี่ยม/rectangular รั่วที่ −13dB ส่วน Hann รั่วที่ −31dB และลาดชันกว่ามาก)</li>
+    <li><b>ทำ FFT</b> ได้ค่าจริง/จินตภาพของแต่ละความถี่ย่อย (bin) k ซึ่งสอดคล้องความถี่ f = k × (sampleHz/N)</li>
+    <li><b>กำลังของแต่ละ bin:</b> P[k] = re[k]² + im[k]²</li>
+    <li><b>ผลรวมทั้งหมด (denominator)</b> คิดเฉพาะย่าน 0.5Hz ถึง min(15Hz, Nyquist) — ตัด DC และความถี่สูงมากออก
+    ไม่ให้เศษ drift ที่เหลือมาครองสัดส่วนทั้งหมด</li>
+    <li><b>bandPowerRatio = (ผลรวมกำลังใน 4–7Hz) / (ผลรวมกำลังทั้งหมดใน 0.5–15Hz)</b></li>
+  </ol>
+
+  <figure class="diagram">
+    <div class="diagram-row">
+      <div>
+        <div class="diagram-title">ก่อน — สเปกตรัมดิบ</div>
+        <svg viewBox="0 0 280 128" role="img" aria-label="สเปกตรัมความถี่ดิบก่อนลบแนวโน้ม แท่งพลังงานที่ความถี่ต่ำใกล้ 0Hz สูงท่วมทุกแท่งอื่น กลบย่านการสั่น 4 ถึง 7 เฮิรตซ์จนแทบมองไม่เห็น">
+          <line x1="10" y1="108" x2="270" y2="108" stroke="currentColor" stroke-opacity=".25"/>
+          <rect x="98" y="14" width="52" height="94" fill="var(--primary)" fill-opacity=".10"/>
+          <text x="124" y="12" text-anchor="middle" font-size="9" fill="var(--primary)" fill-opacity=".8">4–7Hz</text>
+          <g fill="currentColor" fill-opacity=".55">
+            <rect x="14" y="8" width="9" height="100"/><rect x="27" y="18.6" width="9" height="89.4"/><rect x="40" y="60.4" width="9" height="47.6"/><rect x="53" y="93.8" width="9" height="14.2"/><rect x="66" y="103.9" width="9" height="4.1"/><rect x="79" y="104.2" width="9" height="3.8"/><rect x="92" y="104.2" width="9" height="3.8"/><rect x="105" y="106.4" width="9" height="1.6"/><rect x="118" y="107.3" width="9" height="0.7"/><rect x="131" y="107.6" width="9" height="0.4"/><rect x="144" y="107.4" width="9" height="0.6"/><rect x="157" y="107.9" width="9" height="0.1"/><rect x="170" y="108" width="9" height="0"/><rect x="183" y="107.9" width="9" height="0.1"/><rect x="196" y="107.5" width="9" height="0.5"/><rect x="209" y="107.8" width="9" height="0.2"/><rect x="222" y="107.7" width="9" height="0.3"/><rect x="235" y="107.9" width="9" height="0.1"/><rect x="248" y="107.6" width="9" height="0.4"/><rect x="261" y="107.5" width="9" height="0.5"/>
+          </g>
+          <text x="140" y="122" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55">0 Hz → 15 Hz</text>
+        </svg>
+      </div>
+      <div>
+        <div class="diagram-title">หลัง — detrend + Hann window</div>
+        <svg viewBox="0 0 280 128" role="img" aria-label="สเปกตรัมความถี่หลังลบแนวโน้มและใส่หน้าต่างแฮนน์ แท่งพลังงานความถี่ต่ำถูกลดลงมาก ทำให้แท่งในย่าน 4 ถึง 7 เฮิรตซ์กลายเป็นแท่งที่สูงเด่นชัดที่สุดในกราฟ">
+          <line x1="10" y1="108" x2="270" y2="108" stroke="currentColor" stroke-opacity=".25"/>
+          <rect x="98" y="14" width="52" height="94" fill="var(--primary)" fill-opacity=".14"/>
+          <text x="124" y="12" text-anchor="middle" font-size="9" fill="var(--primary)" fill-opacity=".9">4–7Hz</text>
+          <g fill="currentColor" fill-opacity=".4">
+            <rect x="14" y="99" width="9" height="9"/><rect x="27" y="99.6" width="9" height="8.4"/><rect x="40" y="103" width="9" height="5"/><rect x="53" y="101.8" width="9" height="6.2"/>
+          </g>
+          <g fill="var(--primary)">
+            <rect x="66" y="70.7" width="9" height="37.3"/><rect x="79" y="8.7" width="9" height="99.3"/><rect x="92" y="8" width="9" height="100"/><rect x="105" y="70.9" width="9" height="37.1"/>
+          </g>
+          <g fill="currentColor" fill-opacity=".4">
+            <rect x="118" y="101.9" width="9" height="6.1"/><rect x="131" y="107" width="9" height="1"/><rect x="144" y="106.5" width="9" height="1.5"/><rect x="157" y="106.4" width="9" height="1.6"/><rect x="170" y="107.9" width="9" height="0.1"/><rect x="183" y="106.5" width="9" height="1.5"/><rect x="196" y="106.6" width="9" height="1.4"/><rect x="209" y="107.9" width="9" height="0.1"/><rect x="222" y="106.9" width="9" height="1.1"/><rect x="235" y="106.6" width="9" height="1.4"/><rect x="248" y="108" width="9" height="0"/><rect x="261" y="106.6" width="9" height="1.4"/>
+          </g>
+          <text x="140" y="122" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55">0 Hz → 15 Hz</text>
+        </svg>
+      </div>
+    </div>
+    <figcaption><b>สิ่งที่ภาพนี้แสดง:</b> สเปกตรัมดิบ (ซ้าย) ถูกครองโดยพลังงานความถี่ต่ำมาก (drift/postural sway) จนแท่งในย่าน 4–7Hz
+    แทบเป็นศูนย์เทียบกับแท่งอื่น หลัง <b>linear detrend + Hann window</b> (ขวา) พลังงานความถี่ต่ำถูกตัดออกไปมาก
+    ทำให้แท่งย่าน 4–7Hz (สีส้ม) กลายเป็นสัดส่วนที่เด่นชัดของพลังงานทั้งหมด — นี่คือขั้นตอนที่ทำให้ bandPowerRatio วัดการสั่นได้แม่นแม้ถูกกลบด้วยการเคลื่อนไหวใหญ่กว่า</figcaption>
+  </figure>
+
+  <h2>7.3 ผลการตรวจสอบว่าวิธีนี้ทำงานจริง</h2>
+  <div class="kpi">
+    <div><div class="v">1.000</div><div class="bar"><i style="width:100%"></i></div><div class="l">สั่น 5Hz ล้วน<br>จับได้เต็ม</div></div>
+    <div><div class="v">0.000</div><div class="bar"><i style="width:0%"></i></div><div class="l">สั่น 12Hz นอกย่าน<br>ไม่ถูกนับ</div></div>
+    <div><div class="v">0.0000</div><div class="bar"><i style="width:0%"></i></div><div class="l">แขนตกช้าๆ<br>ไม่ถูกนับเป็นสั่น</div></div>
+    <div><div class="v">0.784</div><div class="bar"><i style="width:78.4%"></i></div><div class="l">สั่น 5Hz ใต้ drift<br>ใหญ่กว่า 125 เท่า</div></div>
+  </div>
+  <div class="note ok">
+    <div class="t">ตัวเลขที่ทรงพลังที่สุด</div>
+    <p><b>0.784</b> พิสูจน์ว่าค่าที่เป็น "สัดส่วนพลังงาน" (ไม่ใช่ค่าสัมบูรณ์) จับการสั่นเล็กๆ ที่ถูกกลบด้วยการเคลื่อนไหว
+    ใหญ่กว่ามันถึง 125 เท่าได้จริง — รันซ้ำได้ทันทีด้วย <span class="mono" style="display:inline;padding:1px 5px">npm run validate</span></p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="page">
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="2"/><rect x="16" y="4" width="8" height="8" rx="2"/><rect x="10" y="17" width="8" height="8" rx="2"/><path d="M8 12v2a2 2 0 0 0 2 2h1M20 12v2a2 2 0 0 1-2 2h-1"/></svg></div>
+    <h1>8. จากค่าชี้วัดดิบ → คะแนน 0–100 → ระดับความเสี่ยง</h1>
+  </div>
+  <div class="h1sub">ทุกสูตรอยู่ใน scoring.ts และ thresholds.ts</div>
+
+  <h2>8.1 normalize เป็นคะแนนย่อยของ metric หนึ่งตัว</h2>
+  <div class="mono">score(x) = clamp( (x − good) / (bad − good) × 100 , 0, 100 )</div>
+  <p>good = ค่าที่ถือว่า "ปกติ" (คะแนน 0) · bad = ค่าที่ถือว่า "ผิดปกติชัดเจน" (คะแนน 100)
+  สูตรนี้รองรับทั้งกรณี bad&gt;good (ยิ่งค่าสูงยิ่งน่ากังวล เช่น jitter) และกรณีกลับด้าน bad&lt;good
+  (เช่น พิสัยการหันศีรษะ ยิ่งค่าน้อยยิ่งน่ากังวล) โดยอัตโนมัติ</p>
+
+  <h2>8.2 ปรับเกณฑ์ตามอายุ (age-adjusted range)</h2>
+  <p>ความสามารถในการเคลื่อนไหวลดลงตามวัยตามธรรมชาติ ถ้าใช้เกณฑ์เดียวกับคนหนุ่มสาว ระบบจะแจ้งเตือน
+  ผู้สูงอายุเกินจริง สำหรับผู้ใช้อายุมากกว่า 60 ปี (AGE_REF):</p>
+  <div class="mono">decades = min( (age − 60) / 10 , 3 )      ← เพดานที่ 3 ทศวรรษ (ราว 90 ปี) กันเกณฑ์หย่อนไร้ความหมาย
+good_ปรับแล้ว = good + (bad − good) × shift × decades</div>
+  <p>shift เป็นสัดส่วนเฉพาะของแต่ละ metric เช่น อัตราเคาะสูงสุด shift=0.12 หมายถึงเกณฑ์ปกติหย่อนลงราว 12%
+  ของช่วง good→bad ต่อทศวรรษ สอดคล้องกับงานวิจัยว่าอัตราการเคาะสูงสุดในผู้ใหญ่สุขภาพดีลดลงราว 5–8% ต่อทศวรรษ</p>
+
+  <h2>8.3 รวมเป็นคะแนนของแบบทดสอบหนึ่งอย่าง (sub-score)</h2>
+  <div class="mono">subScore = Σ( score(metric_i) × weight_i ) / Σ weight_i</div>
+  <p>เฉลี่ยถ่วงน้ำหนักเฉพาะ metric ที่มีข้อมูลจริงในครั้งนั้น</p>
+
+  <h2>8.4 รวมเป็นคะแนนรวมทั้งเซสชัน</h2>
+  <div class="mono">overall = Σ( subScore_j × W_j ) / Σ W_j</div>
+  <p>เฉพาะแบบทดสอบที่ทำจริงในเซสชันนั้น — ทำ 3 จาก 5 แบบก็คำนวณได้ตามสัดส่วนที่มี ไม่ต้องรอครบ 5 แบบ</p>
+
+  <h2>8.5 แปลงเป็นระดับความเสี่ยง + กฎ Red Flag</h2>
+  <p><b>0–33 ต่ำ (เขียว) · 34–66 กลาง (เหลือง) · 67–100 สูง (แดง)</b></p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 195" role="img" aria-label="แผนภาพเส้นทางการให้คะแนน: ค่าชี้วัดดิบไหลผ่านการ normalize คูณน้ำหนักและรวมเป็นคะแนนย่อยของแบบทดสอบ จากนั้นคูณน้ำหนักแบบทดสอบและรวมเป็นคะแนนรวม แปลงเป็นระดับความเสี่ยง มีเส้นทางแยกจากคะแนนย่อยใดๆที่ตั้งแต่ 80 ขึ้นไป วิ่งเข้ามาบังคับให้ระดับความเสี่ยงไม่สามารถเป็นต่ำได้">
+      <defs>
+        <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="currentColor"/></marker>
+      </defs>
+      <g font-family="'Nunito',sans-serif" font-weight="700">
+        <rect x="10" y="30" width="118" height="48" rx="10" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+        <text x="69" y="50" text-anchor="middle" font-size="11.5">ค่าชี้วัดดิบ</text>
+        <text x="69" y="65" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55" font-weight="600">metric x</text>
+
+        <line x1="128" y1="54" x2="168" y2="54" stroke="currentColor" marker-end="url(#arr)"/>
+        <text x="148" y="46" text-anchor="middle" font-size="9" font-weight="600" fill="currentColor" fill-opacity=".65">normalize</text>
+
+        <rect x="170" y="30" width="118" height="48" rx="10" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+        <text x="229" y="50" text-anchor="middle" font-size="11.5">คะแนน 0–100</text>
+        <text x="229" y="65" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55" font-weight="600">score(x)</text>
+
+        <line x1="288" y1="54" x2="328" y2="54" stroke="currentColor" marker-end="url(#arr)"/>
+        <text x="308" y="46" text-anchor="middle" font-size="9" font-weight="600" fill="currentColor" fill-opacity=".65">Σ ×weight</text>
+
+        <rect x="330" y="30" width="118" height="48" rx="10" fill="none" stroke="var(--secondary)" stroke-width="1.6"/>
+        <text x="389" y="50" text-anchor="middle" font-size="11.5" fill="var(--secondary)">subScore</text>
+        <text x="389" y="65" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55" font-weight="600">ต่อแบบทดสอบ</text>
+
+        <line x1="448" y1="54" x2="488" y2="54" stroke="currentColor" marker-end="url(#arr)"/>
+        <text x="468" y="46" text-anchor="middle" font-size="9" font-weight="600" fill="currentColor" fill-opacity=".65">Σ ×W</text>
+
+        <rect x="490" y="30" width="140" height="48" rx="10" fill="none" stroke="currentColor" stroke-opacity=".5"/>
+        <text x="560" y="50" text-anchor="middle" font-size="11.5">overall</text>
+        <text x="560" y="65" text-anchor="middle" font-size="9.5" fill="currentColor" fill-opacity=".55" font-weight="600">คะแนนรวม</text>
+
+        <line x1="560" y1="78" x2="560" y2="112" stroke="currentColor" marker-end="url(#arr)"/>
+        <text x="574" y="98" font-size="9" font-weight="600" fill="currentColor" fill-opacity=".65">cut 33/66</text>
+
+        <rect x="480" y="114" width="150" height="46" rx="10" fill="var(--primary-soft)" stroke="var(--primary)" stroke-width="1.6"/>
+        <text x="555" y="142" text-anchor="middle" font-size="11.5" fill="var(--primary)">ระดับความเสี่ยง</text>
+
+        <rect x="330" y="118" width="118" height="46" rx="10" fill="var(--high-bg)" stroke="var(--high)" stroke-width="1.4"/>
+        <text x="389" y="138" text-anchor="middle" font-size="10.5" fill="var(--high)">subScore ≥ 80?</text>
+        <text x="389" y="152" text-anchor="middle" font-size="9" fill="var(--high)" font-weight="600">(red flag)</text>
+
+        <path d="M389 78 V96 Q389 118 389 118" fill="none" stroke="var(--high)" stroke-opacity=".7" marker-end="url(#arr)"/>
+        <path d="M448 141 H478" fill="none" stroke="var(--high)" stroke-width="1.6" marker-end="url(#arr)"/>
+        <text x="463" y="133" text-anchor="middle" font-size="8.6" fill="var(--high)" font-weight="700">ใช่ &amp; ต่ำ</text>
+        <text x="463" y="182" text-anchor="middle" font-size="9" fill="var(--high)" font-weight="700">→ บังคับเป็น "กลาง"</text>
+      </g>
+    </svg>
+    <figcaption><b>สิ่งที่ภาพนี้แสดง:</b> เส้นทางหลัก (บน) คือค่าเฉลี่ยถ่วงน้ำหนักตามปกติ — ค่าชี้วัด → normalize → subScore
+    → overall → ระดับความเสี่ยง เส้นทางแยกสีแดง (ล่าง) คือกฎ Red Flag: ถ้ามี subScore ใดก็ตาม ≥ 80 และผลลัพธ์จากเส้นทางหลักจะออกมาเป็น "ต่ำ"
+    เส้นทางนี้จะตัดเข้ามาบังคับผลให้เป็นอย่างน้อย "กลาง" เสมอ</figcaption>
+  </figure>
+
+  <div class="note crit">
+    <div class="t">ปัญหาของค่าเฉลี่ยถ่วงน้ำหนัก: มันหักลบกันเอง</div>
+    <p>ถ้ามีแบบทดสอบเดียวที่คะแนนสูงมาก (เช่น สั่นขณะพักชัดเจน) แต่อีก 4 แบบปกติ ค่าเฉลี่ยจะกลบสัญญาณอันตรายนั้น
+    จนดูเหมือน "ต่ำ" — โรคพาร์กินสันระยะแรกมักแสดงอาการเฉพาะจุด (domain-selective) และไม่สมมาตร
+    ระบบที่เฉลี่ยล้วนๆ จะจับได้ก็ต่อเมื่อโรคลุกลามจนกระทบทุกด้านแล้ว ซึ่งเลยจุดที่การคัดกรองยังมีประโยชน์</p>
+  </div>
+  <div class="note ok">
+    <div class="t">กฎ</div>
+    <p>ถ้า subScore ของแบบทดสอบใดก็ตาม ≥ <b>80</b> (RED_FLAG_SUBSCORE) และค่าเฉลี่ยรวมออกมาเป็น "ต่ำ"
+    ให้ยกระดับเป็น "กลาง" ทันที — ไม่มีทางถูกรายงานว่าต่ำอีกต่อไป</p>
+  </div>
+
+  <h2>8.6 เงื่อนไขข้อมูลขั้นต่ำ (data validity gate)</h2>
+  <table>
+    <tr><th style="width:34%">แบบทดสอบ</th><th>เงื่อนไขก่อนจะให้คะแนนได้</th></tr>
+    <tr><td>เคาะนิ้ว</td><td>อย่างน้อย 6 ครั้ง</td></tr>
+    <tr><td>ความนิ่งของมือ</td><td>เซนเซอร์ความเร่ง อย่างน้อย 20 ตัวอย่าง <b>ในแต่ละท่า</b></td></tr>
+    <tr><td>เสียงพูด</td><td>ตรวจจับเสียงจริงได้ (voiced) อย่างน้อย 25% ของเฟรม</td></tr>
+    <tr><td>หันศีรษะ</td><td>จับใบหน้าได้อย่างน้อย 30 เฟรม</td></tr>
+    <tr><td>วาดก้นหอย</td><td>ครอบคลุมเส้นเกลียวอย่างน้อย 70%</td></tr>
+  </table>
+  <p>เหตุผล: ถ้าข้อมูลไม่พอ ฟังก์ชันคำนวณ metric มักคืนค่า 0 ซึ่ง normalize แล้วกลายเป็นฝั่ง "สุขภาพดี" พอดี
+  — ทำให้ "ทดสอบไม่สำเร็จ" กับ "ผลปกติจริง" แยกไม่ออกจากมุมผู้ใช้ ระบบจึงปฏิเสธไม่บันทึกผลเลยแทน แล้วให้ทำใหม่</p>
+
+  <h2>8.7 การนับวันเสี่ยงสูงต่อเนื่อง</h2>
+  <p>นับเฉพาะวันปฏิทินติดต่อกันย้อนจากวันนี้ (หรือเมื่อวานถ้ายังไม่ทำวันนี้) ที่ผลออกมา "สูง" ทุกวัน —
+  ขาดไปแม้วันเดียวตัดสายทันที เมื่อครบ <b>5 วันติดต่อกัน</b> (RISK_STREAK_DAYS) ระบบจะแจ้งเตือนให้พบแพทย์</p>
+</section>
+
+<!-- 9 -->
+<section>
+  <div class="h1row">
+    <div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4 L25 23 H3 Z"/><path d="M14 11v6"/><circle cx="14" cy="20.2" r="1" fill="currentColor" stroke="none"/></svg></div>
+    <h1>9. ข้อจำกัดของแบบจำลองนี้ — ต้องพูดเองก่อนถูกถาม</h1>
+  </div>
+  <div class="h1sub">ความน่าเชื่อถือมาจากการบอกขอบเขต ไม่ใช่จากการอ้างว่าสมบูรณ์</div>
+
+  <div class="note crit">
+    <div class="t">ระดับความน่าเชื่อถือของค่าตัวเลขในเอกสารนี้</div>
+    <p>ค่า <b>good / bad / weight</b> ทุกตัวใน thresholds.ts เป็น "การประมาณเชิงวิศวกรรม" ที่ทีมกำหนดขึ้นเอง
+    ไม่ใช่ค่าที่ผ่านการสอบเทียบทางคลินิกกับผู้ป่วยจริง มีเพียง<b>ย่านความถี่ 4–7Hz</b> และ<b>โครงสร้าง MDS-UPDRS ข้อ 3.4</b>
+    เท่านั้นที่มีที่มาจากวรรณกรรม/มาตรฐานสากลโดยตรง</p>
+  </div>
+
+  <table>
+    <tr><th style="width:38%">ข้อจำกัด</th><th>รายละเอียด</th></tr>
+    <tr><td><b>ยังไม่มีค่า sensitivity / specificity</b></td>
+      <td>เพราะยังไม่ทดสอบกับผู้ป่วยที่ได้รับการวินิจฉัยจริง สิ่งที่ยืนยันได้คือ "ระบบวัดตรงตามที่ออกแบบ"
+      (21/21 รายการใน npm run validate) ไม่ใช่ความแม่นยำทางคลินิก</td></tr>
+    <tr><td><b>เซนเซอร์แต่ละรุ่นคุณภาพไม่เท่ากัน</b></td>
+      <td>โดยเฉพาะไมโครโฟนที่มี gain ต่างกันมาก จึงตัดความดังเสียงออกจากการให้คะแนนโดยตั้งใจ</td></tr>
+    <tr><td><b>ยังไม่ครอบคลุมอาการสำคัญบางอย่าง</b></td>
+      <td>เช่น micrographia (ลายมือเล็กลง) อยู่ในแผนพัฒนาต่อ</td></tr>
+    <tr><td><b>ไม่ใช่ machine learning</b></td>
+      <td>เป็นการคำนวณเชิงสัญญาณตามกฎที่กำหนดไว้ชัดเจน ข้อดีคือตรวจสอบย้อนกลับได้ทุกขั้นตอน
+      ข้อเสียคือยังไม่ได้ "เรียนรู้" จากเคสจริงเพื่อปรับตัวเอง</td></tr>
+  </table>
+
+  <div class="note ok" style="margin-top:18px">
+    <div class="t">ตรวจสอบย้อนกลับได้ทุกบรรทัด</div>
+    <p style="font-size:10.5pt;line-height:1.75">ทุกสมการในเอกสารนี้อยู่ในซอร์สโค้ดจริงของโปรเจกต์ ไม่ใช่คำอธิบายลอยๆ —
+    ไฟล์อ้างอิงหลัก: <b>spiral.ts · tapping.ts · tremor.ts · facial.ts · voice.ts · fft.ts · scoring.ts · thresholds.ts</b>
+    ถ้ากรรมการขอดูโค้ดจริงระหว่างซักถาม เปิดไฟล์เหล่านี้ได้ทันที</p>
+  </div>
+</section>
+
+</body>
+</html>
