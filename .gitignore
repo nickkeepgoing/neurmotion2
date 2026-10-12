@@ -10,3 +10,4 @@ output/
 
 # stray nested clone that was committed as an orphan gitlink (no .gitmodules)
 /neuromotion/
+.claude/
