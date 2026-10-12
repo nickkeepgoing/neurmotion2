@@ -1,56 +1,87 @@
-# NeuroMotion AI — Web Demo
+<p align="center">
+  <img src="public/pwa-192.png" alt="NeuroMotion AI logo" width="96" height="96">
+</p>
 
-PWA คัดกรองความเสี่ยงโรคทางระบบประสาทเบื้องต้น (โฟกัสพาร์กินสัน) ผ่านแบบทดสอบง่าย ๆ บนมือถือ:
-วาดก้นหอย · เคาะนิ้ว · ความนิ่งของมือ · สแกนใบหน้า (ยิ้ม) · เสียงพูด ("อาาา")
+<h1 align="center">NeuroMotion AI</h1>
 
-> **ข้อจำกัด:** ผลเป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัยโรค เกณฑ์คะแนนยังไม่ผ่านการตรวจสอบทางคลินิก
+A Thai-language PWA that gives a **preliminary screening** for neurological disease
+risk — focused on Parkinson's — using five short phone-based tests. Built for the
+**HIT Award 2026** pitch competition.
 
-## รันบนเครื่อง (Development)
+> ⚠️ **Not a diagnosis.** Results are a preliminary *risk indicator* only and do not
+> replace a doctor. The scoring thresholds are engineering estimates, not clinically
+> validated.
+
+---
+
+## What it does
+
+You run five quick tests on your phone. Each produces raw signal → named metrics →
+a 0–100 sub-score. The sub-scores combine into an overall risk level with a trend
+graph over time, plus a differential indicator for *which of three tremor patterns*
+the result most resembles.
+
+| Test | What it measures | Sensor |
+|------|------------------|--------|
+| 🌀 **Spiral tracing** | Tracing error, 4–7 Hz tremor-band power, line-spacing & speed variation | Touch / pointer |
+| 👆 **Finger tapping** | Rhythm, rate, bradykinesia slow-down, left/right asymmetry (MDS-UPDRS 3.4) | Touch timestamps |
+| 🤚 **Rest tremor** | 4–7 Hz tremor power, postural + rest phases | Accelerometer (`DeviceMotionEvent`) |
+| 🙂 **Head turn / face** | Yaw range, left/right symmetry | Camera + MediaPipe |
+| 🗣️ **Voice** | Jitter, shimmer, pitch variation on a sustained "ahh" | Microphone |
+
+**Privacy by design (Thai PDPA):** only the computed metric *numbers* are ever stored,
+and only on your device (`localStorage`). Camera frames and audio are processed
+in-memory and discarded — never uploaded, never saved.
+
+---
+
+## Try it
+
+Scan the pitch QR code, or open the deployed link with `?demo` appended. Demo mode
+seeds a fake profile and a week of sample data so you land on a populated dashboard
+in a few seconds — a banner marks it as demo data the whole time.
+
+## Run it locally
 
 ```bash
 npm install
-npm run dev        # เปิด http://localhost:5173 (หรือพอร์ตที่ vite เลือก)
+npm run dev        # http://localhost:5173
 ```
-
-ทดสอบบนมือถือในวง LAN เดียวกัน: `npm run dev -- --host` แล้วเปิด IP ที่แสดง
-(กล้อง/ไมค์/เซ็นเซอร์ต้องใช้ **HTTPS** — บน localhost ใช้ได้เลย แต่ผ่าน IP LAN จะถูกบล็อก
-ให้ทดสอบฟีเจอร์เหล่านั้นจากลิงก์ที่ deploy แล้วแทน)
-
-## Build
 
 ```bash
-npm run build      # ได้ไฟล์ static ที่ dist/
-npm run preview    # ลองเสิร์ฟ dist/ ในเครื่อง
+npm run build      # type-checks, then builds static files to dist/
+npm run preview    # serve the production build locally
+npm run validate   # ~21 synthetic-signal checks on the scoring math
 ```
 
-## Deploy (ลิงก์แชร์ได้ HTTPS ฟรี)
+> 📷 Camera / mic / motion need **HTTPS**. They work on `localhost` but **not** over a
+> LAN IP — test those features from a deployed link.
 
-### วิธีที่ 1 — Netlify Drop (ง่ายสุด ไม่ต้องใช้ git)
-1. `npm run build`
-2. เปิด https://app.netlify.com/drop
-3. ลากโฟลเดอร์ `dist/` ทั้งโฟลเดอร์ไปวางบนหน้านั้น
-4. ได้ลิงก์ `https://xxxx.netlify.app` ทันที — เปิดบนมือถือได้เลย
-   (ไฟล์ `public/_redirects` จัดการ SPA routing ให้แล้ว)
+## Deploy (free HTTPS)
 
-### วิธีที่ 2 — Vercel (ผูก GitHub, deploy อัตโนมัติทุก push)
-1. สร้าง repo บน GitHub แล้ว push โค้ดขึ้นไป
-2. เข้า https://vercel.com → **Add New → Project** → เลือก repo นี้
-3. Vercel ตรวจพบ Vite เอง (Build: `npm run build`, Output: `dist`) → กด **Deploy**
-4. ได้ลิงก์ `https://xxxx.vercel.app` และ deploy ใหม่อัตโนมัติทุกครั้งที่ push
-   (ไฟล์ `vercel.json` จัดการ SPA routing ให้แล้ว)
+- **Netlify Drop** — `npm run build`, then drag `dist/` onto <https://app.netlify.com/drop>. No git needed; `public/_redirects` handles routing.
+- **Vercel** — connect the GitHub repo; it auto-detects Vite. `vercel.json` handles routing. Deploys on every push.
 
-### หลัง deploy — เช็คบนมือถือจริง
-- เปิดลิงก์ → ลากก้นหอยลื่นไหม ปุ่มใหญ่พอไหม
-- แบบทดสอบความนิ่งของมือ: iOS จะขอสิทธิ์ motion ตอนแตะ "พร้อมแล้ว เริ่มเลย"
-- สแกนใบหน้า/เสียงพูด: เบราว์เซอร์จะขอสิทธิ์กล้อง/ไมค์ (ต้องเป็น HTTPS — ลิงก์ deploy ใช้ได้)
-- Add to Home Screen ได้ (PWA)
+Optional: set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`) to
+serve tutorial videos from cloud storage. Without them the app falls back to its
+built-in animated demos.
 
-## โครงสร้าง
+## Project layout
 
-- `src/lib/` — โลจิกคำนวณล้วน (spiral, tapping, tremor, facial, voice, fft, scoring)
-  ค่าคงที่ปรับจูนทั้งหมดอยู่ที่ `src/lib/thresholds.ts`
-- `src/routes/` — หน้าจอ (Splash, Login, Consent PDPA, Home, แบบทดสอบ 5 ตัว, Result)
-- `src/lib/strings.ts` — ข้อความไทยทั้งหมดรวมที่เดียว
-- `design/reference/` — ไฟล์ดีไซน์ต้นฉบับจาก Claude Design
+```
+src/lib/      Pure calculation logic (no React) — one file per test, plus
+              scoring.ts, conditions.ts, fft.ts, storage.ts.
+              All tunable thresholds live in thresholds.ts.
+src/routes/   Screens: Splash, Login, Consent (PDPA), Home, the 5 tests, Result,
+              Settings, Admin, and /clinic (synthetic clinician dashboard).
+src/lib/strings.ts   All Thai UI copy in one place.
+design/       Original Claude Design handoff.
+```
 
-ดูรายละเอียดเพิ่มใน `CLAUDE.md`
+See **`CLAUDE.md`** for the full architecture, scoring pipeline, and the rules that
+must never be violated (framing, PDPA, accessibility, threshold rationale).
+
+## Tech
+
+React 18 · TypeScript · Vite · Tailwind v4 · React Router · Recharts ·
+MediaPipe Tasks Vision · PWA (installable, offline-capable).

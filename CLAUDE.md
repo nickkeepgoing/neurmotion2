@@ -146,6 +146,14 @@ before touching visual styling on a screen it covers. Risk-level tokens are name
 rescales every `rem`-based Tailwind class app-wide, so patient screens should stay in
 `rem`-derived utilities rather than fixed `px`.
 
+An `<html>` data attribute is the established lever for anything that needs to affect
+layout from outside the page component that renders it — `data-textscale` is one
+consumer, and `DemoBanner` uses the same trick (`data-demo-banner`) to reserve space
+for its floating pill: the banner renders outside every route's own component tree, so
+no page can pad around it directly, and `index.css` pads `body` instead while the
+attribute is present. Reach for this pattern before adding a second one for the same
+kind of problem.
+
 The `/clinic` clinician view (`src/routes/Clinic.tsx`) is the **one screen exempt**
 from the 18px/56px elderly-first scale — it's for staff on a desktop, using the denser
 scale the original design handoff specifies for the clinical dashboard.
